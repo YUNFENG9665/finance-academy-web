@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投资者行为与财富管理 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Pricing</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实践案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">深度思考问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 06</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">投资者行为与财富管理</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解投资者行为偏差及财富管理的科学方法</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">行为偏差</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">管理模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">行为金融学基础</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统金融vs行为金融</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人的假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统金融:</span> 理性经济人</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为金融:</span> 有限理性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">偏好</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统金融:</span> 风险规避、效用最大化</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为金融:</span> 前景理论、损失厌恶</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信念</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统金融:</span> 贝叶斯更新</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为金融:</span> 启发式和偏差</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场效率</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统金融:</span> 有效市场</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为金融:</span> 有限套利</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统金融:</span> 反映基本面</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为金融:</span> 可能系统性偏离</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">前景理论核心要点</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">参照点依赖</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 以参照点而非最终财富评估得失</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式/表达:</span> 盈亏相对于购买价</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">损失厌恶</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 损失的痛苦>同等收益的快乐</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式/表达:</span> \(\lambda \approx 2.0-2.5\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">敏感度递减</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 边际感知递减</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式/表达:</span> 凹形收益、凸形损失</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">概率加权</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 高估小概率、低估大概率</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式/表达:</span> 彩票偏好、保险购买</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">前景理论价值函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[v(x) = \begin{cases} x^\alpha & \text{if } x \geq 0 \\ -\lambda(-x)^\beta & \text{if } x < 0 \end{cases}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\alpha, \beta \approx 0.88\)，\(\lambda \approx 2.25\)。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">主要行为偏差</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">认知偏差</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">偏差</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">投资影响</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">纠正方法</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">过度自信</td><td class="px-3 py-2 text-xs text-slate-400">高估自己的能力和信息准确性</td><td class="px-3 py-2 text-xs text-slate-400">过度交易、集中投资</td><td class="px-3 py-2 text-xs text-slate-400">记录预测、事后复盘</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">确认偏差</td><td class="px-3 py-2 text-xs text-slate-400">倾向于寻找支持己见的信息</td><td class="px-3 py-2 text-xs text-slate-400">忽视负面信息</td><td class="px-3 py-2 text-xs text-slate-400">主动寻找反对意见</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">锚定效应</td><td class="px-3 py-2 text-xs text-slate-400">过度依赖初始信息</td><td class="px-3 py-2 text-xs text-slate-400">买入价成为卖出参照</td><td class="px-3 py-2 text-xs text-slate-400">基于基本面重新评估</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">可得性偏差</td><td class="px-3 py-2 text-xs text-slate-400">易想到的事件被高估概率</td><td class="px-3 py-2 text-xs text-slate-400">高估近期/显著事件</td><td class="px-3 py-2 text-xs text-slate-400">使用基础概率数据</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">代表性偏差</td><td class="px-3 py-2 text-xs text-slate-400">以典型特征判断概率</td><td class="px-3 py-2 text-xs text-slate-400">追逐热门股/行业</td><td class="px-3 py-2 text-xs text-slate-400">注意样本量和基础概率</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">后视偏差</td><td class="px-3 py-2 text-xs text-slate-400">"我早就知道"</td><td class="px-3 py-2 text-xs text-slate-400">高估预测能力</td><td class="px-3 py-2 text-xs text-slate-400">事前记录预测</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">情绪偏差</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">偏差</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">投资影响</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">纠正方法</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">损失厌恶</td><td class="px-3 py-2 text-xs text-slate-400">避免实现损失</td><td class="px-3 py-2 text-xs text-slate-400">持有亏损股、过早止盈</td><td class="px-3 py-2 text-xs text-slate-400">设定纪律性止损规则</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">处置效应</td><td class="px-3 py-2 text-xs text-slate-400">过早卖盈、过久持亏</td><td class="px-3 py-2 text-xs text-slate-400">收益受损</td><td class="px-3 py-2 text-xs text-slate-400">基于基本面决策</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">禀赋效应</td><td class="px-3 py-2 text-xs text-slate-400">高估自己拥有的东西</td><td class="px-3 py-2 text-xs text-slate-400">不愿卖出</td><td class="px-3 py-2 text-xs text-slate-400">问自己"会不会现在买入"</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">心理账户</td><td class="px-3 py-2 text-xs text-slate-400">资金分割管理</td><td class="px-3 py-2 text-xs text-slate-400">非最优配置</td><td class="px-3 py-2 text-xs text-slate-400">整体视角看待财富</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">遗憾厌恶</td><td class="px-3 py-2 text-xs text-slate-400">避免后悔的决策</td><td class="px-3 py-2 text-xs text-slate-400">不作为偏差、羊群行为</td><td class="px-3 py-2 text-xs text-slate-400">接受不确定性</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">自我归因</td><td class="px-3 py-2 text-xs text-slate-400">成功归己、失败归外</td><td class="px-3 py-2 text-xs text-slate-400">学习不足</td><td class="px-3 py-2 text-xs text-slate-400">客观归因分析</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">羊群行为与市场泡沫</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">羊群行为的形成机制</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信息级联</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 忽视私有信息，跟随他人行动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">声誉关注</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 宁愿与他人一起错，也不愿独自对</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">报酬结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 基金经理相对业绩考核</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">情绪传染</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 恐惧和贪婪的蔓延</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场泡沫的行为解释</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">潜伏期</div><div class="text-xs text-slate-400"><span class="text-slate-500">心理特征:</span> 聪明钱入场</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型信号:</span> 价格缓慢上升</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">觉醒期</div><div class="text-xs text-slate-400"><span class="text-slate-500">心理特征:</span> 早期投资者获利</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型信号:</span> 媒体开始关注</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">狂热期</div><div class="text-xs text-slate-400"><span class="text-slate-500">心理特征:</span> FOMO、过度自信</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型信号:</span> 新投资者大量涌入</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">获利了结期</div><div class="text-xs text-slate-400"><span class="text-slate-500">心理特征:</span> 聪明钱撤离</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型信号:</span> 价格波动加剧</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">恐慌期</div><div class="text-xs text-slate-400"><span class="text-slate-500">心理特征:</span> 损失厌恶、羊群抛售</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型信号:</span> 价格崩溃</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">资产配置理论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">战略资产配置（SAA）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">长期目标配置，基于投资者风险承受能力和投资期限。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">战术资产配置（TAA）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">基于短期市场判断的动态调整。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资产配置方法比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原理</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">均值-方差优化</td><td class="px-3 py-2 text-xs text-slate-400">最大化效用</td><td class="px-3 py-2 text-xs text-slate-400">理论严谨</td><td class="px-3 py-2 text-xs text-slate-400">输入敏感、极端权重</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">风险平价</td><td class="px-3 py-2 text-xs text-slate-400">等风险贡献</td><td class="px-3 py-2 text-xs text-slate-400">稳健、分散</td><td class="px-3 py-2 text-xs text-slate-400">可能需要杠杆</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">恒定比例</td><td class="px-3 py-2 text-xs text-slate-400">固定股债比例</td><td class="px-3 py-2 text-xs text-slate-400">简单、纪律性</td><td class="px-3 py-2 text-xs text-slate-400">忽略估值</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">目标日期</td><td class="px-3 py-2 text-xs text-slate-400">随年龄调整</td><td class="px-3 py-2 text-xs text-slate-400">自动化</td><td class="px-3 py-2 text-xs text-slate-400">不够个性化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">核心-卫星</td><td class="px-3 py-2 text-xs text-slate-400">核心被动+卫星主动</td><td class="px-3 py-2 text-xs text-slate-400">兼顾成本和Alpha</td><td class="px-3 py-2 text-xs text-slate-400">需要选择能力</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">风险平价配置公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[RC_i = w_i \cdot \frac{\partial \sigma_p}{\partial w_i} = \frac{\sigma_p}{n}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">使每类资产的风险贡献相等。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">生命周期投资</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人力资本视角</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[总财富 = 金融资产 + 人力资本\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">年轻时人力资本高（类债券），应多配置股票。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生命周期配置指南</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">阶段</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年龄</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">人力资本特征</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">建议配置</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">积累期</td><td class="px-3 py-2 text-xs text-slate-400">25-40</td><td class="px-3 py-2 text-xs text-slate-400">高、稳定</td><td class="px-3 py-2 text-xs text-slate-400">80%股票、20%债券</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">巩固期</td><td class="px-3 py-2 text-xs text-slate-400">40-55</td><td class="px-3 py-2 text-xs text-slate-400">中等、有风险</td><td class="px-3 py-2 text-xs text-slate-400">60%股票、40%债券</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">保守期</td><td class="px-3 py-2 text-xs text-slate-400">55-65</td><td class="px-3 py-2 text-xs text-slate-400">较低</td><td class="px-3 py-2 text-xs text-slate-400">40%股票、60%债券</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">退休期</td><td class="px-3 py-2 text-xs text-slate-400">65+</td><td class="px-3 py-2 text-xs text-slate-400">几乎为零</td><td class="px-3 py-2 text-xs text-slate-400">30%股票、70%债券</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">目标日期基金的下滑曲线</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[股票比例 = f(退休年份 - 当前年份)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">随着接近退休，股票比例逐步下降。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">6</div>
+        <h3 class="text-white font-semibold">财富管理服务体系</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">全面财富管理内容</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投资规划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 资产配置、组合管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">工具:</span> 目标设定、风险评估</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税务筹划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 税务优化、递延</div><div class="text-xs text-slate-400"><span class="text-slate-500">工具:</span> 税收优惠账户、税损收获</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">退休规划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 养老金、退休收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">工具:</span> 年金、提款策略</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 保险、应急储备</div><div class="text-xs text-slate-400"><span class="text-slate-500">工具:</span> 寿险、健康险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">遗产规划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 财富传承、慈善</div><div class="text-xs text-slate-400"><span class="text-slate-500">工具:</span> 信托、遗嘱</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">教育规划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 子女教育储蓄</div><div class="text-xs text-slate-400"><span class="text-slate-500">工具:</span> 教育基金</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">财富管理的行为学应用</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">自动化投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">利用的行为特征:</span> 惰性、现状偏好</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 提高储蓄率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">心理账户框架</div><div class="text-xs text-slate-400"><span class="text-slate-500">利用的行为特征:</span> 心理账户</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 帮助设定目标</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">预承诺</div><div class="text-xs text-slate-400"><span class="text-slate-500">利用的行为特征:</span> 意志力有限</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 防止冲动决策</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">简化选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">利用的行为特征:</span> 选择过载</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 提高参与率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">默认选项</div><div class="text-xs text-slate-400"><span class="text-slate-500">利用的行为特征:</span> 惰性</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 引导正确行为</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：前景理论效用</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[U = \sum_i \pi(p_i) v(x_i)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\pi(p)\)为概率加权函数，\(v(x)\)为价值函数。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：资产配置效用最大化</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max_{w} E[U(W)] = E[W] - \frac{\lambda}{2}Var(W)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于均值-方差偏好：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[w^* = \frac{1}{\lambda}\Sigma^{-1}(\mu - r_f \mathbf{1})\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：风险平价优化</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_w \sum_{i<j}(RC_i - RC_j)^2\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[s.t. \sum w_i = 1, w_i \geq 0\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：生命周期投资模型</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max E\left[\sum_{t=0}^{T} \beta^t U(C_t)\right]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">考虑人力资本的动态规划问题。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">模型5：退休提款策略</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">4%法则</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[初始提款 = 退休资产 \times 4\%\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[后续提款 = 上年提款 \times (1 + 通胀率)\]</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实践案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">股</span>
+        <h3 class="text-white font-semibold text-sm">案例一：A股散户的行为画像</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">中国A股市场散户占比高，其行为特征对市场有重要影响。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">散户行为数据</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">换手率</div><div class="text-xs text-slate-400"><span class="text-slate-500">A股散户:</span> 5-8倍/年</div><div class="text-xs text-slate-400"><span class="text-slate-500">成熟市场:</span> 0.5-1倍/年</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">持股周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">A股散户:</span> 1-3个月</div><div class="text-xs text-slate-400"><span class="text-slate-500">成熟市场:</span> 2-5年</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">追涨杀跌程度</div><div class="text-xs text-slate-400"><span class="text-slate-500">A股散户:</span> 严重</div><div class="text-xs text-slate-400"><span class="text-slate-500">成熟市场:</span> 较轻</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">处置效应强度</div><div class="text-xs text-slate-400"><span class="text-slate-500">A股散户:</span> 1.5-2倍</div><div class="text-xs text-slate-400"><span class="text-slate-500">成熟市场:</span> 1.2-1.5倍</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">典型行为模式</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">追涨</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 股价上涨后买入</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 高位接盘</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">杀跌</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 股价下跌后卖出</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 低位割肉</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">频繁交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 每周/每天交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 交易成本侵蚀收益</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">集中投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 少数股票、单一行业</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 风险集中</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">听消息</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 依赖小道消息</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 信息劣势</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">损失厌恶的实证</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>盈利股票卖出概率是亏损股票的2倍</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>亏损股票平均持有时间是盈利股票的3倍</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>这导致组合收益显著低于简单持有</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资者教育的重要性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>理解费用和税收的影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>认识分散化的价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>建立长期投资观念</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>学习管理情绪</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">金</span>
+        <h3 class="text-white font-semibold text-sm">案例二：2008年金融危机中的投资者行为</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">2008年金融危机期间，标普500从高点下跌57%，投资者行为对损失有放大效应。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资者行为观察</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">危机前（2007）</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型行为:</span> 追逐高收益产品</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 承担过度风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">危机初期（2008.1-9）</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型行为:</span> 观望、否认</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 错过减仓机会</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">恐慌期（2008.10-2009.3）</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型行为:</span> 大规模赎回</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 在底部卖出</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">恢复期（2009.3后）</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型行为:</span> 持续观望</div><div class="text-xs text-slate-400"><span class="text-slate-500">结果:</span> 错过反弹</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基金流动数据</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2007年</div><div class="text-xs text-slate-400"><span class="text-slate-500">股票基金净流入（美元）:</span> +910亿</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2008年</div><div class="text-xs text-slate-400"><span class="text-slate-500">股票基金净流入（美元）:</span> -2340亿</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2009年</div><div class="text-xs text-slate-400"><span class="text-slate-500">股票基金净流入（美元）:</span> -90亿</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2010年</div><div class="text-xs text-slate-400"><span class="text-slate-500">股票基金净流入（美元）:</span> -280亿</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">行为成本估算</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">研究表明，由于错误的时机选择，普通投资者的实际收益比基金收益低2-3%/年。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>恐慌时卖出是最差的策略</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>市场底部往往在最悲观时出现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>预先设定的投资规则可以避免情绪决策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>危机后的机会往往大于风险</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例三：智能投顾的行为学设计</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">智能投顾（Robo-Advisor）利用技术和行为学原理帮助投资者克服偏差。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要智能投顾平台</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">平台</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">管理规模</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">费率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特色</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Betterment</td><td class="px-3 py-2 text-xs text-slate-400">300亿+</td><td class="px-3 py-2 text-xs text-slate-400">0.25%</td><td class="px-3 py-2 text-xs text-slate-400">税损收获</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Wealthfront</td><td class="px-3 py-2 text-xs text-slate-400">250亿+</td><td class="px-3 py-2 text-xs text-slate-400">0.25%</td><td class="px-3 py-2 text-xs text-slate-400">直接指数化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">蚂蚁财富</td><td class="px-3 py-2 text-xs text-slate-400">万亿+</td><td class="px-3 py-2 text-xs text-slate-400">免费/低费</td><td class="px-3 py-2 text-xs text-slate-400">普惠金融</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">行为学设计元素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">问卷评估</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对的偏差:</span> 过度自信</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 客观风险评估</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">自动再平衡</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对的偏差:</span> 惰性、损失厌恶</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 维持目标配置</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定投设置</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对的偏差:</span> 择时焦虑</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 分散时点风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">目标可视化</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对的偏差:</span> 短视近利</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 强化长期思维</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">限制查看</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对的偏差:</span> 短期波动焦虑</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 减少冲动交易</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">情境推送</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对的偏差:</span> 羊群效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 在恐慌时提供理性建议</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效果评估</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">换手率</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统自主投资:</span> 50-100%</div><div class="text-xs text-slate-400"><span class="text-slate-500">智能投顾用户:</span> 10-20%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">分散化程度</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统自主投资:</span> 低</div><div class="text-xs text-slate-400"><span class="text-slate-500">智能投顾用户:</span> 高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">恐慌卖出比例</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统自主投资:</span> 高</div><div class="text-xs text-slate-400"><span class="text-slate-500">智能投顾用户:</span> 低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">坚持投资计划</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统自主投资:</span> 30%</div><div class="text-xs text-slate-400"><span class="text-slate-500">智能投顾用户:</span> 70%</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>技术可以帮助克服行为偏差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>自动化和简化是关键</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>默认选项的力量强大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>教育与工具需要结合</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">深度思考问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1：前景理论与传统效用理论的核心区别是什么？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">决策参照</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统效用理论:</span> 最终财富水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">前景理论:</span> 相对于参照点的变化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险态度</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统效用理论:</span> 始终风险规避</div><div class="text-xs text-slate-400"><span class="text-slate-500">前景理论:</span> 获利时规避、亏损时追逐</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">效用曲线</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统效用理论:</span> 全局凹函数</div><div class="text-xs text-slate-400"><span class="text-slate-500">前景理论:</span> 获利凹、亏损凸</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">概率处理</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统效用理论:</span> 线性加权</div><div class="text-xs text-slate-400"><span class="text-slate-500">前景理论:</span> 非线性加权</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">损益对称</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统效用理论:</span> 对称</div><div class="text-xs text-slate-400"><span class="text-slate-500">前景理论:</span> 损失权重更大</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实际意义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">前景理论可以解释许多传统理论无法解释的现象，如处置效应、保险和彩票同时购买、框架效应等。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2：为什么处置效应会损害投资收益？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">处置效应表现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过早卖出盈利股票</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过久持有亏损股票</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">损害收益的机制</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">税务低效</span>：提前实现收益需要缴税，推迟亏损无法获得税盾</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">动量效应</span>：盈利股票往往继续上涨（动量），亏损股票往往继续下跌</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">机会成本</span>：资金锁定在表现差的股票中</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">风险管理</span>：亏损股票可能有更高的基本面风险</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证数据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Odean (1998)发现散户卖出的盈利股后续表现优于持有的亏损股3.4%/年</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3：心理账户如何影响投资决策？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">心理账户定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">将资金分配到不同的"账户"，每个账户单独决策。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资中的表现</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">分开评估盈亏</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 不同股票分别看盈亏</div><div class="text-xs text-slate-400"><span class="text-slate-500">非最优结果:</span> 忽视组合整体表现</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">来源区分</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 工资vs奖金vs投资收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">非最优结果:</span> 对"windfall"冒更大风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">目标账户</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 退休/教育/旅游分开</div><div class="text-xs text-slate-400"><span class="text-slate-500">非最优结果:</span> 可能错配风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">损失分开</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 先实现的亏损单独痛苦</div><div class="text-xs text-slate-400"><span class="text-slate-500">非最优结果:</span> 可能集中实现或推迟实现</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实际建议</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">用整体资产负债表视角思考财富，统一评估风险和收益。</p>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用分析类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4：如何设计一个考虑行为因素的资产配置方案？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">步骤</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">评估投资者特征</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>客观风险承受能力（收入、资产、负债）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>主观风险态度（问卷、行为观察）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>行为偏差倾向（过度自信、损失厌恶程度）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">设定行为护栏</span>：</span></div></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">过度交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">护栏设计:</span> 设置交易冷静期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">追涨杀跌</div><div class="text-xs text-slate-400"><span class="text-slate-500">护栏设计:</span> 自动再平衡</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">损失厌恶</div><div class="text-xs text-slate-400"><span class="text-slate-500">护栏设计:</span> 较保守的初始配置</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">短视</div><div class="text-xs text-slate-400"><span class="text-slate-500">护栏设计:</span> 减少查看频率</div></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">简化选择</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>有限的基金选项</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>目标日期基金作为默认</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>核心-卫星结构</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">建立承诺机制</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>定投</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预设调整触发条件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>与顾问的定期回顾</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5：退休规划应该如何考虑长寿风险？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">长寿风险的挑战</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>活得越长，需要的退休资金越多</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>难以预测个人寿命</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀侵蚀购买力</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应对策略</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">延迟退休</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 增加积累时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 有效但不一定可行</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">购买年金</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 转移长寿风险给保险公司</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 丧失灵活性和遗产</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">动态提款</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 根据组合表现调整</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 收入不确定</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资产多元化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 包含通胀保护资产</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 可能牺牲收益</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">延迟领取社保</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 获得更高终身收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 需要其他资金过渡</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">组合策略</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>核心需求用年金覆盖</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可自由支配需求用投资组合</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>保持应急储备</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑医疗和长期护理需求</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6：智能投顾如何帮助投资者克服行为偏差？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要机制</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险评估</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对偏差:</span> 过度自信</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现方式:</span> 标准化问卷</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">自动再平衡</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对偏差:</span> 损失厌恶</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现方式:</span> 算法执行，无需决策</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税损收获</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对偏差:</span> 损失厌恶</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现方式:</span> 自动实现亏损</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定投</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对偏差:</span> 择时焦虑</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现方式:</span> 自动定期投入</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">目标追踪</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对偏差:</span> 短视</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现方式:</span> 可视化长期目标</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">行为推送</div><div class="text-xs text-slate-400"><span class="text-slate-500">针对偏差:</span> 羊群效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现方式:</span> 市场波动时的理性提示</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>降低交易频率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>提高分散化程度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>增强纪律性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>降低成本</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7：行为金融学是否动摇了有效市场假说的根基？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">行为金融的挑战</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>发现了系统性的投资者偏差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>解释了许多市场异象</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>提出了有限套利的概念</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">有效市场的辩护</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>异象可能是数据挖掘的结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>异象在扣除交易成本后可能不可利用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>学术发表后异象往往减弱</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>市场在某种程度上仍是有效的</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">更平衡的观点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场不是完全有效，也不是完全无效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>效率程度因市场、时期、资产而异</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>行为偏差创造了一些投资机会，但利用它们并不容易</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>两种理论可以互补而非对立</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8：投资顾问的价值主要来自哪里？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">传统观点</span>：Alpha生成（选股择时）</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">实证发现</span>：大多数顾问无法持续创造Alpha</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">真正的价值来源</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">行为教练</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 防止恐慌卖出、过度交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在价值（年化）:</span> 1-2%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税务筹划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 税损收获、资产定位</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在价值（年化）:</span> 0.5-1%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">再平衡</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 维持目标配置</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在价值（年化）:</span> 0.3-0.5%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">产品选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 避免高费用产品</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在价值（年化）:</span> 0.3-0.5%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">整体规划</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 退休、遗产、保险整合</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在价值（年化）:</span> 难以量化但重要</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Vanguard研究</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">"顾问的Alpha"约3%/年，但主要来自行为指导而非投资选择。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9：如何看待"财富自由"和"提前退休"（FIRE运动）？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">FIRE的核心理念</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高储蓄率（50%+）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>极简生活</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资被动收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>25倍年支出 = 财务自由</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">行为学视角的挑战</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">过度自信</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 低估未来需求和意外支出</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">当前偏好</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 现在的极简可能不可持续</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">适应性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 人会适应更高的消费水平</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">目标变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 人生目标会随时间变化</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">风险因素</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资收益的不确定性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀超预期</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>医疗支出</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长寿风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>回归工作的困难</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">更平衡的观点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高储蓄是好习惯，但无需极端</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工作不仅是收入来源，也是意义和社交</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>财务安全比"自由"更实际</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>灵活性比固定目标更重要</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学术经典</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">文献</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Prospect Theory</td><td class="px-3 py-2 text-xs text-slate-400">Kahneman-Tversky</td><td class="px-3 py-2 text-xs text-slate-400">1979</td><td class="px-3 py-2 text-xs text-slate-400">前景理论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Does the Stock Market Overreact?</td><td class="px-3 py-2 text-xs text-slate-400">De Bondt-Thaler</td><td class="px-3 py-2 text-xs text-slate-400">1985</td><td class="px-3 py-2 text-xs text-slate-400">过度反应</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">The Disposition Effect</td><td class="px-3 py-2 text-xs text-slate-400">Shefrin-Statman</td><td class="px-3 py-2 text-xs text-slate-400">1985</td><td class="px-3 py-2 text-xs text-slate-400">处置效应</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Mental Accounting Matters</td><td class="px-3 py-2 text-xs text-slate-400">Thaler</td><td class="px-3 py-2 text-xs text-slate-400">1999</td><td class="px-3 py-2 text-xs text-slate-400">心理账户</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Noise Trader Risk in Financial Markets</td><td class="px-3 py-2 text-xs text-slate-400">Shleifer-Vishny</td><td class="px-3 py-2 text-xs text-slate-400">1997</td><td class="px-3 py-2 text-xs text-slate-400">有限套利</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">教材推荐</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《思考，快与慢》(Kahneman)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 入门</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 通俗易懂，诺奖得主</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《行为金融学》(Shiller)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 本科/研究生</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 理论系统</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《错误的行为》(Thaler)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 入门</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 案例生动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《投资者的敌人》(Statman)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 投资者视角</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          行为金融决策偏差链
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解投资者如何系统性偏离理性决策</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">认知偏差</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">锚定·过度自信</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#f87171" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#f87171" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#f87171" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">情绪驱动</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">恐惧·贪婪</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">市场异象</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">泡沫·动量</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">财富管理</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">目标·纪律</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">认知偏差</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">锚定·过度自信</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>锚定效应: 依赖初始信息做判断</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>过度自信: 高估预测能力低估风险</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>代表性偏差: 以小样本推断整体规律</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#f87171"></span><span class="text-white font-semibold text-sm">情绪驱动</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">恐惧·贪婪</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>损失厌恶: 亏损的痛苦≈2.25×盈利的快乐</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>处置效应: 过早卖出盈利/持有亏损</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>羊群效应: 跟随大众而非独立判断</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">市场异象</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">泡沫·动量</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>日历效应: 一月效应/星期五效应</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>动量: 短期延续+长期反转</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>泡沫: 非理性繁荣→崩溃的循环</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">财富管理</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">目标·纪律</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>投资者画像: 风险承受/投资期限/流动性</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>生命周期配置: 年轻进取→年长保守</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>行为纠偏: 自动投资/止损/再平衡纪律</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          前景理论价值函数
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线体验收益与损失的不对称感受</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">x(收益/损失)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">V(主观价值)</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-1-thresh"/>
+      <text id="comp-1-thresh-l" x="575" y="0" fill="#475569" font-size="8">参考点</text>
+      
+      
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">V(x)</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">主观价值</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">边际敏感度</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">损失厌恶</div>
+        <div class="font-mono text-lg font-bold" style="color:#f87171" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          风险画像评估计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">评估投资者风险承受能力</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">年龄</label>
+            <input type="number" id="comp-2-age" value="35" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">年收入(万)</label>
+            <input type="number" id="comp-2-income" value="30" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">投资经验(年)</label>
+            <input type="number" id="comp-2-exp" value="5" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">可承受最大亏损(%)</label>
+            <input type="number" id="comp-2-loss" value="20" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">风险画像</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">风险评分</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">投资者类型</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">建议股票占比</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">建议债券占比</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ Risk Score = w_1 \cdot Age + w_2 \cdot Income + w_3 \cdot Experience \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 资产定价 Chapter 06</div>
+    <div class="mt-2 md:mt-0">下一章：资产定价前沿技术应用 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\lambda \\approx 2.0', tip: '损失厌恶系数约2——亏100块的痛苦≈赚200块的快乐'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '\\lambda \\approx 2.25', tip: '损失厌恶系数——人们对亏损的痛苦约是同等获利快乐的2.25倍'},
+    {match: '\\pi(p)', tip: '概率权重函数——人们高估小概率、低估大概率事件'},
+    {match: 'v(x)', tip: '前景理论价值函数——收益端凹(风险厌恶)，损失端凸(风险偏好)'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: '总财富 = 金融资产 + 人力资本', tip: '全生命周期财富——年轻时人力资本大，退休后金融资产为主'},
+    {match: 'w^* = \\frac{1}{\\lambda}', tip: '最优投资组合权重'},
+    {match: '初始提款 = 退休资产 \\times 4\\%', tip: '4%法则——每年提取退休金的4%，大概率30年不会用完'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=100;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return x>=50?Math.pow(x-50,0.88):-(2.25*Math.pow(50-x,0.88))+50;})(0);
+    var y1=(function(x){return x>=50?Math.pow(x-50,0.88):-(2.25*Math.pow(50-x,0.88))+50;})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+    var thY=yc(50);
+    document.getElementById('comp-1-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-1-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-1-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return x>=50?Math.pow(x-50,0.88):-(2.25*Math.pow(50-x,0.88))+50;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y-50).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='价值函数V(x)';
+    document.getElementById('comp-1-m1').textContent=(x>=50?0.88*Math.pow(x-50,-0.12):(0.88*2.25*Math.pow(50-x,-0.12))).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='|V\u0027(x)|';
+    document.getElementById('comp-1-m2').textContent=(2.25).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='\u03BB=2.25';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='x(收益/损失)='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='V(主观价值)='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var age=parseFloat(document.getElementById('comp-2-age').value);
+    var income=parseFloat(document.getElementById('comp-2-income').value);
+    var exp=parseFloat(document.getElementById('comp-2-exp').value);
+    var loss=parseFloat(document.getElementById('comp-2-loss').value);
+
+    var ageScore=Math.max(0,(60-age)/40*100);
+    var incScore=Math.min(100,income/50*100);
+    var expScore=Math.min(100,exp/10*100);
+    var lossScore=loss/50*100;
+    var total=(ageScore*0.2+incScore*0.3+expScore*0.2+lossScore*0.3);
+    document.getElementById('comp-2-out0').textContent=total.toFixed(0);
+    document.getElementById('comp-2-out1').textContent=total>70?'进取型':(total>40?'平衡型':'保守型');
+    document.getElementById('comp-2-out2').textContent=Math.round(total*0.8)+'%';
+    document.getElementById('comp-2-out3').textContent=Math.round(100-total*0.8)+'%';
+    // Ring
+    var score=Math.max(0,Math.min(1,total/100));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

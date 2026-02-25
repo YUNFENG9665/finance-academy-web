@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[时期] 宏观经济展望 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">研究报告框架</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">一、全球经济环境</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">二、国内经济分析</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 08</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">[时期] 宏观经济展望</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">整合宏观经济学知识，完成综合分析项目</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">7</div><div class="text-xs text-slate-500 mt-1">报告模块</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">5</div><div class="text-xs text-slate-500 mt-1">分析工具</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">1</div><div class="text-xs text-slate-500 mt-1">完整案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">宏观分析框架</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分析维度矩阵</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">维度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">关注点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心数据</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">分析频率</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">增长</td><td class="px-3 py-2 text-xs text-slate-400">经济总量与结构</td><td class="px-3 py-2 text-xs text-slate-400">GDP、工业增加值、PMI</td><td class="px-3 py-2 text-xs text-slate-400">月/季</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">通胀</td><td class="px-3 py-2 text-xs text-slate-400">价格水平与预期</td><td class="px-3 py-2 text-xs text-slate-400">CPI、PPI、核心通胀</td><td class="px-3 py-2 text-xs text-slate-400">月</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">就业</td><td class="px-3 py-2 text-xs text-slate-400">劳动市场状况</td><td class="px-3 py-2 text-xs text-slate-400">失业率、就业人数、工资</td><td class="px-3 py-2 text-xs text-slate-400">月/季</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">国际</td><td class="px-3 py-2 text-xs text-slate-400">外部平衡与汇率</td><td class="px-3 py-2 text-xs text-slate-400">贸易差额、汇率、储备</td><td class="px-3 py-2 text-xs text-slate-400">月</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">金融</td><td class="px-3 py-2 text-xs text-slate-400">货币信贷环境</td><td class="px-3 py-2 text-xs text-slate-400">M2、社融、利率</td><td class="px-3 py-2 text-xs text-slate-400">月</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">财政</td><td class="px-3 py-2 text-xs text-slate-400">政府收支与债务</td><td class="px-3 py-2 text-xs text-slate-400">财政收支、债务率</td><td class="px-3 py-2 text-xs text-slate-400">月/季</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分析时间框架</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">期限</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">关注点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">分析方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">短期（周期）</td><td class="px-3 py-2 text-xs text-slate-400">需求波动、产出缺口</td><td class="px-3 py-2 text-xs text-slate-400">领先指标、HP滤波</td><td class="px-3 py-2 text-xs text-slate-400">需求管理</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">中期（结构）</td><td class="px-3 py-2 text-xs text-slate-400">产业调整、失衡</td><td class="px-3 py-2 text-xs text-slate-400">结构分解、投入产出</td><td class="px-3 py-2 text-xs text-slate-400">结构改革</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">长期（趋势）</td><td class="px-3 py-2 text-xs text-slate-400">潜在增长、人口</td><td class="px-3 py-2 text-xs text-slate-400">增长核算、趋势外推</td><td class="px-3 py-2 text-xs text-slate-400">制度改革</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">宏观分析的三个层次</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">宏观数据解读
+    │
+    ├──→ 现状描述：发生了什么？
+    │         └─ 数据整理、图表呈现
+    │
+    ├──→ 原因分析：为什么发生？
+    │         └─ 理论框架、因果推断
+    │
+    └──→ 预测展望：将会怎样？
+              └─ 模型预测、情景分析</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">经济周期分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">周期识别方法</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原理</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">HP滤波</td><td class="px-3 py-2 text-xs text-slate-400">分解趋势与周期</td><td class="px-3 py-2 text-xs text-slate-400">简单、广泛使用</td><td class="px-3 py-2 text-xs text-slate-400">端点问题</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">BP滤波</td><td class="px-3 py-2 text-xs text-slate-400">提取特定频率</td><td class="px-3 py-2 text-xs text-slate-400">理论基础好</td><td class="px-3 py-2 text-xs text-slate-400">数据要求高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">产出缺口法</td><td class="px-3 py-2 text-xs text-slate-400">实际与潜在差距</td><td class="px-3 py-2 text-xs text-slate-400">政策相关性强</td><td class="px-3 py-2 text-xs text-slate-400">潜在产出难估计</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">扩散指数</td><td class="px-3 py-2 text-xs text-slate-400">综合多个指标</td><td class="px-3 py-2 text-xs text-slate-400">稳健性好</td><td class="px-3 py-2 text-xs text-slate-400">滞后性</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">领先指标体系</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类别</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">领先时间</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">可靠性</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">金融类</td><td class="px-3 py-2 text-xs text-slate-400">收益率曲线斜率</td><td class="px-3 py-2 text-xs text-slate-400">6-12月</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">股市指数</td><td class="px-3 py-2 text-xs text-slate-400">3-6月</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">信贷增速</td><td class="px-3 py-2 text-xs text-slate-400">3-6月</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">实体类</td><td class="px-3 py-2 text-xs text-slate-400">PMI新订单</td><td class="px-3 py-2 text-xs text-slate-400">2-4月</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">建筑许可</td><td class="px-3 py-2 text-xs text-slate-400">3-6月</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">信心类</td><td class="px-3 py-2 text-xs text-slate-400">消费者信心</td><td class="px-3 py-2 text-xs text-slate-400">2-4月</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">企业家信心</td><td class="px-3 py-2 text-xs text-slate-400">2-4月</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">周期阶段判断</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">阶段</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">产出缺口</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">通胀压力</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策取向</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">资产表现</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">复苏</td><td class="px-3 py-2 text-xs text-slate-400">负→0</td><td class="px-3 py-2 text-xs text-slate-400">低</td><td class="px-3 py-2 text-xs text-slate-400">宽松</td><td class="px-3 py-2 text-xs text-slate-400">股票 > 债券</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">扩张</td><td class="px-3 py-2 text-xs text-slate-400">正且上升</td><td class="px-3 py-2 text-xs text-slate-400">上升</td><td class="px-3 py-2 text-xs text-slate-400">中性→紧缩</td><td class="px-3 py-2 text-xs text-slate-400">商品 > 股票</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">过热</td><td class="px-3 py-2 text-xs text-slate-400">大正</td><td class="px-3 py-2 text-xs text-slate-400">高</td><td class="px-3 py-2 text-xs text-slate-400">紧缩</td><td class="px-3 py-2 text-xs text-slate-400">现金 > 债券</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">衰退</td><td class="px-3 py-2 text-xs text-slate-400">正→负</td><td class="px-3 py-2 text-xs text-slate-400">下降</td><td class="px-3 py-2 text-xs text-slate-400">宽松</td><td class="px-3 py-2 text-xs text-slate-400">债券 > 股票</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">宏观预测方法</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定量预测方法</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">时间序列(ARIMA)</td><td class="px-3 py-2 text-xs text-slate-400">利用历史规律</td><td class="px-3 py-2 text-xs text-slate-400">短期预测</td><td class="px-3 py-2 text-xs text-slate-400">简单但无理论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">VAR模型</td><td class="px-3 py-2 text-xs text-slate-400">多变量交互</td><td class="px-3 py-2 text-xs text-slate-400">冲击分析</td><td class="px-3 py-2 text-xs text-slate-400">数据驱动</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">结构模型</td><td class="px-3 py-2 text-xs text-slate-400">基于理论</td><td class="px-3 py-2 text-xs text-slate-400">政策模拟</td><td class="px-3 py-2 text-xs text-slate-400">需要假设</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">DSGE</td><td class="px-3 py-2 text-xs text-slate-400">微观基础</td><td class="px-3 py-2 text-xs text-slate-400">政策分析</td><td class="px-3 py-2 text-xs text-slate-400">复杂但严谨</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">机器学习</td><td class="px-3 py-2 text-xs text-slate-400">非线性关系</td><td class="px-3 py-2 text-xs text-slate-400">大数据环境</td><td class="px-3 py-2 text-xs text-slate-400">黑箱问题</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定性预测方法</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">专家调查（德尔菲法）</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 汇总专家意见</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用:</span> 长期趋势</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">情景分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 多种情境推演</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用:</span> 不确定性高时</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政策文本分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 解读政府表态</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用:</span> 政策预判</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">预测评估指标</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MAE</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\frac{1}{n}\sum</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> y_t - \hat{y}_t</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> \)</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> 平均绝对误差</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">RMSE</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\sqrt{\frac{1}{n}\sum(y_t - \hat{y}_t)^2}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 均方根误差</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">方向准确率</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> 预测方向正确的比例</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 趋势判断</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">政策解读与预判</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策信号识别</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">央行会议声明</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注要点:</span> 措辞变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">解读方法:</span> 文本分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政府工作报告</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注要点:</span> 目标设定</div><div class="text-xs text-slate-400"><span class="text-slate-500">解读方法:</span> 同比变化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">领导人讲话</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注要点:</span> 关键词</div><div class="text-xs text-slate-400"><span class="text-slate-500">解读方法:</span> 政策风向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">部委文件</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注要点:</span> 具体政策</div><div class="text-xs text-slate-400"><span class="text-slate-500">解读方法:</span> 执行细节</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策规则估计</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">泰勒规则</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式示例:</span> \(i = r^* + \pi + 0.5(\pi-\pi^*) + 0.5y_{gap}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 货币政策预判</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财政反应函数</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式示例:</span> \(pb = f(debt, gap)\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 财政政策预判</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">汇率干预函数</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式示例:</span> \(\Delta R = f(\Delta e, ...)\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 汇率政策预判</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策文本量化</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>词频分析：关键词出现频率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>情感分析：积极/消极倾向</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>主题模型：政策重点变化</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">宏观与资产配置</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">宏观因子与资产回报</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">宏观环境</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">利好资产</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">利空资产</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">逻辑</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">复苏</td><td class="px-3 py-2 text-xs text-slate-400">股票、商品</td><td class="px-3 py-2 text-xs text-slate-400">债券</td><td class="px-3 py-2 text-xs text-slate-400">盈利改善、通胀预期</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">过热</td><td class="px-3 py-2 text-xs text-slate-400">商品、通胀保护</td><td class="px-3 py-2 text-xs text-slate-400">成长股</td><td class="px-3 py-2 text-xs text-slate-400">通胀对冲</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">滞胀</td><td class="px-3 py-2 text-xs text-slate-400">现金、黄金</td><td class="px-3 py-2 text-xs text-slate-400">股票、债券</td><td class="px-3 py-2 text-xs text-slate-400">避险</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">衰退</td><td class="px-3 py-2 text-xs text-slate-400">国债、高评级债</td><td class="px-3 py-2 text-xs text-slate-400">股票、商品</td><td class="px-3 py-2 text-xs text-slate-400">安全资产</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">美林时钟框架</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">        高通胀
+           │
+    过热   │   滞胀
+   (商品)  │  (现金)
+           │
+低增长 ────┼──── 高增长
+           │
+    衰退   │   复苏
+   (债券)  │  (股票)
+           │
+        低通胀</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">宏观因子投资</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">增长因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建方式:</span> 工业生产、PMI</div><div class="text-xs text-slate-400"><span class="text-slate-500">对应资产:</span> 周期股、商品</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">通胀因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建方式:</span> CPI、PPI</div><div class="text-xs text-slate-400"><span class="text-slate-500">对应资产:</span> TIPS、黄金</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">利率因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建方式:</span> 收益率曲线</div><div class="text-xs text-slate-400"><span class="text-slate-500">对应资产:</span> 债券久期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">汇率因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建方式:</span> 有效汇率</div><div class="text-xs text-slate-400"><span class="text-slate-500">对应资产:</span> 外汇、出口股</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">研究报告框架</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">标准宏观研究报告结构</h3>
+    <div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre"></pre></div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">一、全球经济环境</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 主要经济体表现</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国、欧洲、日本、新兴市场</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 全球贸易形势</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>贸易量、贸易政策</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 国际金融市场</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美元、利率、商品价格</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">二、国内经济分析</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 增长动能</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>三驾马车分析（消费、投资、出口）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产业结构变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>增长质量评估</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 通胀形势</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>CPI/PPI分解</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀预期</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>核心通胀趋势</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 就业状况</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>失业率分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>劳动市场动态</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工资增长</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">三、金融环境分析</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 货币信贷</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>M2、社融增速</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信贷结构</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 利率走势</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策利率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场利率</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 汇率与资本流动</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>人民币汇率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>跨境资金流动</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s6" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">四、政策分析与展望</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 货币政策</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策取向判断</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工具使用预判</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 财政政策</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预算执行</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>债务可持续性</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 其他政策</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产业政策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管政策</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s7" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">五、风险因素</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 内部风险</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>债务、房地产、地方政府</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 外部风险</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>地缘政治、贸易摩擦</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 尾部风险</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>黑天鹅事件</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s8" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">六、预测与情景分析</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 基准情景</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GDP、CPI预测</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 乐观情景</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>触发条件、概率</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 悲观情景</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>触发条件、概率</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s9" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">七、投资/政策建议</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 大类资产配置</h3>
+      </div>
+      
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 行业机会与风险</h3>
+      </div>
+      
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 风险提示</h3>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<section id="s12" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">研究案例示范</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例：2025年中国经济展望</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">一、核心观点</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">增长温和复苏</span>：预计GDP增速5%左右，消费渐进修复，投资结构优化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">通胀低位运行</span>：CPI约1.5%，通缩担忧缓解但通胀压力不大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">政策适度宽松</span>：货币政策稳健偏松，财政政策积极有效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">外部环境复杂</span>：地缘政治风险上升，出口面临压力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">结构转型加速</span>：新质生产力发展，传统产业承压</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">二、增长分析</span></p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2024年</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2025年预测</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">驱动因素</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">GDP增速</td><td class="px-3 py-2 text-xs text-slate-400">5.0%</td><td class="px-3 py-2 text-xs text-slate-400">4.8-5.2%</td><td class="px-3 py-2 text-xs text-slate-400">政策支持+消费恢复</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">消费增速</td><td class="px-3 py-2 text-xs text-slate-400">5.5%</td><td class="px-3 py-2 text-xs text-slate-400">6.0%</td><td class="px-3 py-2 text-xs text-slate-400">就业改善+信心恢复</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">投资增速</td><td class="px-3 py-2 text-xs text-slate-400">3.5%</td><td class="px-3 py-2 text-xs text-slate-400">4.0%</td><td class="px-3 py-2 text-xs text-slate-400">基建托底+制造业升级</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">出口增速</td><td class="px-3 py-2 text-xs text-slate-400">3.0%</td><td class="px-3 py-2 text-xs text-slate-400">2.0%</td><td class="px-3 py-2 text-xs text-slate-400">外需放缓+份额承压</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三驾马车分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">消费</span>：疫后修复延续但动能减弱，需要收入增长支撑</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">投资</span>：基建继续托底，制造业投资向高端转移，房地产拖累减轻</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">出口</span>：新三样（新能源车、锂电、光伏）仍有韧性，传统出口承压</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">三、通胀分析</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CPI</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测:</span> 1.5%</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析:</span> 需求不足，猪周期下行</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">PPI</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测:</span> 0.5%</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析:</span> 工业品价格企稳</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">核心CPI</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测:</span> 1.0%</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析:</span> 服务价格温和上涨</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">通胀结构</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>食品：猪肉价格周期下行，蔬菜正常波动</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>能源：国际油价温和，国内价格稳定</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>服务：劳动力成本上升，但需求不足抑制涨价</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">四、政策判断</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币政策</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">预判:</span> 小幅下调空间</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 实际利率偏高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">准备金率</div><div class="text-xs text-slate-400"><span class="text-slate-500">预判:</span> 可能下调1-2次</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 流动性支持</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">结构性工具</div><div class="text-xs text-slate-400"><span class="text-slate-500">预判:</span> 继续扩大</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 精准滴灌</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">财政政策</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">赤字率</div><div class="text-xs text-slate-400"><span class="text-slate-500">预判:</span> 3.5%+</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 积极有效</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">专项债</div><div class="text-xs text-slate-400"><span class="text-slate-500">预判:</span> 4万亿+</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 基建投资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">特别国债</div><div class="text-xs text-slate-400"><span class="text-slate-500">预判:</span> 继续发行</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 重点领域</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">五、风险因素</span></p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">风险类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">风险点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">概率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">影响</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">内部风险</td><td class="px-3 py-2 text-xs text-slate-400">房地产深度调整</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">地方债务</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">消费恢复不及预期</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">外部风险</td><td class="px-3 py-2 text-xs text-slate-400">中美关系</td><td class="px-3 py-2 text-xs text-slate-400">高</td><td class="px-3 py-2 text-xs text-slate-400">大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">全球衰退</td><td class="px-3 py-2 text-xs text-slate-400">低-中</td><td class="px-3 py-2 text-xs text-slate-400">大</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">六、情景分析</span></p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">情景</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">GDP增速</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">CPI</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">概率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">触发条件</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">基准</td><td class="px-3 py-2 text-xs text-slate-400">5.0%</td><td class="px-3 py-2 text-xs text-slate-400">1.5%</td><td class="px-3 py-2 text-xs text-slate-400">55%</td><td class="px-3 py-2 text-xs text-slate-400">政策平稳、外需温和</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">乐观</td><td class="px-3 py-2 text-xs text-slate-400">5.5%</td><td class="px-3 py-2 text-xs text-slate-400">2.0%</td><td class="px-3 py-2 text-xs text-slate-400">20%</td><td class="px-3 py-2 text-xs text-slate-400">消费超预期、政策加码</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">悲观</td><td class="px-3 py-2 text-xs text-slate-400">4.5%</td><td class="px-3 py-2 text-xs text-slate-400">1.0%</td><td class="px-3 py-2 text-xs text-slate-400">25%</td><td class="px-3 py-2 text-xs text-slate-400">外需大幅下滑、房地产再下台阶</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">七、资产配置建议</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">A股</div><div class="text-xs text-slate-400"><span class="text-slate-500">配置建议:</span> 中性偏积极</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 估值低位、政策支持</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">债券</div><div class="text-xs text-slate-400"><span class="text-slate-500">配置建议:</span> 利率债优于信用债</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 低通胀、宽松货币</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">汇率</div><div class="text-xs text-slate-400"><span class="text-slate-500">配置建议:</span> 双向波动</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 中美利差收窄</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">黄金</div><div class="text-xs text-slate-400"><span class="text-slate-500">配置建议:</span> 适度配置</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 地缘政治对冲</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s13" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析方法类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">如何判断当前经济处于周期的哪个阶段？需要观察哪些指标？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：产出缺口、领先指标、通胀趋势</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">预测宏观经济的主要方法有哪些？各有什么优缺点？如何选择？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：时间序列、结构模型、专家判断</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">如何解读央行的政策信号？需要关注哪些细节？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：措辞变化、数量vs价格、前瞻指引</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">实践应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">撰写宏观研究报告应该包含哪些核心要素？如何确保逻辑一致？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：框架、数据、论证、结论</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">宏观分析如何转化为具体的资产配置建议？需要注意什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：因果关系、时滞、市场定价</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何进行有效的情景分析？如何设定概率？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：驱动因素、独立性、敏感性</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">宏观预测为什么经常出错？如何提高预测的可靠性？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：模型局限、黑天鹅、过度自信</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">"黑天鹅"事件如何纳入宏观分析框架？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：尾部风险、情景规划、韧性</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">宏观分析师应该如何平衡"讲故事"和"数据驱动"？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：叙事偏差、过度拟合、沟通效果</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s14" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">研究报告范例</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">IMF World Economic Outlook</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 全球展望</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 权威、全面</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美联储褐皮书</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 区域经济</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 定性分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国人民银行货币政策报告</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 中国货币</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 官方视角</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">各大券商宏观报告</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 市场分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 投资导向</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据平台</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">平台</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">覆盖</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">费用</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Wind</td><td class="px-3 py-2 text-xs text-slate-400">中国</td><td class="px-3 py-2 text-xs text-slate-400">最全面</td><td class="px-3 py-2 text-xs text-slate-400">付费</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CEIC</td><td class="px-3 py-2 text-xs text-slate-400">全球</td><td class="px-3 py-2 text-xs text-slate-400">国际比较</td><td class="px-3 py-2 text-xs text-slate-400">付费</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FRED</td><td class="px-3 py-2 text-xs text-slate-400">美国</td><td class="px-3 py-2 text-xs text-slate-400">免费便捷</td><td class="px-3 py-2 text-xs text-slate-400">免费</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">国家统计局</td><td class="px-3 py-2 text-xs text-slate-400">中国</td><td class="px-3 py-2 text-xs text-slate-400">官方</td><td class="px-3 py-2 text-xs text-slate-400">免费</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">实用工具</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Excel</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 数据处理基础</div><div class="text-xs text-slate-400"><span class="text-slate-500">学习成本:</span> 低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Python/R</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 高级分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">学习成本:</span> 中</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">EViews/Stata</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 计量分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">学习成本:</span> 中</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Tableau/Power BI</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 可视化</div><div class="text-xs text-slate-400"><span class="text-slate-500">学习成本:</span> 低-中</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">必读书籍</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《宏观经济学》Blanchard - 分析框架</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《预测》Tetlock - 预测方法论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《这次不一样》Reinhart & Rogoff - 危机历史</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+<section id="s19" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">一、全球经济环境</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 发达经济体</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 新兴市场</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 全球风险因素</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+  </div>
+</section>
+
+<section id="s20" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">二、国内经济分析</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 增长动能分析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 通胀形势判断</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 就业与收入</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+  </div>
+</section>
+
+<section id="s21" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">三、金融环境分析</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 货币信贷</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 利率与汇率</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 金融风险</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+  </div>
+</section>
+
+<section id="s22" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">四、政策展望</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 货币政策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 财政政策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 其他政策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[分析内容]</p>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s24" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">六、投资启示</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">1 大类资产配置</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[建议内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">2 行业机会与风险</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[建议内容]</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">3 风险提示</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">[风险提示内容]</p>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          宏观研究报告撰写流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握专业宏观分析报告的方法论</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">数据采集</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">多源·高频</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">框架分析</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">周期·结构</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">模型预测</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">情景·压力</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">报告输出</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">结论·建议</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">数据采集</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">多源·高频</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>官方统计: GDP/CPI/PMI等月度季度数据</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>高频指标: 发电量/货运量/信贷脉冲</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>市场数据: 利率曲线/信用利差/VIX</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">框架分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">周期·结构</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>经济周期定位: 复苏→扩张→滞胀→衰退</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>增长动能分解: 消费/投资/出口贡献</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>政策环境判断: 宽松/中性/紧缩</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">模型预测</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">情景·压力</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>基准情景: 最可能的经济路径</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>乐观/悲观情景: 上下行风险</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>压力测试: 极端事件下的冲击评估</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">报告输出</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">结论·建议</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>宏观展望: 未来1-4个季度经济判断</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>资产配置建议: 股债商品黄金比例</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>风险提示: 需要关注的尾部风险</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          宏观经济健康仪表盘
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块模拟经济周期阶段</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-total"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 380" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="40" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="42" y="50" fill="#64748b" font-size="11">%</text>
+      <rect id="comp-1-bar0" x="90" y="340" width="100" height="0" fill="#34d399" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv0" x="140" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-1-bar1" x="205" y="340" width="100" height="0" fill="#f87171" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv1" x="255" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-1-bar2" x="320" y="340" width="100" height="0" fill="#fbbf24" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv2" x="370" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-1-bar3" x="435" y="340" width="100" height="0" fill="#60a5fa" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv3" x="485" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+
+      <text x="140" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">GDP增速</text>
+<text x="255" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">通胀率</text>
+<text x="370" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">失业率</text>
+<text x="485" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">利率</text>
+
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">经济景气度 <span class="text-white font-mono" id="comp-1-sl">Cycle = 0</span></div>
+      <input type="range" id="comp-1-slider" min="-5" max="5" value="0" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          宏观综合评分计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">输入关键指标，生成宏观评分</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">GDP增速 (%)</label>
+            <input type="number" id="comp-2-gdp" value="5" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">失业率 (%)</label>
+            <input type="number" id="comp-2-unemp" value="5" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">通胀率 (%)</label>
+            <input type="number" id="comp-2-infl" value="3" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">利率 (%)</label>
+            <input type="number" id="comp-2-rate" value="4" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">经济健康度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">综合评分</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">增长判断</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">通胀判断</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">周期阶段</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ Score = w_1 \cdot g_{GDP} + w_2 \cdot (1-u) + w_3 \cdot (1-\pi) \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 08</div>
+    <div class="mt-2 md:mt-0">下一章：微观数据与市场基本力量分析 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\frac{1}{n}\\sum', tip: '所有数加起来除以个数，就是平均数'},
+    {match: ' = r^* + ', tip: '自然利率——经济均衡时的实际利率'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var vals=[3+c*0.5, 2+c*0.3, 5-c*0.3, 3+c*0.2];
+    
+    var h0=Math.max(0,(vals[0]/15)*300);
+    document.getElementById('comp-1-bar0').setAttribute('y',340-h0);
+    document.getElementById('comp-1-bar0').setAttribute('height',h0);
+    document.getElementById('comp-1-bv0').setAttribute('y',340-h0-5);
+    document.getElementById('comp-1-bv0').textContent=vals[0].toFixed(1);
+    var h1=Math.max(0,(vals[1]/15)*300);
+    document.getElementById('comp-1-bar1').setAttribute('y',340-h1);
+    document.getElementById('comp-1-bar1').setAttribute('height',h1);
+    document.getElementById('comp-1-bv1').setAttribute('y',340-h1-5);
+    document.getElementById('comp-1-bv1').textContent=vals[1].toFixed(1);
+    var h2=Math.max(0,(vals[2]/15)*300);
+    document.getElementById('comp-1-bar2').setAttribute('y',340-h2);
+    document.getElementById('comp-1-bar2').setAttribute('height',h2);
+    document.getElementById('comp-1-bv2').setAttribute('y',340-h2-5);
+    document.getElementById('comp-1-bv2').textContent=vals[2].toFixed(1);
+    var h3=Math.max(0,(vals[3]/15)*300);
+    document.getElementById('comp-1-bar3').setAttribute('y',340-h3);
+    document.getElementById('comp-1-bar3').setAttribute('height',h3);
+    document.getElementById('comp-1-bv3').setAttribute('y',340-h3-5);
+    document.getElementById('comp-1-bv3').textContent=vals[3].toFixed(1);
+    document.getElementById('comp-1-sl').textContent='Cycle = '+c.toFixed(1);
+    document.getElementById('comp-1-total').textContent='景气指数: '+((3+c*0.5)-(5-c*0.3)-(2+c*0.3)).toFixed(1);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var gdp=parseFloat(document.getElementById('comp-2-gdp').value);
+    var unemp=parseFloat(document.getElementById('comp-2-unemp').value);
+    var infl=parseFloat(document.getElementById('comp-2-infl').value);
+    var rate=parseFloat(document.getElementById('comp-2-rate').value);
+
+    var score=30*(gdp/8)+25*((10-unemp)/10)+25*((5-Math.abs(infl-2))/5)+20*((8-rate)/8);
+    score=Math.max(0,Math.min(100,score));
+    document.getElementById('comp-2-out0').textContent=score.toFixed(0);
+    document.getElementById('comp-2-out1').textContent=gdp>6?'强劲':(gdp>3?'温和':'疲软');
+    document.getElementById('comp-2-out2').textContent=infl<3?'稳定':(infl<5?'偏高':'过热');
+    document.getElementById('comp-2-out3').textContent=score>70?'扩张':(score>40?'平稳':'收缩');
+    // Ring
+    var score=Math.max(0,Math.min(1,score/100));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

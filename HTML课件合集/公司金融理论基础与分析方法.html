@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公司金融理论基础与分析方法 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">CorpFin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 01</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">公司金融理论基础与分析方法</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">公司金融的入门章节，建立企业财务分析的基本框架</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">财务报表</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">分析方法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">公司金融的核心问题</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">公司金融（Corporate Finance）回答企业的三大核心财务决策：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">决策类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心问题</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">关键指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">对应章节</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">投资决策</td><td class="px-3 py-2 text-xs text-slate-400">投资什么项目？</td><td class="px-3 py-2 text-xs text-slate-400">NPV、IRR、ROIC</td><td class="px-3 py-2 text-xs text-slate-400">第4章</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">融资决策</td><td class="px-3 py-2 text-xs text-slate-400">如何筹集资金？</td><td class="px-3 py-2 text-xs text-slate-400">资本结构、WACC</td><td class="px-3 py-2 text-xs text-slate-400">第3、5章</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">股利决策</td><td class="px-3 py-2 text-xs text-slate-400">如何分配利润？</td><td class="px-3 py-2 text-xs text-slate-400">股利政策、回购</td><td class="px-3 py-2 text-xs text-slate-400">第6章</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">目标函数</span>：股东价值最大化（Shareholder Value Maximization）</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[企业价值 = \sum_{t=1}^{\infty} \frac{E(FCF_t)}{(1+WACC)^t}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">为什么是股东价值而非利润最大化？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润是会计概念，容易操纵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润不考虑货币时间价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润不考虑风险调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股东是剩余索取权人，保护股东利益激励效率</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">财务报表分析体系</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三大财务报表的关系</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">报表</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">反映内容</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">时点/期间</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心等式</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">资产负债表</td><td class="px-3 py-2 text-xs text-slate-400">财务状况</td><td class="px-3 py-2 text-xs text-slate-400">时点</td><td class="px-3 py-2 text-xs text-slate-400">资产 = 负债 + 权益</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">利润表</td><td class="px-3 py-2 text-xs text-slate-400">经营成果</td><td class="px-3 py-2 text-xs text-slate-400">期间</td><td class="px-3 py-2 text-xs text-slate-400">收入 - 费用 = 利润</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现金流量表</td><td class="px-3 py-2 text-xs text-slate-400">现金变动</td><td class="px-3 py-2 text-xs text-slate-400">期间</td><td class="px-3 py-2 text-xs text-slate-400">期初现金 + 现金流 = 期末现金</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">财务报表的勾稽关系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Delta 留存收益 = 净利润 - 股利\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Delta 现金 = 经营现金流 + 投资现金流 + 融资现金流\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键财务恒等式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[资产 = 负债 + 所有者权益\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[总资产 = 流动资产 + 固定资产 + 无形资产\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">财务比率分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">五大类财务比率及其解读</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类别</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">代表指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">计算公式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">行业标准参考</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">流动性</td><td class="px-3 py-2 text-xs text-slate-400">流动比率</td><td class="px-3 py-2 text-xs text-slate-400">流动资产/流动负债</td><td class="px-3 py-2 text-xs text-slate-400">1.5-2.0</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">流动性</td><td class="px-3 py-2 text-xs text-slate-400">速动比率</td><td class="px-3 py-2 text-xs text-slate-400">(流动资产-存货)/流动负债</td><td class="px-3 py-2 text-xs text-slate-400">1.0-1.5</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">杠杆</td><td class="px-3 py-2 text-xs text-slate-400">资产负债率</td><td class="px-3 py-2 text-xs text-slate-400">总负债/总资产</td><td class="px-3 py-2 text-xs text-slate-400">40%-60%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">杠杆</td><td class="px-3 py-2 text-xs text-slate-400">利息保障倍数</td><td class="px-3 py-2 text-xs text-slate-400">EBIT/利息费用</td><td class="px-3 py-2 text-xs text-slate-400">>3.0</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">效率</td><td class="px-3 py-2 text-xs text-slate-400">总资产周转率</td><td class="px-3 py-2 text-xs text-slate-400">销售收入/平均总资产</td><td class="px-3 py-2 text-xs text-slate-400">行业差异大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">效率</td><td class="px-3 py-2 text-xs text-slate-400">存货周转率</td><td class="px-3 py-2 text-xs text-slate-400">销售成本/平均存货</td><td class="px-3 py-2 text-xs text-slate-400">行业差异大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利</td><td class="px-3 py-2 text-xs text-slate-400">毛利率</td><td class="px-3 py-2 text-xs text-slate-400">(收入-成本)/收入</td><td class="px-3 py-2 text-xs text-slate-400">行业差异大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利</td><td class="px-3 py-2 text-xs text-slate-400">净利率</td><td class="px-3 py-2 text-xs text-slate-400">净利润/收入</td><td class="px-3 py-2 text-xs text-slate-400">5%-20%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利</td><td class="px-3 py-2 text-xs text-slate-400">ROE</td><td class="px-3 py-2 text-xs text-slate-400">净利润/股东权益</td><td class="px-3 py-2 text-xs text-slate-400">10%-20%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利</td><td class="px-3 py-2 text-xs text-slate-400">ROA</td><td class="px-3 py-2 text-xs text-slate-400">净利润/总资产</td><td class="px-3 py-2 text-xs text-slate-400">5%-10%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">估值</td><td class="px-3 py-2 text-xs text-slate-400">P/E</td><td class="px-3 py-2 text-xs text-slate-400">股价/每股收益</td><td class="px-3 py-2 text-xs text-slate-400">10-25x</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">估值</td><td class="px-3 py-2 text-xs text-slate-400">P/B</td><td class="px-3 py-2 text-xs text-slate-400">股价/每股净资产</td><td class="px-3 py-2 text-xs text-slate-400">1-3x</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">估值</td><td class="px-3 py-2 text-xs text-slate-400">EV/EBITDA</td><td class="px-3 py-2 text-xs text-slate-400">企业价值/EBITDA</td><td class="px-3 py-2 text-xs text-slate-400">6-12x</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">杜邦分析体系</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经典杜邦分解（三因素）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ROE = \frac{净利润}{销售收入} \times \frac{销售收入}{总资产} \times \frac{总资产}{股东权益}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ROE = 净利率 \times 资产周转率 \times 权益乘数\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">扩展杜邦分解（五因素）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ROE = \frac{净利润}{EBT} \times \frac{EBT}{EBIT} \times \frac{EBIT}{销售收入} \times \frac{销售收入}{总资产} \times \frac{总资产}{股东权益}\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税负保留率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 净利润/EBT</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响因素:</span> 税率政策</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">利息保留率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> EBT/EBIT</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响因素:</span> 资本结构</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">营业利润率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> EBIT/销售收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响因素:</span> 成本控制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资产周转率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 销售收入/总资产</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响因素:</span> 运营效率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">权益乘数</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 总资产/股东权益</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响因素:</span> 财务杠杆</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">自由现金流分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">企业自由现金流（FCFF）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[FCFF = EBIT(1-T) + D\&A - CAPEX - \Delta NWC\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">股权自由现金流（FCFE）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[FCFE = FCFF - 利息(1-T) + 净借款\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">另一种计算方式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[FCFE = 净利润 + D\&A - CAPEX - \Delta NWC + 净借款\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">EBIT</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 息税前利润</div><div class="text-xs text-slate-400"><span class="text-slate-500">理解要点:</span> 不受资本结构影响的盈利</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">D&A</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 折旧与摊销</div><div class="text-xs text-slate-400"><span class="text-slate-500">理解要点:</span> 非现金费用，需加回</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CAPEX</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 资本支出</div><div class="text-xs text-slate-400"><span class="text-slate-500">理解要点:</span> 维持和增长所需投资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">ΔNWC</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 营运资本变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">理解要点:</span> 流动资产-流动负债的变化</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">现金流 vs 利润的重要区别</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润可以通过会计政策操纵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现金流更难造假（"Cash is King"）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润不等于可分配的真实盈余</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>应计项目可能与现金收付脱节</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：资产负债表结构模型</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Assets = Liabilities + Equity\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资产侧分解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[总资产 = 现金 + 应收账款 + 存货 + 固定资产 + 其他资产\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">负债侧分解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[负债 = 流动负债 + 长期负债\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[权益 = 股本 + 资本公积 + 留存收益\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：净营运资本分析</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NWC = 流动资产 - 流动负债\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NWC = (现金 + 应收账款 + 存货) - (应付账款 + 预收款项 + 短期借款)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">净营运资本的意义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>NWC > 0：短期资产覆盖短期负债，流动性好</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>NWC < 0：可能面临短期偿债压力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过高的NWC可能意味着资金使用效率低</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：EBITDA与企业价值</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[EBITDA = 营业利润 + 折旧 + 摊销\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[EBITDA = 收入 - 经营成本（不含D\&A）\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">企业价值（EV）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[EV = 市值 + 净负债\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[EV = 市值 + 有息负债 - 现金\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">EV/EBITDA倍数的意义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>去除资本结构和折旧政策影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>便于跨公司、跨国比较</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>反映收购者需支付的倍数</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：可持续增长率</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[g^* = ROE \times (1 - 股利支付率) = ROE \times b\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(b\) 为留存比例（Plowback Ratio）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">可持续增长的含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不改变资本结构时企业能维持的最大增长率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>超过此增长率需要外部融资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>增长过快可能带来财务压力</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">果</span>
+        <h3 class="text-white font-semibold text-sm">案例1：苹果公司的财务策略演变</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：苹果是全球市值最高的公司之一，其财务策略经历了显著演变。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">财务特点分析</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2015年</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2023年</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">变化趋势</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">毛利率</td><td class="px-3 py-2 text-xs text-slate-400">40.1%</td><td class="px-3 py-2 text-xs text-slate-400">44.1%</td><td class="px-3 py-2 text-xs text-slate-400">上升</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现金储备</td><td class="px-3 py-2 text-xs text-slate-400">2060亿</td><td class="px-3 py-2 text-xs text-slate-400">1620亿</td><td class="px-3 py-2 text-xs text-slate-400">下降</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">负债率</td><td class="px-3 py-2 text-xs text-slate-400">35%</td><td class="px-3 py-2 text-xs text-slate-400">52%</td><td class="px-3 py-2 text-xs text-slate-400">上升</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">回购规模</td><td class="px-3 py-2 text-xs text-slate-400">350亿</td><td class="px-3 py-2 text-xs text-slate-400">900亿/年</td><td class="px-3 py-2 text-xs text-slate-400">大幅上升</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">策略转变</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>从零负债转向适度举债，利用税盾</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>从囤积现金转向积极回购股票</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>开始派发股息，平衡成长与回报</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分析要点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>为什么苹果不把现金用于大规模收购？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高毛利率反映什么竞争优势？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>回购与股息如何创造股东价值？</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">瑞</span>
+        <h3 class="text-white font-semibold text-sm">案例2：瑞幸咖啡财务造假事件</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：2020年4月，瑞幸自曝财务造假22亿元人民币。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">造假手法</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">虚增交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体操作:</span> 关联方虚假采购</div><div class="text-xs text-slate-400"><span class="text-slate-500">识别信号:</span> 现金流与收入不匹配</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">虚增收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体操作:</span> 虚假销售订单</div><div class="text-xs text-slate-400"><span class="text-slate-500">识别信号:</span> 单店收入异常增长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">虚减成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体操作:</span> 补贴计入其他科目</div><div class="text-xs text-slate-400"><span class="text-slate-500">识别信号:</span> 毛利率异常高</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">识别财务造假的信号</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>经营现金流与净利润长期背离</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>应收账款增速远超收入增速</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>关联交易占比异常高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>审计师变更或保留意见</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>管理层频繁减持</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现金流验证收入的重要性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实地调研的价值（浑水报告）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>财务比率交叉验证</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">恒</span>
+        <h3 class="text-white font-semibold text-sm">案例3：恒大集团的高杠杆困境</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：恒大曾是中国最大的房企，2021年陷入债务危机。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">财务状况演变</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2018年</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2021年</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">风险信号</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">负债率</td><td class="px-3 py-2 text-xs text-slate-400">83%</td><td class="px-3 py-2 text-xs text-slate-400">89%</td><td class="px-3 py-2 text-xs text-slate-400">持续攀升</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">净负债率</td><td class="px-3 py-2 text-xs text-slate-400">152%</td><td class="px-3 py-2 text-xs text-slate-400">199%</td><td class="px-3 py-2 text-xs text-slate-400">远超红线</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现金短债比</td><td class="px-3 py-2 text-xs text-slate-400">0.9x</td><td class="px-3 py-2 text-xs text-slate-400">0.6x</td><td class="px-3 py-2 text-xs text-slate-400">流动性紧张</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">有息负债</td><td class="px-3 py-2 text-xs text-slate-400">6730亿</td><td class="px-3 py-2 text-xs text-slate-400">8700亿</td><td class="px-3 py-2 text-xs text-slate-400">规模巨大</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三道红线政策</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[剔除预收款后资产负债率 < 70\%\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[净负债率 < 100\%\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[现金短债比 > 1\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分析要点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>高杠杆模式的脆弱性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>预售制下现金流错配风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>财务杠杆与经营风险叠加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>宏观调控对企业的影响</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么公司金融的目标是股东价值最大化，而不是利润最大化？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑货币时间价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑风险调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>避免会计操纵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股东作为剩余索取权人</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">净利润和自由现金流有什么区别？为什么分析师更关注现金流？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润包含非现金项目</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润可被会计政策操纵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现金流反映真实可分配价值</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">ROE高一定意味着公司优秀吗？高杠杆如何影响ROE？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>杜邦分解揭示ROE来源</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高杠杆可以"粉饰"ROE</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需结合风险评估</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如何通过财务报表识别公司的财务风险信号？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>流动性指标恶化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现金流与利润背离</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关联交易异常</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">杜邦分析如何帮助理解不同行业的商业模式差异？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>零售业：高周转、低利润率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>奢侈品：低周转、高利润率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>银行业：高杠杆</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何评估一家公司的自由现金流质量？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现金流稳定性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资本支出的维持vs增长部分</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>营运资本变化的持续性</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">财务报表能完整反映公司价值吗？有哪些重要信息未被包含？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无形资产低估</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>人力资本未计量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>未来增长期权</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">ESG因素应该如何纳入财务分析框架？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>环境风险定价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社会责任成本/收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>治理溢价</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">人工智能如何改变传统财务分析方法？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>大数据异常检测</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自动化报告生成</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预测模型优化</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《公司理财》</td><td class="px-3 py-2 text-xs text-slate-400">Ross, Westerfield, Jaffe</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">最流行的教材，案例丰富</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《公司财务原理》</td><td class="px-3 py-2 text-xs text-slate-400">Brealey, Myers, Allen</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">理论深入，诺奖得主著作</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《财务报表分析与证券估值》</td><td class="px-3 py-2 text-xs text-slate-400">Penman</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">会计与估值的结合</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《应用公司金融》</td><td class="px-3 py-2 text-xs text-slate-400">Damodaran</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">实务导向，数据丰富</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">论文</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"The Cost of Capital, Corporation Finance and the Theory of Investment"</td><td class="px-3 py-2 text-xs text-slate-400">Modigliani & Miller</td><td class="px-3 py-2 text-xs text-slate-400">1958</td><td class="px-3 py-2 text-xs text-slate-400">MM定理开创性工作</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Theory of the Firm: Managerial Behavior, Agency Costs and Ownership Structure"</td><td class="px-3 py-2 text-xs text-slate-400">Jensen & Meckling</td><td class="px-3 py-2 text-xs text-slate-400">1976</td><td class="px-3 py-2 text-xs text-slate-400">代理理论基础</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>达摩达兰《估值》系列 - 估值实务圣经</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>霍华德·马克斯备忘录 - 投资与风险智慧</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《财务骗术》- 识别财务造假</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">在线资源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Damodaran Online</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> damodaran.com</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 估值数据与教学资料</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">WRDS</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> wrds-web.wharton.upenn.edu</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 金融数据库</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Edgar</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> sec.gov/edgar</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 美国上市公司财报</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          财务分析方法论
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从财报阅读到企业诊断的分析链</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">财报阅读</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">三表联动</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">比率分析</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">杜邦体系</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">趋势比较</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">时序·横截面</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">综合诊断</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">评分·预警</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">财报阅读</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">三表联动</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>利润表: 盈利能力→净利润的质量</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>资产负债表: 偿债能力→资产负债结构</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>现金流量表: 造血能力→经营现金流</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">比率分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">杜邦体系</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>ROE=净利率×周转率×权益乘数</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>盈利能力: 毛利率/净利率/ROIC</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>运营效率: 应收周转/存货周转/总资产周转</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">趋势比较</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">时序·横截面</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>纵向分析: 自身历史趋势变化</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>横向分析: 与同行业对标比较</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>共同比分析: 结构变化诊断</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">综合诊断</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">评分·预警</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>Z-Score模型: 破产风险预警</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>财务健康评分: 多维度加权</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>管理层分析: 战略意图与执行能力</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          杜邦分析计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">拆解ROE为三大驱动因素</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">净利润(万)</label>
+            <input type="number" id="comp-1-ni" value="500" min="0" step="50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">营业收入(万)</label>
+            <input type="number" id="comp-1-rev" value="5000" min="0" step="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">总资产(万)</label>
+            <input type="number" id="comp-1-ast" value="10000" min="0" step="500" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">股东权益(万)</label>
+            <input type="number" id="comp-1-eq" value="4000" min="0" step="200" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-1-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-1-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-1-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-1-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">ROE健康度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">ROE</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">净利率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">资产周转率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">权益乘数</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-1-note" style="display:none">
+          <span id="comp-1-note-icon"></span>
+          <span id="comp-1-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ ROE = \frac{NI}{Sales} \times \frac{Sales}{Assets} \times \frac{Assets}{Equity} \]</div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          财务比率雷达图
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整杠杆水平，观察财务指标联动</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-2-total"></span>
+      </div>
+    </div>
+    <svg id="comp-2-svg" viewBox="0 0 600 380" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="40" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="42" y="50" fill="#64748b" font-size="11">指标值</text>
+      <rect id="comp-2-bar0" x="90" y="340" width="100" height="0" fill="#34d399" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv0" x="140" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-2-bar1" x="205" y="340" width="100" height="0" fill="#60a5fa" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv1" x="255" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-2-bar2" x="320" y="340" width="100" height="0" fill="#fbbf24" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv2" x="370" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-2-bar3" x="435" y="340" width="100" height="0" fill="#c084fc" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv3" x="485" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+
+      <text x="140" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">流动比率</text>
+<text x="255" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">ROE%</text>
+<text x="370" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">资产负债率%</text>
+<text x="485" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">利息倍数</text>
+
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">杠杆水平 <span class="text-white font-mono" id="comp-2-sl">Lev = 20</span></div>
+      <input type="range" id="comp-2-slider" min="0" max="50" value="20" step="1">
+    </div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 公司金融 Chapter 01</div>
+    <div class="mt-2 md:mt-0">下一章：公司治理机制与股东价值 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '(1+WACC)^t', tip: '公司借钱的综合成本，是债务成本和股权成本的加权平均'},
+    {match: '\\Delta 留存收益', tip: '留存收益变化 = 净利润 - 股利'},
+    {match: '\\Delta 现金', tip: '现金变化 = 经营+投资+融资三项活动的现金流之和'},
+    {match: '资产 = 负债', tip: '会计恒等式：企业资产 = 别人的钱 + 自己的钱'},
+    {match: 'ROE = ', tip: '股东每投入1块钱能赚多少，ROE=15%意味着100块本金一年赚15块'},
+    {match: '净利率 \\times', tip: '杜邦分析：ROE = 赚钱能力 × 运营效率 × 杠杆倍数'},
+    {match: 'FCFF = EBIT(1-T)', tip: '企业自由现金流——经营利润扣税后减去再投资'},
+    {match: 'FCFE = 净利润', tip: '股权自由现金流——股东真正能拿到手的钱'},
+    {match: 'Assets = Liabilities + Equity', tip: '会计恒等式——资产=负债+股东权益'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  document.getElementById('comp-1-btn').addEventListener('click',function(){
+    var ni=parseFloat(document.getElementById('comp-1-ni').value);
+    var rev=parseFloat(document.getElementById('comp-1-rev').value);
+    var ast=parseFloat(document.getElementById('comp-1-ast').value);
+    var eq=parseFloat(document.getElementById('comp-1-eq').value);
+
+    var npm=ni/rev*100; var at=rev/ast; var em=ast/eq;
+    var roe=npm/100*at*em*100;
+    document.getElementById('comp-1-out0').textContent=roe.toFixed(1)+'%';
+    document.getElementById('comp-1-out1').textContent=npm.toFixed(1)+'%';
+    document.getElementById('comp-1-out2').textContent=at.toFixed(2)+'x';
+    document.getElementById('comp-1-out3').textContent=em.toFixed(2)+'x';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,ni/rev*rev/ast*ast/eq*100/25)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-1-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-1-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+(function(){
+  var slider=document.getElementById('comp-2-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var vals=[2.0-c*0.02, 12+c*0.3, 30+c, Math.max(1,8-c*0.1)];
+    
+    var h0=Math.max(0,(vals[0]/30)*300);
+    document.getElementById('comp-2-bar0').setAttribute('y',340-h0);
+    document.getElementById('comp-2-bar0').setAttribute('height',h0);
+    document.getElementById('comp-2-bv0').setAttribute('y',340-h0-5);
+    document.getElementById('comp-2-bv0').textContent=vals[0].toFixed(1);
+    var h1=Math.max(0,(vals[1]/30)*300);
+    document.getElementById('comp-2-bar1').setAttribute('y',340-h1);
+    document.getElementById('comp-2-bar1').setAttribute('height',h1);
+    document.getElementById('comp-2-bv1').setAttribute('y',340-h1-5);
+    document.getElementById('comp-2-bv1').textContent=vals[1].toFixed(1);
+    var h2=Math.max(0,(vals[2]/30)*300);
+    document.getElementById('comp-2-bar2').setAttribute('y',340-h2);
+    document.getElementById('comp-2-bar2').setAttribute('height',h2);
+    document.getElementById('comp-2-bv2').setAttribute('y',340-h2-5);
+    document.getElementById('comp-2-bv2').textContent=vals[2].toFixed(1);
+    var h3=Math.max(0,(vals[3]/30)*300);
+    document.getElementById('comp-2-bar3').setAttribute('y',340-h3);
+    document.getElementById('comp-2-bar3').setAttribute('height',h3);
+    document.getElementById('comp-2-bv3').setAttribute('y',340-h3-5);
+    document.getElementById('comp-2-bv3').textContent=vals[3].toFixed(1);
+    document.getElementById('comp-2-sl').textContent='Lev = '+c.toFixed(1);
+    document.getElementById('comp-2-total').textContent='资产负债率: '+(30+c).toFixed(0)+'%';
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

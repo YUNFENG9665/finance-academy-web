@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3. Bootstrap检验 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">AI-Fin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 07</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">3. Bootstrap检验</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">金融AI应用的设计原则与验证方法论</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">设计模式</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">评估方法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融AI产品设计方法论</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">设计思维在金融AI中的应用</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">金融AI产品不同于一般AI应用，需要特别关注<span class="text-white font-semibold">风险控制</span>、<span class="text-white font-semibold">合规要求</span>和<span class="text-white font-semibold">可解释性</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">产品设计六阶段模型</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">阶段</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心任务</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">关键产出</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">常见陷阱</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">1. 问题定义</td><td class="px-3 py-2 text-xs text-slate-400">明确业务痛点和目标</td><td class="px-3 py-2 text-xs text-slate-400">需求文档、成功指标</td><td class="px-3 py-2 text-xs text-slate-400">问题定义模糊、指标不可量化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2. 数据评估</td><td class="px-3 py-2 text-xs text-slate-400">评估数据可用性和质量</td><td class="px-3 py-2 text-xs text-slate-400">数据字典、质量报告</td><td class="px-3 py-2 text-xs text-slate-400">高估数据质量、忽视数据偏差</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">3. 方案设计</td><td class="px-3 py-2 text-xs text-slate-400">技术选型和架构设计</td><td class="px-3 py-2 text-xs text-slate-400">技术方案、原型设计</td><td class="px-3 py-2 text-xs text-slate-400">过度工程、忽视约束条件</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">4. 开发实现</td><td class="px-3 py-2 text-xs text-slate-400">模型开发和系统集成</td><td class="px-3 py-2 text-xs text-slate-400">MVP产品、测试报告</td><td class="px-3 py-2 text-xs text-slate-400">离线指标与线上脱节</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">5. 验证评估</td><td class="px-3 py-2 text-xs text-slate-400">回测、A/B测试</td><td class="px-3 py-2 text-xs text-slate-400">评估报告、决策建议</td><td class="px-3 py-2 text-xs text-slate-400">回测过拟合、测试不充分</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">6. 部署运维</td><td class="px-3 py-2 text-xs text-slate-400">上线、监控、迭代</td><td class="px-3 py-2 text-xs text-slate-400">运维手册、监控仪表盘</td><td class="px-3 py-2 text-xs text-slate-400">忽视模型漂移、缺乏回滚机制</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融AI产品的特殊考量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">通用AI产品关注：准确率、用户体验、成本
+                    │
+                    ▼
+金融AI产品额外关注：
+├── 风险控制：模型失效的后果可能是巨额损失
+├── 合规要求：监管对AI应用有明确要求（如SR 11-7）
+├── 可解释性：需要解释模型决策依据
+├── 公平性：不能对特定群体产生歧视
+└── 审计追踪：所有决策需要可追溯</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融模型回测框架</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回测的本质</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">回测是用历史数据模拟策略的实际执行，评估策略的有效性。但回测<span class="text-white font-semibold">不是</span>预测未来，而是<span class="text-white font-semibold">检验策略在历史上是否有效</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回测的核心原则</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原则</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">违反后果</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">检查方法</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">无未来信息</span></td><td class="px-3 py-2 text-xs text-slate-400">决策时只能用当时可用数据</td><td class="px-3 py-2 text-xs text-slate-400">严重高估收益</td><td class="px-3 py-2 text-xs text-slate-400">检查数据时间戳</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">真实成本</span></td><td class="px-3 py-2 text-xs text-slate-400">包含交易成本、滑点、冲击</td><td class="px-3 py-2 text-xs text-slate-400">虚假盈利</td><td class="px-3 py-2 text-xs text-slate-400">实际交易数据验证</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">样本外测试</span></td><td class="px-3 py-2 text-xs text-slate-400">用未参与训练的数据测试</td><td class="px-3 py-2 text-xs text-slate-400">过拟合</td><td class="px-3 py-2 text-xs text-slate-400">严格时间分割</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">多周期验证</span></td><td class="px-3 py-2 text-xs text-slate-400">在不同市场环境下测试</td><td class="px-3 py-2 text-xs text-slate-400">策略脆弱</td><td class="px-3 py-2 text-xs text-slate-400">分周期分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">参数敏感性</span></td><td class="px-3 py-2 text-xs text-slate-400">检验结果对参数的依赖</td><td class="px-3 py-2 text-xs text-slate-400">参数过拟合</td><td class="px-3 py-2 text-xs text-slate-400">参数扫描分析</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">未来信息泄露的常见形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">df[&#x27;signal&#x27;] = df[&#x27;close&#x27;].shift(-1) &gt; df[&#x27;close&#x27;]  # 用了明天的收盘价！
+
+df[&#x27;zscore&#x27;] = (df[&#x27;close&#x27;] - df[&#x27;close&#x27;].mean()) / df[&#x27;close&#x27;].std()
+
+df[&#x27;zscore&#x27;] = (df[&#x27;close&#x27;] - df[&#x27;close&#x27;].rolling(60).mean()) / df[&#x27;close&#x27;].rolling(60).std()</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回测框架的数据划分</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">时间轴 ──────────────────────────────────────────────────►
+
+├──────────────────┼─────────────┼─────────────┼──────────►
+│    训练集        │   验证集    │   测试集    │  实盘
+│  (In-Sample)    │(Validation) │(Out-Sample) │(Live)
+│                  │             │             │
+│  参数估计        │  参数调优   │  最终评估   │  真实检验
+│  模型训练        │  模型选择   │  性能报告   │
+└──────────────────┴─────────────┴─────────────┴──────────►
+
+建议比例：60%      ：  20%      ：   20%</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">回测评估指标体系</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收益指标</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优秀水平</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">年化收益</td><td class="px-3 py-2 text-xs text-slate-400">\((1+r_{total})^{252/n}-1\)</td><td class="px-3 py-2 text-xs text-slate-400">平均年度收益率</td><td class="px-3 py-2 text-xs text-slate-400">>15%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">累计收益</td><td class="px-3 py-2 text-xs text-slate-400">\(\prod(1+r_t)-1\)</td><td class="px-3 py-2 text-xs text-slate-400">总收益率</td><td class="px-3 py-2 text-xs text-slate-400">取决于时长</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">超额收益(Alpha)</td><td class="px-3 py-2 text-xs text-slate-400">\(r_p - r_b\)</td><td class="px-3 py-2 text-xs text-slate-400">相对基准的超额</td><td class="px-3 py-2 text-xs text-slate-400">>0</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">日均收益</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{1}{n}\sum r_t\)</td><td class="px-3 py-2 text-xs text-slate-400">平均日收益</td><td class="px-3 py-2 text-xs text-slate-400">>0.05%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">风险指标</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">警戒水平</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">年化波动率</td><td class="px-3 py-2 text-xs text-slate-400">\(\sigma_d \times \sqrt{252}\)</td><td class="px-3 py-2 text-xs text-slate-400">收益的标准差</td><td class="px-3 py-2 text-xs text-slate-400"><20%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">最大回撤</td><td class="px-3 py-2 text-xs text-slate-400">\(\max_t(1-\frac{V_t}{\max_{s≤t}V_s})\)</td><td class="px-3 py-2 text-xs text-slate-400">峰值到谷底的最大跌幅</td><td class="px-3 py-2 text-xs text-slate-400"><20%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">VaR(95%)</td><td class="px-3 py-2 text-xs text-slate-400">第5分位数损失</td><td class="px-3 py-2 text-xs text-slate-400">95%置信度下最大损失</td><td class="px-3 py-2 text-xs text-slate-400"><2%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CVaR(ES)</td><td class="px-3 py-2 text-xs text-slate-400">VaR以下损失的均值</td><td class="px-3 py-2 text-xs text-slate-400">尾部风险度量</td><td class="px-3 py-2 text-xs text-slate-400"><3%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">风险调整收益指标</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优秀水平</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">夏普比率</span></td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{r_p-r_f}{\sigma_p}\)</td><td class="px-3 py-2 text-xs text-slate-400">单位风险的超额收益</td><td class="px-3 py-2 text-xs text-slate-400">>1.5</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">索提诺比率</span></td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{r_p-r_f}{\sigma_{下行}}\)</td><td class="px-3 py-2 text-xs text-slate-400">只考虑下行风险</td><td class="px-3 py-2 text-xs text-slate-400">>2.0</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">卡尔玛比率</span></td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{年化收益}{最大回撤}\)</td><td class="px-3 py-2 text-xs text-slate-400">收益/回撤</td><td class="px-3 py-2 text-xs text-slate-400">>1.0</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">信息比率</span></td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{r_p-r_b}{\sigma_{tracking}}\)</td><td class="px-3 py-2 text-xs text-slate-400">主动管理能力</td><td class="px-3 py-2 text-xs text-slate-400">>0.5</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交易指标</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">胜率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 盈利交易占比</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注点:</span> >50%通常需要</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">盈亏比</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 平均盈利/平均亏损</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注点:</span> >1.5配合<50%胜率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">换手率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 年化交易额/平均持仓</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注点:</span> 过高侵蚀收益</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">持仓时长</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 平均持有天数</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注点:</span> 与策略逻辑一致</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">过拟合与稳健性检验</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">过拟合的识别</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">过拟合是回测中最大的敌人——策略在历史数据上表现完美，但在新数据上失效。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">过拟合的信号</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">训练-测试差距大</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 样本内夏普>2，样本外<0.5</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验方法:</span> 严格样本外测试</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">参数敏感</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 参数微调导致结果剧变</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验方法:</span> 参数敏感性分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">逻辑不清</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 无法解释策略为何有效</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验方法:</span> 经济逻辑审查</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交易过频</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 依赖噪音而非信号</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验方法:</span> 换手率分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">样本量不足</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 少量交易撑起高收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验方法:</span> 统计显著性检验</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳健性检验方法</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def parameter_sensitivity(strategy, param_name, param_range):
+    &quot;&quot;&quot;检验策略对参数变化的敏感程度&quot;&quot;&quot;
+    results = []
+    for param_value in param_range:
+        sharpe = strategy.backtest(param_name=param_value)
+        results.append(sharpe)
+
+    # 好的策略：结果应该平滑变化，而非剧烈跳跃
+    return np.std(results)  # 标准差越小越稳健
+
+def rolling_backtest(strategy, window_size=252, step=63):
+    &quot;&quot;&quot;在不同时间窗口检验策略有效性&quot;&quot;&quot;
+    sharpes = []
+    for start in range(0, len(data) - window_size, step):
+        window_data = data[start:start+window_size]
+        sharpe = strategy.backtest(window_data)
+        sharpes.append(sharpe)
+
+    # 好的策略：不同窗口表现一致
+    return np.mean(sharpes), np.std(sharpes)
+
+def bootstrap_test(returns, n_samples=1000):
+    &quot;&quot;&quot;估计策略收益的置信区间&quot;&quot;&quot;
+    sharpes = []
+    for _ in range(n_samples):
+        sample = np.random.choice(returns, size=len(returns), replace=True)
+        sharpe = np.mean(sample) / np.std(sample) * np.sqrt(252)
+        sharpes.append(sharpe)
+
+    return np.percentile(sharpes, [2.5, 97.5])  # 95%置信区间</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">A/B测试在金融场景的应用</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">A/B测试的基本框架</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A/B测试是在线实验的金标准，通过随机分组比较不同版本的效果。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融场景的特殊挑战</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">样本量限制</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 金融客户数量有限</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 灵敏度分析、贝叶斯方法</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">外溢效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 用户之间相互影响</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 聚类随机、时间分割</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场环境变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 时间维度的混淆</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 交叉设计、市场调整</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长周期效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 金融决策影响长期</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 延长观察期、代理指标</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">合规约束</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 不能随意改变服务</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 合规审查、知情同意</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融A/B测试的应用场景</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">智能投顾</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试对象:</span> 推荐算法、资产配置</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心指标:</span> 收益率、用户留存</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风控模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试对象:</span> 评分卡、阈值</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心指标:</span> 通过率、违约率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">用户界面</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试对象:</span> 交互设计</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心指标:</span> 转化率、使用时长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定价策略</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试对象:</span> 费率、优惠</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心指标:</span> 收入、客户价值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">营销触达</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试对象:</span> 文案、时机</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心指标:</span> 响应率、ROI</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">样本量计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[n = \frac{2(z_{\alpha/2} + z_\beta)^2 \sigma^2}{\delta^2}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(z_{\alpha/2}\)：显著性水平对应的z值（通常1.96）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(z_\beta\)：统计功效对应的z值（通常0.84对应80%功效）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\sigma\)：指标的标准差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\delta\)：最小检测效应（MDE）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融A/B测试的最佳实践</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">1. 预注册实验设计
+   ├── 明确假设
+   ├── 预定义成功指标
+   ├── 计算所需样本量
+   └── 规定分析方法
+
+2. 随机分组
+   ├── 用户级随机（推荐）
+   ├── 时间级随机（市场研究）
+   └── 地区级随机（政策测试）
+
+3. 运行实验
+   ├── 监控数据质量
+   ├── 检查分组平衡
+   └── 观察严重负面效果
+
+4. 分析结果
+   ├── 主效应分析
+   ├── 异质性分析
+   └── 敏感性分析
+
+5. 决策与部署
+   ├── 统计显著 + 业务显著
+   ├── 考虑长期效应
+   └── 逐步放量</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型监控与漂移检测</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">为什么需要模型监控</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">模型部署后，数据分布和环境会变化，导致模型性能下降——这就是<span class="text-white font-semibold">模型漂移</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">漂移的类型</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">漂移类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">检测方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">金融场景例子</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">数据漂移</span></td><td class="px-3 py-2 text-xs text-slate-400">输入特征分布变化</td><td class="px-3 py-2 text-xs text-slate-400">KS检验、PSI</td><td class="px-3 py-2 text-xs text-slate-400">客户画像变化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">概念漂移</span></td><td class="px-3 py-2 text-xs text-slate-400">特征与目标关系变化</td><td class="px-3 py-2 text-xs text-slate-400">性能监控</td><td class="px-3 py-2 text-xs text-slate-400">市场regime切换</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">标签漂移</span></td><td class="px-3 py-2 text-xs text-slate-400">目标变量分布变化</td><td class="px-3 py-2 text-xs text-slate-400">分布比较</td><td class="px-3 py-2 text-xs text-slate-400">违约率季节性</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">上游漂移</span></td><td class="px-3 py-2 text-xs text-slate-400">数据源变化</td><td class="px-3 py-2 text-xs text-slate-400">数据质量监控</td><td class="px-3 py-2 text-xs text-slate-400">API变更、缺失值</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">监控指标体系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">模型监控仪表盘
+├── 数据质量监控
+│   ├── 缺失率
+│   ├── 异常值比例
+│   ├── 数据延迟
+│   └── Schema变化
+│
+├── 特征分布监控
+│   ├── PSI (Population Stability Index)
+│   │   - PSI &lt; 0.1: 稳定
+│   │   - 0.1 &lt; PSI &lt; 0.25: 轻微漂移
+│   │   - PSI &gt; 0.25: 显著漂移
+│   └── 各特征的分布变化
+│
+├── 模型性能监控
+│   ├── 预测分布
+│   ├── 准确率/AUC变化
+│   ├── 校准曲线
+│   └── 分组表现
+│
+└── 业务指标监控
+    ├── 通过率/拒绝率
+    ├── 违约率
+    └── 收益指标</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">PSI计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PSI = \sum_{i=1}^{n} (Actual_i - Expected_i) \times \ln\left(\frac{Actual_i}{Expected_i}\right)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def calculate_psi(expected, actual, bins=10):
+    &quot;&quot;&quot;计算PSI（Population Stability Index）&quot;&quot;&quot;
+    # 分箱
+    breakpoints = np.percentile(expected, np.linspace(0, 100, bins+1))
+
+    # 计算各箱占比
+    expected_percents = np.histogram(expected, breakpoints)[0] / len(expected)
+    actual_percents = np.histogram(actual, breakpoints)[0] / len(actual)
+
+    # 避免除零
+    expected_percents = np.clip(expected_percents, 0.001, None)
+    actual_percents = np.clip(actual_percents, 0.001, None)
+
+    # PSI
+    psi = np.sum((actual_percents - expected_percents) *
+                 np.log(actual_percents / expected_percents))
+
+    return psi</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融AI的风险管理</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">AI模型风险框架</span>（基于SR 11-7）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">开发风险</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 模型设计缺陷、数据问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">控制措施:</span> 独立验证、文档化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">实施风险</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 部署错误、集成问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">控制措施:</span> 测试环境、灰度发布</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">使用风险</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 超出适用范围、误用</div><div class="text-xs text-slate-400"><span class="text-slate-500">控制措施:</span> 用户培训、使用限制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">监控风险</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 未及时发现问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">控制措施:</span> 持续监控、告警机制</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型治理最佳实践</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">模型生命周期管理
+│
+├── 1. 开发阶段
+│   ├── 需求评审
+│   ├── 数据合规审查
+│   ├── 模型文档化
+│   └── 代码审查
+│
+├── 2. 验证阶段
+│   ├── 独立验证团队
+│   ├── 样本外测试
+│   ├── 压力测试
+│   └── 公平性审计
+│
+├── 3. 部署阶段
+│   ├── 变更管理流程
+│   ├── 灰度发布
+│   ├── 回滚机制
+│   └── 上线审批
+│
+├── 4. 运行阶段
+│   ├── 持续监控
+│   ├── 定期回顾
+│   ├── 事件响应
+│   └── 性能报告
+│
+└── 5. 退役阶段
+    ├── 退役评估
+    ├── 数据归档
+    └── 知识转移</pre></div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：回测收益计算</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">简单收益率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[r_t = \frac{P_t - P_{t-1}}{P_{t-1}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">对数收益率</span>（推荐，可加性）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[r_t = \ln\left(\frac{P_t}{P_{t-1}}\right)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">考虑成本的净收益</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[r_{net} = r_{gross} - tc \times |w_t - w_{t-1}|\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(tc\)是交易成本率，\(w\)是权重变化。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：夏普比率的统计检验</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">夏普比率的标准误</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[SE(SR) = \sqrt{\frac{1 + \frac{SR^2}{2}}{n}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">t检验</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[t = \frac{SR}{SE(SR)} = SR \times \sqrt{\frac{n}{1 + \frac{SR^2}{2}}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">经验法则</span>：年化夏普比率1.5以上需要约2-3年数据才能达到统计显著。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：最大回撤计算</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def max_drawdown(returns):
+    &quot;&quot;&quot;计算最大回撤及持续时间&quot;&quot;&quot;
+    cum_returns = (1 + returns).cumprod()
+    running_max = cum_returns.cummax()
+    drawdown = (cum_returns - running_max) / running_max
+
+    max_dd = drawdown.min()
+
+    # 回撤开始和结束时间
+    end_idx = drawdown.idxmin()
+    start_idx = cum_returns[:end_idx].idxmax()
+
+    return max_dd, start_idx, end_idx</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：A/B测试的统计功效</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">所需样本量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[n = \frac{2(z_{\alpha/2} + z_\beta)^2 \sigma^2}{(\mu_A - \mu_B)^2}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贝叶斯方法的优势后验</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P(\mu_B > \mu_A | data) = \int_0^\infty \int_0^{\mu_B} p(\mu_A, \mu_B | data) d\mu_A d\mu_B\]</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">量</span>
+        <h3 class="text-white font-semibold text-sm">案例1：量化策略的回测陷阱</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：某量化团队开发了一个多因子选股策略，回测夏普比率2.5，但实盘后一年亏损15%。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">问题诊断</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">未来信息泄露</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 使用了财报公告日的数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">根本原因:</span> 数据时间戳错误</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">忽视交易成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 回测无成本，实际小票滑点大</div><div class="text-xs text-slate-400"><span class="text-slate-500">根本原因:</span> 流动性约束</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">过度拟合</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 参数在历史上最优化</div><div class="text-xs text-slate-400"><span class="text-slate-500">根本原因:</span> 训练测试未分离</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场环境变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 回测期是牛市，实盘是震荡</div><div class="text-xs text-slate-400"><span class="text-slate-500">根本原因:</span> 单一周期</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">修正后的回测流程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class RobustBacktester:
+    def __init__(self, data, train_ratio=0.6, val_ratio=0.2):
+        # 严格的时间分割
+        n = len(data)
+        self.train_data = data[:int(n*train_ratio)]
+        self.val_data = data[int(n*train_ratio):int(n*(train_ratio+val_ratio))]
+        self.test_data = data[int(n*(train_ratio+val_ratio)):]
+
+    def run_backtest(self, strategy, transaction_cost=0.003, slippage=0.001):
+        &quot;&quot;&quot;
+        包含真实成本的回测
+        &quot;&quot;&quot;
+        results = []
+
+        for data, name in [(self.train_data, &#x27;train&#x27;),
+                           (self.val_data, &#x27;val&#x27;),
+                           (self.test_data, &#x27;test&#x27;)]:
+            # 生成信号
+            signals = strategy.generate_signals(data)
+
+            # 计算收益（含成本）
+            returns = self._calculate_returns_with_costs(
+                data, signals, transaction_cost, slippage
+            )
+
+            # 计算指标
+            metrics = self._calculate_metrics(returns)
+            metrics[&#x27;dataset&#x27;] = name
+            results.append(metrics)
+
+        return pd.DataFrame(results)
+
+    def _calculate_returns_with_costs(self, data, signals, tc, slippage):
+        &quot;&quot;&quot;考虑交易成本和滑点的收益计算&quot;&quot;&quot;
+        position_changes = signals.diff().abs()
+
+        # 交易成本
+        costs = position_changes * tc
+
+        # 滑点（与交易量成正比的额外成本）
+        slippage_costs = position_changes * slippage
+
+        # 净收益
+        gross_returns = data[&#x27;returns&#x27;] * signals.shift(1)
+        net_returns = gross_returns - costs - slippage_costs
+
+        return net_returns</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>回测夏普>2要高度警惕</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>必须严格分离训练/验证/测试集</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>真实成本可能吃掉大部分收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>多周期验证是必须的</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">智</span>
+        <h3 class="text-white font-semibold text-sm">案例2：智能投顾的A/B测试</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：某银行智能投顾产品要测试新的资产配置算法是否优于现有算法。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实验设计</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">随机单位</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 用户级</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 避免用户间干扰</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">样本量</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 每组5000用户</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 80%功效检测5%收益差异</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实验周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 6个月</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 资产配置需要时间验证</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">主要指标</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 风险调整收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 综合考虑收益和风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">次要指标</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 用户留存、交易活跃度</div><div class="text-xs text-slate-400"><span class="text-slate-500">理由:</span> 行为指标</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分层分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def analyze_ab_test(control, treatment, segments):
+    &quot;&quot;&quot;
+    分层分析A/B测试结果
+    &quot;&quot;&quot;
+    results = []
+
+    # 总体效果
+    overall = {
+        &#x27;segment&#x27;: &#x27;overall&#x27;,
+        &#x27;control_mean&#x27;: control[&#x27;returns&#x27;].mean(),
+        &#x27;treatment_mean&#x27;: treatment[&#x27;returns&#x27;].mean(),
+        &#x27;lift&#x27;: (treatment[&#x27;returns&#x27;].mean() - control[&#x27;returns&#x27;].mean())
+                / control[&#x27;returns&#x27;].mean(),
+        &#x27;p_value&#x27;: ttest_ind(treatment[&#x27;returns&#x27;], control[&#x27;returns&#x27;])[1]
+    }
+    results.append(overall)
+
+    # 分层效果
+    for segment in segments:
+        ctrl_seg = control[control[&#x27;segment&#x27;] == segment]
+        treat_seg = treatment[treatment[&#x27;segment&#x27;] == segment]
+
+        seg_result = {
+            &#x27;segment&#x27;: segment,
+            &#x27;control_mean&#x27;: ctrl_seg[&#x27;returns&#x27;].mean(),
+            &#x27;treatment_mean&#x27;: treat_seg[&#x27;returns&#x27;].mean(),
+            &#x27;lift&#x27;: (treat_seg[&#x27;returns&#x27;].mean() - ctrl_seg[&#x27;returns&#x27;].mean())
+                    / ctrl_seg[&#x27;returns&#x27;].mean(),
+            &#x27;p_value&#x27;: ttest_ind(treat_seg[&#x27;returns&#x27;], ctrl_seg[&#x27;returns&#x27;])[1]
+        }
+        results.append(seg_result)
+
+    return pd.DataFrame(results)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">结果发现</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">细分</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">提升</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">p值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">结论</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">总体</td><td class="px-3 py-2 text-xs text-slate-400">+3.2%</td><td class="px-3 py-2 text-xs text-slate-400">0.02</td><td class="px-3 py-2 text-xs text-slate-400">显著</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">高净值客户</td><td class="px-3 py-2 text-xs text-slate-400">+5.8%</td><td class="px-3 py-2 text-xs text-slate-400">0.01</td><td class="px-3 py-2 text-xs text-slate-400">强效果</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">普通客户</td><td class="px-3 py-2 text-xs text-slate-400">+1.5%</td><td class="px-3 py-2 text-xs text-slate-400">0.15</td><td class="px-3 py-2 text-xs text-slate-400">不显著</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">年轻用户</td><td class="px-3 py-2 text-xs text-slate-400">+4.2%</td><td class="px-3 py-2 text-xs text-slate-400">0.03</td><td class="px-3 py-2 text-xs text-slate-400">显著</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">年长用户</td><td class="px-3 py-2 text-xs text-slate-400">+1.8%</td><td class="px-3 py-2 text-xs text-slate-400">0.12</td><td class="px-3 py-2 text-xs text-slate-400">不显著</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">决策</span>：针对高净值和年轻用户推广新算法，普通和年长用户保持现有算法。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">风</span>
+        <h3 class="text-white font-semibold text-sm">案例3：风控模型的漂移监控</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：某消费金融公司的信用评分模型上线一年后，发现通过率稳定但违约率上升。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">诊断过程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">1. 检查模型性能指标
+   KS值：0.35 → 0.28 (下降)
+   AUC：0.78 → 0.72 (下降)
+
+2. 检查特征分布
+   PSI分析发现：
+   - 收入特征 PSI = 0.32 (显著漂移)
+   - 年龄特征 PSI = 0.08 (稳定)
+   - 负债比特征 PSI = 0.28 (显著漂移)
+
+3. 根因分析
+   - 疫情后客群结构变化
+   - 新渠道带来不同客群
+   - 宏观经济环境变化</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决方案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">调整阈值</div><div class="text-xs text-slate-400"><span class="text-slate-500">中期措施:</span> 增加新特征</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期措施:</span> 建立自动化监控</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人工审核高风险段</div><div class="text-xs text-slate-400"><span class="text-slate-500">中期措施:</span> 重新训练模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期措施:</span> 建立模型更新机制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">限制高风险渠道</div><div class="text-xs text-slate-400"><span class="text-slate-500">中期措施:</span> A/B测试新模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期措施:</span> 建立模型治理流程</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1: 为什么回测收益不能代表未来收益？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 回测与实际的差距来源：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">过拟合</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 策略针对历史优化</div><div class="text-xs text-slate-400"><span class="text-slate-500">缓解方法:</span> 样本外测试、交叉验证</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">未来信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 使用了决策时不可用的数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">缓解方法:</span> 严格检查数据时间戳</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场冲击</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 实际交易会影响价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">缓解方法:</span> 模拟市场冲击成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 历史规律不再成立</div><div class="text-xs text-slate-400"><span class="text-slate-500">缓解方法:</span> 多周期验证、理论支撑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">生存偏差</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 只看到存活的标的</div><div class="text-xs text-slate-400"><span class="text-slate-500">缓解方法:</span> 使用完整历史数据</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2: A/B测试中如何处理"新奇效应"？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 新奇效应指用户对新功能的短期兴趣，可能导致高估长期效果。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解决方案：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">延长实验周期</span>：观察效果是否随时间衰减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">分析时间趋势</span>：看指标是否有下降趋势</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">老用户 vs 新用户</span>：分开分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">使用长期指标</span>：如6个月留存而非7天留存</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3: 模型漂移检测到后应该怎么办？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 分级响应机制：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">轻微</div><div class="text-xs text-slate-400"><span class="text-slate-500">判断标准:</span> PSI<0.1，性能下降<5%</div><div class="text-xs text-slate-400"><span class="text-slate-500">响应措施:</span> 加强监控，记录观察</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中度</div><div class="text-xs text-slate-400"><span class="text-slate-500">判断标准:</span> 0.1<PSI<0.25，性能下降5-15%</div><div class="text-xs text-slate-400"><span class="text-slate-500">响应措施:</span> 启动模型调优，准备更新</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">严重</div><div class="text-xs text-slate-400"><span class="text-slate-500">判断标准:</span> PSI>0.25，性能下降>15%</div><div class="text-xs text-slate-400"><span class="text-slate-500">响应措施:</span> 降级服务，人工介入，紧急更新</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4: 如何设计一个稳健的回测系统？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 关键设计原则：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class RobustBacktestSystem:
+    &quot;&quot;&quot;稳健回测系统的设计要点&quot;&quot;&quot;
+
+    def __init__(self):
+        self.checks = [
+            &#x27;no_lookahead_bias&#x27;,      # 无未来信息
+            &#x27;realistic_costs&#x27;,         # 真实成本
+            &#x27;proper_data_split&#x27;,       # 正确数据分割
+            &#x27;statistical_tests&#x27;,       # 统计检验
+            &#x27;multiple_periods&#x27;,        # 多周期
+            &#x27;parameter_sensitivity&#x27;,   # 参数敏感性
+        ]
+
+    def validate_strategy(self, strategy):
+        &quot;&quot;&quot;策略验证流程&quot;&quot;&quot;
+        results = {}
+
+        # 1. 检查是否使用未来信息
+        results[&#x27;lookahead&#x27;] = self.check_lookahead(strategy)
+
+        # 2. 样本外测试
+        results[&#x27;oos_performance&#x27;] = self.out_of_sample_test(strategy)
+
+        # 3. 参数敏感性
+        results[&#x27;sensitivity&#x27;] = self.parameter_sensitivity(strategy)
+
+        # 4. 统计显著性
+        results[&#x27;significance&#x27;] = self.statistical_significance(strategy)
+
+        # 5. 多周期表现
+        results[&#x27;period_consistency&#x27;] = self.multi_period_test(strategy)
+
+        return results</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5: 金融场景的A/B测试有哪些特殊注意事项？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 金融A/B测试的特殊性：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">合规审查</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 金融服务受监管</div><div class="text-xs text-slate-400"><span class="text-slate-500">建议:</span> 法务和合规提前介入</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">用户告知</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 涉及资金安全</div><div class="text-xs text-slate-400"><span class="text-slate-500">建议:</span> 必要时知情同意</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险控制</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 可能造成损失</div><div class="text-xs text-slate-400"><span class="text-slate-500">建议:</span> 设置熔断机制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 金融决策影响长期</div><div class="text-xs text-slate-400"><span class="text-slate-500">建议:</span> 延长观察期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">外部因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 市场环境影响大</div><div class="text-xs text-slate-400"><span class="text-slate-500">建议:</span> 控制或调整</div></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">书籍</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">书名</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《Advances in Financial ML》</td><td class="px-3 py-2 text-xs text-slate-400">López de Prado</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">回测方法论权威</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《Trustworthy Online Experiments》</td><td class="px-3 py-2 text-xs text-slate-400">Kohavi et al.</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">A/B测试圣经</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《Machine Learning for Asset Managers》</td><td class="px-3 py-2 text-xs text-slate-400">López de Prado</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">金融ML实践</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《Python for Finance》</td><td class="px-3 py-2 text-xs text-slate-400">Hilpisch</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">代码实操</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">论文</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Bailey, D. et al. "The Deflated Sharpe Ratio" - 如何正确评估回测结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Harvey, C. "...and the Cross-Section of Expected Returns" - 因子过拟合问题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Kohavi, R. et al. "Online Experimentation at Microsoft" - 大规模A/B测试实践</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">工具</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Backtrader</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 回测框架</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 灵活、社区活跃</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Zipline</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 回测框架</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> Quantopian开源</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Evidently</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 模型监控</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 漂移检测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MLflow</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 实验管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 模型生命周期</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          金融AI应用开发流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从需求分析到上线运维的产品全流程</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">需求分析</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">场景·指标</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">原型开发</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">模型·系统</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">实验验证</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">A/B·回测</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">上线运维</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">监控·迭代</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">需求分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">场景·指标</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>业务场景: 风控/投研/客服/合规</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>核心指标: 准确率/延迟/成本/用户满意</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>MVP定义: 最小可行产品功能范围</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">原型开发</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">模型·系统</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>模型选型: 规则/ML/LLM的权衡</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>Prompt工程: 快速迭代验证效果</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>API设计: 输入输出接口标准化</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">实验验证</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">A/B·回测</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>A/B测试: 随机分流比较效果</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>样本量计算: 统计功效保证</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>离线回测+在线小流量→全量发布</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">上线运维</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">监控·迭代</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>监控: 模型漂移/数据质量/延迟告警</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>反馈循环: 用户反馈驱动模型迭代</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>成本优化: 缓存/蒸馏/模型路由</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          A/B测试效果模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整实验组转化率提升</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">样本量</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">转化率%</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#60a5fa" font-size="11" font-weight="bold">对照组A</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#34d399" font-size="11" font-weight="bold">实验组B</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>效果提升 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>转化率差: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>p-value: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="0" max="5" value="2" step="0.1">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          实验设计样本量计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">确定A/B测试所需最小样本量</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">对照组转化率(%)</label>
+            <input type="number" id="comp-2-p1" value="5" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">最小可检测效应(%)</label>
+            <input type="number" id="comp-2-mde" value="1" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">显著性水平α</label>
+            <input type="number" id="comp-2-alpha" value="0.05" min="0" step="0.01" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">统计功效(1-β)</label>
+            <input type="number" id="comp-2-power" value="0.8" min="0" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">实验效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">每组样本量</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">总样本量</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">预估时长(1K/天)</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">可行性</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ n = \frac{(z_{\alpha/2} + z_\beta)^2 (p_1(1-p_1)+p_2(1-p_2))}{(p_1-p_2)^2} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 人工智能金融 Chapter 07</div>
+    <div class="mt-2 md:mt-0">下一章：AI金融创新项目报告 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\prod', tip: '所有数相乘再开n次方，复利计算用这个更准确'},
+    {match: '\\frac{1}{n}\\sum', tip: '所有数加起来除以个数，就是平均数'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '\\sigma^2', tip: '方差——标准差的平方，衡量数据的分散程度'},
+    {match: 'PSI = \\sum', tip: '群体稳定性指标——监测模型输入分布是否漂移'},
+    {match: '\\frac{P_t - P_{t-1}}{P_{t-1}}', tip: '简单收益率——今天比昨天涨了百分之多少'},
+    {match: 'r_t = ', tip: 't时刻的收益率——金融时间序列的基本观测'},
+    {match: 'c{SR^2}{2', tip: 'R方——模型能解释多少比例的数据变动，越接近1越好'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=1000,yMax=10;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=500;
+    var eq_y=5+c;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 5;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 5;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 5+c;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 5+c;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='lift = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='转化率%*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='样本量*='+eq_x.toFixed(1);
+    var r1=c;
+    var r2=Math.max(0.001,0.05*Math.exp(-c*0.5));
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var p1=parseFloat(document.getElementById('comp-2-p1').value);
+    var mde=parseFloat(document.getElementById('comp-2-mde').value);
+    var alpha=parseFloat(document.getElementById('comp-2-alpha').value);
+    var power=parseFloat(document.getElementById('comp-2-power').value);
+
+    var p2=p1+mde; var p1d=p1/100; var p2d=p2/100;
+    var za=1.96; var zb=0.84;
+    if(alpha<=0.01)za=2.576; else if(alpha<=0.05)za=1.96; else za=1.645;
+    if(power>=0.9)zb=1.282; else if(power>=0.8)zb=0.842; else zb=0.524;
+    var n=Math.ceil((za+zb)*(za+zb)*(p1d*(1-p1d)+p2d*(1-p2d))/Math.pow(p2d-p1d,2));
+    document.getElementById('comp-2-out0').textContent=n.toLocaleString();
+    document.getElementById('comp-2-out1').textContent=(n*2).toLocaleString();
+    document.getElementById('comp-2-out2').textContent=Math.ceil(n*2/1000)+'天';
+    document.getElementById('comp-2-out3').textContent=n<5000?'可行':(n<50000?'中等':'样本需求大');
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,5000/n)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

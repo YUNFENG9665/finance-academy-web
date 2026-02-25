@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前沿微观理论专题研究 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Micro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">问题（用于深度思</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 07</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">前沿微观理论专题研究</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">探索微观经济学的前沿发展方向</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">5</div><div class="text-xs text-slate-500 mt-1">前沿领域</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">核心模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">行为经济学：有限理性的挑战</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">传统经济学假设"理性人"——消费者能够完美地处理信息、形成一致的偏好、做出最优决策。但心理学研究发现，真实人类的决策存在<span class="text-white font-semibold">系统性偏差</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心认知偏差</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">偏差类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">金融市场表现</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">损失厌恶</td><td class="px-3 py-2 text-xs text-slate-400">损失的痛苦约是等额收益快乐的2倍</td><td class="px-3 py-2 text-xs text-slate-400">处置效应：过早卖盈、死守亏损</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">过度自信</td><td class="px-3 py-2 text-xs text-slate-400">高估自己的能力和判断准确性</td><td class="px-3 py-2 text-xs text-slate-400">过度交易、低估风险</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">锚定效应</td><td class="px-3 py-2 text-xs text-slate-400">过度依赖初始信息做判断</td><td class="px-3 py-2 text-xs text-slate-400">基于买入价而非基本面决策</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现状偏差</td><td class="px-3 py-2 text-xs text-slate-400">偏好保持现状，惰性</td><td class="px-3 py-2 text-xs text-slate-400">默认选项效应、资产配置僵化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">心理账户</td><td class="px-3 py-2 text-xs text-slate-400">把钱分成不同账户，非完全替代</td><td class="px-3 py-2 text-xs text-slate-400">分账户管理、彩票收入挥霍</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">可得性偏差</td><td class="px-3 py-2 text-xs text-slate-400">易于回忆的事件被高估概率</td><td class="px-3 py-2 text-xs text-slate-400">媒体报道影响风险感知</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">代表性启发</td><td class="px-3 py-2 text-xs text-slate-400">用相似性代替概率判断</td><td class="px-3 py-2 text-xs text-slate-400">热手谬误、赌徒谬误</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">前景理论（Kahneman &amp; Tversky, 1979）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">传统期望效用理论的替代方案：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价值函数的特征</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">参照点依赖</span>：评价收益还是损失，取决于参照点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">损失厌恶</span>：损失曲线比收益曲线更陡峭</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">敏感性递减</span>：边际价值递减，无论收益还是损失</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[v(x) = \begin{cases} x^\alpha & x \geq 0 \\ -\lambda(-x)^\beta & x < 0 \end{cases}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">典型参数：\(\alpha = \beta \approx 0.88\)，\(\lambda \approx 2.25\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">概率加权函数</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>小概率被高估（解释为何买彩票和买保险）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>大概率被低估</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">信息经济学：不确定性下的决策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">信息不对称是市场失灵的重要来源，也是金融市场的核心特征。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">两种信息不对称</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">时间</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">问题</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">例子</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">逆向选择</td><td class="px-3 py-2 text-xs text-slate-400">交易前</td><td class="px-3 py-2 text-xs text-slate-400">隐藏信息（hidden information）</td><td class="px-3 py-2 text-xs text-slate-400">二手车、保险投保前</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">道德风险</td><td class="px-3 py-2 text-xs text-slate-400">交易后</td><td class="px-3 py-2 text-xs text-slate-400">隐藏行动（hidden action）</td><td class="px-3 py-2 text-xs text-slate-400">保险投保后、员工偷懒</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决机制</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">针对逆向选择</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">信号发送（Signaling）</span>：知情方主动传递信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育作为能力信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>担保作为质量信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>分红作为盈利能力信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">筛选（Screening）</span>：不知情方设计机制区分类型</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>保险免赔额设计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信用评级</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>面试、试用期</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">针对道德风险</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">激励合同</span>：让代理人利益与委托人一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>绩效薪酬、奖金</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股票期权</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">监督</span>：直接观察代理人行为</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>审计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>董事会监督</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">声誉机制</span>：长期关系中的隐性激励</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">机制设计：逆向博弈论</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">博弈论分析给定规则下参与者的行为。<span class="text-white font-semibold">机制设计</span>反过来问：给定目标，如何设计规则使参与者的行为导向期望结果？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心概念</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">激励相容（Incentive Compatibility）</span>：说真话（或采取期望行为）是参与者的最优策略</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">个人理性（Individual Rationality）</span>：参与者愿意参与机制（参与约束）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">显示原理（Revelation Principle）</span>：任何机制都可以等价于一个直接显示机制</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经典应用——拍卖设计</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">英式拍卖</div><div class="text-xs text-slate-400"><span class="text-slate-500">规则:</span> 公开叫价，价高者得</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 占优策略：出价直到等于估值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">荷式拍卖</div><div class="text-xs text-slate-400"><span class="text-slate-500">规则:</span> 价格从高往低，先接受者得</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 策略复杂</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">一阶密封</div><div class="text-xs text-slate-400"><span class="text-slate-500">规则:</span> 最高出价者获胜，支付出价</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 出价低于估值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">二阶密封（Vickrey）</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">规则:</span> 最高出价者获胜，支付<span class="text-white font-semibold">第二高</span>价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> <span class="text-white font-semibold">说真话是占优策略</span></div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Vickrey拍卖的巧妙之处</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">你的出价影响你是否获胜，但不影响你的支付——所以没有理由不如实出价！</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">契约理论：不完全契约的世界</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">现实中的契约无法预见所有可能情况，无法对所有状态做出规定。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不完全契约的原因</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">有限理性</span>：无法预见所有未来状态</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">语言限制</span>：有些状态难以用语言描述</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">验证成本</span>：有些信息可观察但不可验证（法庭无法判断）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心问题——专用性投资与套牢</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当一方做了专用性投资（只对特定交易有价值），另一方可能趁机"敲竹杠"。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">例子</span>：供应商为客户定制设备</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资前：双方平等谈判</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资后：供应商被"锁定"，客户有谈判优势</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预见到这一点，供应商会投资不足</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决方案</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>纵向整合（企业内部化交易）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长期合同</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>声誉机制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>剩余控制权配置（谁拥有决策权）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">网络经济学与平台经济</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">数字时代带来了新的经济学问题。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">网络效应</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">直接网络效应</span>：用户直接互联，更多用户 = 更大价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>电话网络、微信、电子邮件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">间接网络效应</span>：通过互补品产生</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Windows系统 + 应用软件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>平台两边的相互吸引</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平台经济的特征</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">双边市场</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 连接两类用户</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 淘宝连接买卖双方</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交叉网络效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 一边用户吸引另一边</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 更多司机吸引更多乘客</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">赢家通吃</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 网络效应导致集中</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 社交网络的自然垄断</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价格结构自由度</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 可以补贴一边</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 消费者免费，商家付费</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">鸡生蛋问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">新平台如何同时吸引两边用户？</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>补贴一边（先亏损换增长）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利用单归属用户</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收购或兼容</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：前景理论的价值函数</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[v(x) = \begin{cases} x^\alpha & x \geq 0 \\ -\lambda(-x)^\beta & x < 0 \end{cases}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">典型参数：\(\alpha = \beta = 0.88\)，\(\lambda = 2.25\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">含义</span>：损失100元的痛苦 ≈ 收益225元的快乐</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：委托-代理模型（基础版）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">委托人（股东）设计薪酬合同 \(w(q)\)，代理人（经理）选择努力 \(e\)</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max_{w(q)} E[q - w(q)]\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[s.t. \quad E[U(w(q)) - C(e)] \geq \bar{U} \quad \text{(参与约束)}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[e^* \in \arg\max E[U(w(q)) - C(e)] \quad \text{(激励相容)}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最优合同的特征</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>在风险与激励之间权衡</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代理人风险厌恶 → 不能完全按产出付费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产出噪音大 → 低能激励</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产出信息精确 → 高能激励</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：信号博弈均衡（Spence模型）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">高能力者（H）和低能力者（L）的教育成本：\(c_H < c_L\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分离均衡条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[w_H - c_H \cdot e^* \geq w_L\]（H愿意获取教育） \[w_L \geq w_H - c_L \cdot e^*\]（L不愿意获取教育）  存在临界教育水平 \(e^*\)，使得： - 高能力者获取 \(e^*\) 教育，获得高工资 - 低能力者不获取教育，获得低工资 - 教育纯粹作为信号，未必提高生产能力 </div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：双边市场定价</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">平台面对买方（B）和卖方（S）两边市场</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">传统定价</span>：\(P = MC\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平台定价</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P_B + P_S \approx MC\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">但可能 \(P_B < 0\)（补贴买家）或 \(P_S < 0\)（补贴卖家）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定价倾斜取决于</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>哪边弹性更高（价格敏感的一边收费少）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>哪边网络效应更强（吸引力强的一边可以收费多）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>哪边多归属（单归属的一边更被锁定）</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">助</span>
+        <h3 class="text-white font-semibold text-sm">案例1：助推（Nudge）政策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：行为经济学在公共政策中的应用（Thaler & Sunstein）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心思想</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">利用认知偏差，通过改变"选择架构"引导更好的决策，同时保留选择自由。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经典案例</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">养老金</div><div class="text-xs text-slate-400"><span class="text-slate-500">助推设计:</span> 默认自动加入</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 参与率从30%提高到90%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">器官捐献</div><div class="text-xs text-slate-400"><span class="text-slate-500">助推设计:</span> opt-out（默认同意）</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 捐献率大幅提高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">节能</div><div class="text-xs text-slate-400"><span class="text-slate-500">助推设计:</span> 社会比较（邻居用电量）</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 用电量下降2-4%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">健康</div><div class="text-xs text-slate-400"><span class="text-slate-500">助推设计:</span> 食堂把蔬菜放在显眼位置</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 健康饮食增加</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">争议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>是"自由主义的家长制"还是操纵？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>谁来决定什么是"更好"的选择？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>助推的持久性如何？</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">U</span>
+        <h3 class="text-white font-semibold text-sm">案例2：Uber的机制设计</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：Uber面临复杂的双边市场问题。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">机制设计应用</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">供需匹配</div><div class="text-xs text-slate-400"><span class="text-slate-500">Uber的解决方案:</span> 算法调度</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制原理:</span> 最小化等待时间</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求波动</div><div class="text-xs text-slate-400"><span class="text-slate-500">Uber的解决方案:</span> 动态定价（Surge Pricing）</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制原理:</span> 价格信号调节供需</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信任问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">Uber的解决方案:</span> 双向评分系统</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制原理:</span> 声誉机制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">安全问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">Uber的解决方案:</span> 行程追踪、紧急联系</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制原理:</span> 降低道德风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">司机激励</div><div class="text-xs text-slate-400"><span class="text-slate-500">Uber的解决方案:</span> 游戏化、目标奖励</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制原理:</span> 行为干预</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">动态定价的争议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>经济学：效率（清除市场、激励供给）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消费者感知：不公平（趁火打劫）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教训：效率不是唯一考量，公平感知也重要</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">拍</span>
+        <h3 class="text-white font-semibold text-sm">案例3：拍卖理论的应用——频谱拍卖</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：政府如何分配稀缺的无线电频谱？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统方式的问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选美比赛：主观、腐败</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>抽签：无法价值发现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>先到先得：低效</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">拍卖方案的优势</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>价值发现：出价高者最能创造价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收入：政府获得财政收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>效率：频谱分配给最有效使用者</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实践中的复杂性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多物品拍卖（同时卖多个频谱）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>互补性和替代性（相邻频谱更有价值）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>阻止串谋</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>促进竞争（防止一家独大）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">成就</span>：Milgrom & Wilson获2020年诺贝尔经济学奖</p>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题（用于深度思考和 NotebookLM 生成对话）</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">损失厌恶如何解释"股票溢价之谜"？为什么投资者要求股票相对于债券有这么高的风险溢价？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">为什么Vickrey拍卖（二阶密封拍卖）中"说真话是占优策略"？请解释这一机制的巧妙之处。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">什么是"显示原理"？它为什么简化了机制设计问题？在设计激励机制时有什么实际意义？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">假设你是保险公司的产品设计师，如何设计免赔额和保费结构来筛选不同风险类型的客户？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">平台企业（如滴滴、美团）为什么经常补贴一方用户？这与传统定价（P = MC）有什么根本不同？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如果你是央行，如何设计一个机制让商业银行如实报告自己的流动性状况，而不是隐藏问题等待救助？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">行为经济学的发现是否意味着我们需要"家长式"政府来保护人们免受自己的非理性决策？"助推"的边界在哪里？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">AI推荐算法是否会利用人类的认知偏差来最大化用户黏性？这有什么伦理问题？应该如何监管？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">跨学科联系类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">前景理论、信息经济学、机制设计这三个领域分别获得了诺贝尔经济学奖。它们之间有什么内在联系？如何整合应用于金融领域？</span></span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Kahneman《思考，快与慢》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 行为经济学通俗入门，诺奖得主亲著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Bolton & Dewatripont《契约理论》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 契约理论标准研究生教材</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Tirole《博弈论》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 机制设计的数学严谨处理</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Thaler & Sunstein《助推》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 行为经济学政策应用</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">诺贝尔奖论文</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Kahneman & Tversky (1979). "Prospect Theory"</span> - 前景理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Akerlof (1970). "Market for Lemons"</span> - 逆向选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Spence (1973). "Job Market Signaling"</span> - 信号理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Vickrey (1961). "Counterspeculation, Auctions"</span> - 拍卖理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Roth (2012)</span> - 匹配市场设计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Milgrom & Wilson (2020)</span> - 拍卖理论与实践</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《助推2.0》- 更新的行为干预研究</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《谁得到什么》(Roth) - 匹配市场的通俗介绍</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《错误的行为》(Thaler) - 行为经济学发展史</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          前沿微观理论图谱
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段了解微观经济学的前沿研究方向</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">博弈论</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">策略互动</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">信息经济</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">不对称信息</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">行为经济</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">有限理性</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">机制设计</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">制度工程</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">博弈论</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">策略互动</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>纳什均衡: 无人有动机单方面偏离</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>囚徒困境: 个体理性≠集体理性</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>重复博弈: 合作在长期中可以维持</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">信息经济</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">不对称信息</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>逆向选择: 隐藏信息→柠檬市场</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>道德风险: 隐藏行动→激励扭曲</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>信号博弈: 教育/广告作为质量信号</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">行为经济</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">有限理性</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>前景理论: 损失厌恶λ≈2.25</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>锚定效应: 初始信息影响后续判断</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>助推: 利用偏见设计更好的选择架构</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">机制设计</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">制度工程</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>VCG机制: 让真实报告成为最优策略</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>拍卖理论: 收入等价定理</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>匹配市场: Gale-Shapley稳定匹配</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          博弈论收益矩阵模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整合作收益，观察纳什均衡变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-total"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 380" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="40" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="42" y="50" fill="#64748b" font-size="11">收益</text>
+      <rect id="comp-1-bar0" x="90" y="340" width="100" height="0" fill="#34d399" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv0" x="140" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-1-bar1" x="205" y="340" width="100" height="0" fill="#f87171" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv1" x="255" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-1-bar2" x="320" y="340" width="100" height="0" fill="#fbbf24" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv2" x="370" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-1-bar3" x="435" y="340" width="100" height="0" fill="#64748b" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-1-bv3" x="485" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+
+      <text x="140" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">(合作,合作)</text>
+<text x="255" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">(合作,背叛)</text>
+<text x="370" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">(背叛,合作)</text>
+<text x="485" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">(背叛,背叛)</text>
+
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">合作收益 <span class="text-white font-mono" id="comp-1-sl">R = 10</span></div>
+      <input type="range" id="comp-1-slider" min="2" max="20" value="10" step="1">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          拍卖理论计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">计算不同拍卖机制下的期望收入</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">竞拍者数量</label>
+            <input type="number" id="comp-2-n" value="5" min="2" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">最高估值</label>
+            <input type="number" id="comp-2-vmax" value="100" min="0" step="10" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">最低估值</label>
+            <input type="number" id="comp-2-vmin" value="20" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">拍卖效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">一价密封期望</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">英式拍卖期望</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">收入/价值比</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">竞争程度</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ E[P] = \frac{n-1}{n+1} \cdot v_{max} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 微观经济学 Chapter 07</div>
+    <div class="mt-2 md:mt-0">下一章：微观经济分析研究报告 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '\\lambda \\approx 2.25', tip: '损失厌恶系数——人们对亏损的痛苦约是同等获利快乐的2.25倍'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: 'c_H < c_L', tip: '高效率类型成本低于低效率类型——信息不对称下的逆向选择条件'},
+    {match: 'P = MC', tip: '完全竞争均衡——价格等于边际成本'},
+    {match: 'v(x) = ', tip: '前景理论价值函数——收益端凹(风险厌恶)，损失端凸(风险偏好)'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var vals=[c, -c*0.5, c*1.5, 1];
+    
+    var h0=Math.max(0,(vals[0]/30)*300);
+    document.getElementById('comp-1-bar0').setAttribute('y',340-h0);
+    document.getElementById('comp-1-bar0').setAttribute('height',h0);
+    document.getElementById('comp-1-bv0').setAttribute('y',340-h0-5);
+    document.getElementById('comp-1-bv0').textContent=vals[0].toFixed(1);
+    var h1=Math.max(0,(vals[1]/30)*300);
+    document.getElementById('comp-1-bar1').setAttribute('y',340-h1);
+    document.getElementById('comp-1-bar1').setAttribute('height',h1);
+    document.getElementById('comp-1-bv1').setAttribute('y',340-h1-5);
+    document.getElementById('comp-1-bv1').textContent=vals[1].toFixed(1);
+    var h2=Math.max(0,(vals[2]/30)*300);
+    document.getElementById('comp-1-bar2').setAttribute('y',340-h2);
+    document.getElementById('comp-1-bar2').setAttribute('height',h2);
+    document.getElementById('comp-1-bv2').setAttribute('y',340-h2-5);
+    document.getElementById('comp-1-bv2').textContent=vals[2].toFixed(1);
+    var h3=Math.max(0,(vals[3]/30)*300);
+    document.getElementById('comp-1-bar3').setAttribute('y',340-h3);
+    document.getElementById('comp-1-bar3').setAttribute('height',h3);
+    document.getElementById('comp-1-bv3').setAttribute('y',340-h3-5);
+    document.getElementById('comp-1-bv3').textContent=vals[3].toFixed(1);
+    document.getElementById('comp-1-sl').textContent='R = '+c.toFixed(1);
+    document.getElementById('comp-1-total').textContent='纳什均衡: (背叛,背叛)→'+1;
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var n=parseFloat(document.getElementById('comp-2-n').value);
+    var vmax=parseFloat(document.getElementById('comp-2-vmax').value);
+    var vmin=parseFloat(document.getElementById('comp-2-vmin').value);
+
+    var ep=(n-1)/(n+1)*vmax;
+    var ep2=vmin+(vmax-vmin)*(n-1)/(n+1);
+    document.getElementById('comp-2-out0').textContent=ep.toFixed(1);
+    document.getElementById('comp-2-out1').textContent=ep2.toFixed(1);
+    document.getElementById('comp-2-out2').textContent=(ep/vmax*100).toFixed(0)+'%';
+    document.getElementById('comp-2-out3').textContent=n>=5?'充分竞争':'竞争不足';
+    // Ring
+    var score=Math.max(0,Math.min(1,(n-1)/(n+1)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

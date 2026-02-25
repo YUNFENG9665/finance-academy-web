@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业资本运作与上市决策 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Pricing</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实践案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">深度思考问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 04</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">企业资本运作与上市决策</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解IPO、并购等资本运作的定价机制与战略决策</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">运作方式</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">估值方法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">IPO决策分析</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">上市的利弊权衡</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">融资</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 获得大规模权益资本</div><div class="text-xs text-slate-400"><span class="text-slate-500">劣势:</span> 股权稀释、控制权减弱</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">流动性</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 股权可交易、员工激励变现</div><div class="text-xs text-slate-400"><span class="text-slate-500">劣势:</span> 内部人锁定期限制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">声誉</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 提高公司知名度和信誉</div><div class="text-xs text-slate-400"><span class="text-slate-500">劣势:</span> 公众监督和媒体关注</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">运营</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 更规范的公司治理</div><div class="text-xs text-slate-400"><span class="text-slate-500">劣势:</span> 信息披露和合规成本高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">估值</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 获得市场定价、便于后续融资</div><div class="text-xs text-slate-400"><span class="text-slate-500">劣势:</span> 短期业绩压力、股价波动</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">IPO时机选择因素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场环境</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体考量:</span> 牛市vs熊市、同行业IPO热度、市场流动性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公司状况</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体考量:</span> 盈利能力、增长前景、业务成熟度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">行业周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体考量:</span> 行业估值水平、投资者偏好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">监管政策</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体考量:</span> 上市门槛、审批效率、政策导向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">竞争压力</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体考量:</span> 竞争对手融资动态、行业整合趋势</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">上市地点选择</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">A股</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 估值高、本土投资者基础</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合企业类型:</span> 内资企业、消费类</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">港股</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 国际化、审批快</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合企业类型:</span> 互联网、新经济</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美股</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 流动性好、包容性强</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合企业类型:</span> 科技公司、VIE架构</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">新加坡</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 门槛低、区域中心</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合企业类型:</span> 东南亚业务公司</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">IPO定价机制</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要定价方法</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原理</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">局限性</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">可比公司法</td><td class="px-3 py-2 text-xs text-slate-400">参考同行业上市公司估值倍数</td><td class="px-3 py-2 text-xs text-slate-400">有可比标的</td><td class="px-3 py-2 text-xs text-slate-400">可比性判断主观</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">DCF估值</td><td class="px-3 py-2 text-xs text-slate-400">未来现金流折现</td><td class="px-3 py-2 text-xs text-slate-400">有稳定现金流</td><td class="px-3 py-2 text-xs text-slate-400">假设敏感性高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">询价发行</td><td class="px-3 py-2 text-xs text-slate-400">机构投资者报价确定</td><td class="px-3 py-2 text-xs text-slate-400">大多数IPO</td><td class="px-3 py-2 text-xs text-slate-400">可能被操纵</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">竞价发行</td><td class="px-3 py-2 text-xs text-slate-400">投资者竞价决定</td><td class="px-3 py-2 text-xs text-slate-400">部分市场</td><td class="px-3 py-2 text-xs text-slate-400">可能定价过高</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">可比公司估值</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P_0 = Multiple \times Metric\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">常用估值倍数：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">P/E</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> 价格/每股收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用行业:</span> 盈利稳定的成熟公司</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">P/S</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> 价格/每股销售额</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用行业:</span> 高增长但未盈利公司</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">EV/EBITDA</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> 企业价值/EBITDA</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用行业:</span> 资本密集型行业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">P/B</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> 价格/每股净资产</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用行业:</span> 金融、地产行业</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">IPO折价现象</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">首日收益普遍为正，这是一个全球性现象。</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均首日收益:</span> 15-20%</div><div class="text-xs text-slate-400"><span class="text-slate-500">样本期间:</span> 1980-2020</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国A股</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均首日收益:</span> 100-200%</div><div class="text-xs text-slate-400"><span class="text-slate-500">样本期间:</span> 2000-2020（审批制）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国A股</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均首日收益:</span> 30-50%</div><div class="text-xs text-slate-400"><span class="text-slate-500">样本期间:</span> 注册制后</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">香港</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均首日收益:</span> 10-15%</div><div class="text-xs text-slate-400"><span class="text-slate-500">样本期间:</span> 2000-2020</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">折价的理论解释</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">赢家诅咒</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 信息劣势投资者需要补偿</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Rock (1986)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信号理论</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 好公司通过折价传递质量信号</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Welch (1989)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">承销商声誉</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 承销商保守定价以维护声誉</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Carter-Manaster</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投资者情绪</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 过度乐观推高首日价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> 行为金融</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">流动性假说</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 折价换取更广泛的股东基础</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Booth-Chua</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">并购估值与交易</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">并购类型</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">横向并购</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 同行业公司合并</div><div class="text-xs text-slate-400"><span class="text-slate-500">战略目的:</span> 规模经济、市场份额</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">纵向并购</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 上下游整合</div><div class="text-xs text-slate-400"><span class="text-slate-500">战略目的:</span> 供应链控制、成本节约</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">混合并购</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 跨行业收购</div><div class="text-xs text-slate-400"><span class="text-slate-500">战略目的:</span> 多元化、风险分散</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">并购价值创造公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[V_{AB} = V_A + V_B + Synergy - Premium\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">协同效应来源</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入协同</div><div class="text-xs text-slate-400"><span class="text-slate-500">来源:</span> 交叉销售、市场拓展、定价能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现难度:</span> 高，难量化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本协同</div><div class="text-xs text-slate-400"><span class="text-slate-500">来源:</span> 规模经济、裁员、采购议价</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现难度:</span> 中，较可量化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财务协同</div><div class="text-xs text-slate-400"><span class="text-slate-500">来源:</span> 税盾、融资能力、现金管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">实现难度:</span> 低，易量化</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收购溢价分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Premium = \frac{P_{offer} - P_{target}}{P_{target}} \times 100\%\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">历史数据显示：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>平均收购溢价：20-40%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现金收购溢价通常高于换股收购</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>竞争性收购溢价更高</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">支付方式选择</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">支付方式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优势</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">劣势</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">信号含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现金</td><td class="px-3 py-2 text-xs text-slate-400">交易简单、税务处理清晰</td><td class="px-3 py-2 text-xs text-slate-400">耗用现金、加杠杆</td><td class="px-3 py-2 text-xs text-slate-400">对收购方估值有信心</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">股票</td><td class="px-3 py-2 text-xs text-slate-400">保留现金、风险共担</td><td class="px-3 py-2 text-xs text-slate-400">稀释股权、审批复杂</td><td class="px-3 py-2 text-xs text-slate-400">可能认为自身股票高估</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">混合</td><td class="px-3 py-2 text-xs text-slate-400">平衡两种方式</td><td class="px-3 py-2 text-xs text-slate-400">复杂度高</td><td class="px-3 py-2 text-xs text-slate-400">中性信号</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">私有化与退市</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">私有化动机</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">估值因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 股价长期低迷、估值被低估</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">运营因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 摆脱短期业绩压力、专注长期战略</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 降低上市合规成本、减少信息披露</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">控制因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 管理层或大股东增强控制权</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">战略因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 业务转型、准备回归其他市场</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">私有化交易结构</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MBO</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 管理层收购</div><div class="text-xs text-slate-400"><span class="text-slate-500">资金来源:</span> 管理层+PE+债务</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">LBO</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 杠杆收购</div><div class="text-xs text-slate-400"><span class="text-slate-500">资金来源:</span> 高比例债务融资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">控股股东私有化</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 大股东吸收合并</div><div class="text-xs text-slate-400"><span class="text-slate-500">资金来源:</span> 大股东资金或新债务</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">LBO估值模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Equity Value = Exit Value - Net Debt_{exit}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[IRR = \left(\frac{Equity Value_{exit}}{Equity Investment_{entry}}\right)^{1/n} - 1\]</div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">分拆与重组</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分拆类型比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">英文</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">机制</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">母公司持股</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">对价</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">分拆上市</td><td class="px-3 py-2 text-xs text-slate-400">Spin-off</td><td class="px-3 py-2 text-xs text-slate-400">按比例分配子公司股票</td><td class="px-3 py-2 text-xs text-slate-400">0%</td><td class="px-3 py-2 text-xs text-slate-400">无</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">部分IPO</td><td class="px-3 py-2 text-xs text-slate-400">Carve-out</td><td class="px-3 py-2 text-xs text-slate-400">子公司部分股权IPO</td><td class="px-3 py-2 text-xs text-slate-400">部分保留</td><td class="px-3 py-2 text-xs text-slate-400">现金</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">换股分拆</td><td class="px-3 py-2 text-xs text-slate-400">Split-off</td><td class="px-3 py-2 text-xs text-slate-400">股东可选择换股</td><td class="px-3 py-2 text-xs text-slate-400">可变</td><td class="px-3 py-2 text-xs text-slate-400">母公司股票</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">出售</td><td class="px-3 py-2 text-xs text-slate-400">Divestiture</td><td class="px-3 py-2 text-xs text-slate-400">直接卖给第三方</td><td class="px-3 py-2 text-xs text-slate-400">0%</td><td class="px-3 py-2 text-xs text-slate-400">现金/股票</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分拆的价值创造逻辑</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消除多元化折价</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 专注化经营获得更高估值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">改善信息不对称</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 分拆后各业务独立披露</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">优化资源配置</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 各业务独立决策、独立激励</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税务优化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> Spin-off通常免税</div></div></div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：IPO定价区间确定</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Price Range = [P_{floor}, P_{ceiling}]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P_{floor} = Min(Comparable \ P/E) \times EPS_{issuer}\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P_{ceiling} = Max(Comparable \ P/E) \times EPS_{issuer}\)</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：并购增值分析</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Accretion/Dilution = \frac{EPS_{pro forma} - EPS_{acquirer}}{EPS_{acquirer}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">增值条件（换股收购）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{P/E_{acquirer}}{P/E_{target}} > 1 + Premium\%\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：协同效应估值</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PV(Synergy) = \sum_{t=1}^{T} \frac{Synergy_t}{(1+r)^t}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">协同效应的实现时间和折现率选择至关重要。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：LBO回报分析</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Equity \ IRR = \left(\frac{EBITDA_{exit} \times Multiple_{exit} - Debt_{exit}}{Equity_{entry}}\right)^{1/n} - 1\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">回报来源分解：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>EBITDA增长贡献</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>估值倍数扩张贡献</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>债务偿还贡献</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">模型5：分拆价值分析</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[V_{sum-of-parts} = \sum_i V_i\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Conglomerate \ Discount = 1 - \frac{V_{conglomerate}}{V_{sum-of-parts}}\]</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实践案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">I</span>
+        <h3 class="text-white font-semibold text-sm">案例一：蚂蚁集团IPO暂缓的教训</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">2020年11月，蚂蚁集团原计划在上海和香港同步上市，募资额高达345亿美元，将创下全球最大IPO记录。但在上市前两天被紧急叫停。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键时间线</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020.8</div><div class="text-xs text-slate-400"><span class="text-slate-500">事件:</span> 提交A+H股上市申请</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020.10</div><div class="text-xs text-slate-400"><span class="text-slate-500">事件:</span> 通过监管审核，确定发行价</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020.10.24</div><div class="text-xs text-slate-400"><span class="text-slate-500">事件:</span> 马云外滩金融峰会演讲</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020.11.2</div><div class="text-xs text-slate-400"><span class="text-slate-500">事件:</span> 监管约谈实控人</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020.11.3</div><div class="text-xs text-slate-400"><span class="text-slate-500">事件:</span> 暂缓上市公告</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">暂缓原因分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">监管环境</div><div class="text-xs text-slate-400"><span class="text-slate-500">因素:</span> 金融科技监管收紧、反垄断趋势</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">业务模式</div><div class="text-xs text-slate-400"><span class="text-slate-500">因素:</span> 联合贷款模式面临挑战、资本金要求</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公关失误</div><div class="text-xs text-slate-400"><span class="text-slate-500">因素:</span> 公开批评监管引发反弹</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">估值质疑</div><div class="text-xs text-slate-400"><span class="text-slate-500">因素:</span> 高估值是否可持续</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资者损失评估</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>战略配售投资者：资金锁定成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>打新投资者：机会成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>二级市场：关联股票下跌</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>IPO不仅是金融交易，也是公关和政策事件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>监管风险是新经济公司上市的关键考量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>超大型IPO需要更长的准备时间和更谨慎的沟通</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>估值应该反映监管不确定性</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例二：戴尔的私有化与再上市</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">2013年戴尔完成私有化，2018年通过换股方式重新上市，是科技行业最大的私有化再上市案例。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">私有化阶段（2013年）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交易金额</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 249亿美元</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收购方</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 创始人Michael Dell + 银湖资本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">杠杆比例</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 约70%债务融资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收购溢价</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 约25%</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">私有化期间战略转型</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">业务聚焦</div><div class="text-xs text-slate-400"><span class="text-slate-500">行动:</span> 淡化PC业务，强化企业服务</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收购整合</div><div class="text-xs text-slate-400"><span class="text-slate-500">行动:</span> 收购EMC（670亿美元）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本优化</div><div class="text-xs text-slate-400"><span class="text-slate-500">行动:</span> 大规模裁员和效率提升</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">研发投入</div><div class="text-xs text-slate-400"><span class="text-slate-500">行动:</span> 云计算和存储技术</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">再上市（2018年）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交易方式</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 换股吸收VMware跟踪股票</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市值</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 约700亿美元</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">创造价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 约450亿美元（5年）</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价值创造来源</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">战略转型</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 从PC公司转型为企业IT解决方案</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">协同效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 与EMC整合产生的成本节约</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">债务偿还</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 现金流用于降杠杆</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场环境</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 企业IT市场估值提升</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>私有化可以为重大战略转型提供时间和空间</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>正确的收购（EMC）可以创造巨大价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>创始人的长期视野是关键成功因素</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>再上市时机选择很重要</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">股</span>
+        <h3 class="text-white font-semibold text-sm">案例三：中概股私有化与A股回归</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">2015-2016年，大量中概股选择私有化并计划回归A股，形成了一波"拆VIE、私有化、回归"的浪潮。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">典型案例对比</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公司</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">私有化估值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">回归估值（预期）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">套利空间</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">最终结果</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">奇虎360</td><td class="px-3 py-2 text-xs text-slate-400">93亿美元</td><td class="px-3 py-2 text-xs text-slate-400">600亿+</td><td class="px-3 py-2 text-xs text-slate-400">6倍+</td><td class="px-3 py-2 text-xs text-slate-400">成功回归，估值缩水</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">分众传媒</td><td class="px-3 py-2 text-xs text-slate-400">27亿美元</td><td class="px-3 py-2 text-xs text-slate-400">457亿</td><td class="px-3 py-2 text-xs text-slate-400">17倍</td><td class="px-3 py-2 text-xs text-slate-400">借壳成功</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">万达商业</td><td class="px-3 py-2 text-xs text-slate-400">345亿港元</td><td class="px-3 py-2 text-xs text-slate-400">2000亿+</td><td class="px-3 py-2 text-xs text-slate-400">5倍+</td><td class="px-3 py-2 text-xs text-slate-400">回归失败</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">博纳影业</td><td class="px-3 py-2 text-xs text-slate-400">9亿美元</td><td class="px-3 py-2 text-xs text-slate-400">100亿+</td><td class="px-3 py-2 text-xs text-slate-400">10倍+</td><td class="px-3 py-2 text-xs text-slate-400">历时6年终上市</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">私有化套利的理论基础</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[套利收益 = (P_{A股}/P_{美股} - 1) \times 权益比例 - 交易成本\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">套利策略的风险</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时间风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 私有化到回归可能需要3-5年</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政策风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 中间借壳政策收紧</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> A股估值下降</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">执行风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> VIE拆除、审计、合规问题</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">融资风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 私有化资金安排</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">2015年后的变化</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>借壳上市政策趋严</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>注册制改革降低A股稀缺性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>中美关系影响中概股命运</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>港股成为新的回归目的地</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>跨市场套利看似简单但执行复杂</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>政策变化是最大的不确定性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>需要长期资金和耐心等待</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>最终回报可能远低于预期</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">深度思考问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1：IPO折价是市场低效的证据吗？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">IPO折价是否反映市场低效存在争议：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">支持市场低效的观点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>首日大涨意味着发行价定得过低</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>承销商和发行人"白送"钱给投资者</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果市场有效，不应存在系统性的首日正收益</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反对市场低效的观点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>折价是对信息不对称的合理补偿（赢家诅咒）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>是发行人购买的"服务"（分销、流动性）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>是建立长期投资者关系的成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>从发行人角度，重要的是融资总额而非首日股价</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">更复杂的视角</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>IPO折价程度随市场周期变化（热市场vs冷市场）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>某些折价可能是行为因素导致（投资者过度乐观）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长期看IPO公司股票往往跑输大盘</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2：为什么大多数并购不创造价值？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">研究表明60-70%的并购未能实现预期的协同效应：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要原因</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">战略失误</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 过度多元化、缺乏协同基础</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定价过高</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 竞争性收购推高溢价、过度乐观的协同预期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">整合失败</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 文化冲突、关键人才流失、系统整合困难</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">治理问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 管理层帝国建造动机、代理成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">执行问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体原因:</span> 尽职调查不足、过度自信</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">成功并购的特征</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>清晰的战略逻辑和协同来源</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>合理的溢价和保守的协同假设</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>详细的整合计划和专门的整合团队</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>快速执行、关注文化融合</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>明确的里程碑和问责机制</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3：私有化是否意味着公司治理失败？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">私有化可以从不同角度解读：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">正面观点（价值创造）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>摆脱短期主义，专注长期战略</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>降低代理成本，管理层与股东利益一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>减少信息披露，保护竞争优势</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">负面观点（治理失败）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能是管理层利用信息优势低价收购</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>小股东可能被迫接受不公平价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>减少了市场监督和透明度</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">更平衡的视角</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私有化本身是中性的，关键看具体交易条款</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要独立委员会、财务顾问、少数股东投票等保护机制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私有化后的业绩和最终退出才能判断是否创造价值</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用分析类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4：如何评估IPO是否成功？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">IPO成功的评估标准因利益相关方而异：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">发行人</div><div class="text-xs text-slate-400"><span class="text-slate-500">成功标准:</span> 融资目标达成、估值满意</div><div class="text-xs text-slate-400"><span class="text-slate-500">衡量指标:</span> 募资额、发行P/E</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">老股东</div><div class="text-xs text-slate-400"><span class="text-slate-500">成功标准:</span> 套现机会、市值提升</div><div class="text-xs text-slate-400"><span class="text-slate-500">衡量指标:</span> 锁定期后收益</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">新投资者</div><div class="text-xs text-slate-400"><span class="text-slate-500">成功标准:</span> 长期回报</div><div class="text-xs text-slate-400"><span class="text-slate-500">衡量指标:</span> 1/3/5年持有期收益</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">承销商</div><div class="text-xs text-slate-400"><span class="text-slate-500">成功标准:</span> 发行成功、客户满意、声誉维护</div><div class="text-xs text-slate-400"><span class="text-slate-500">衡量指标:</span> 超额认购倍数、后续业务</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">监管者</div><div class="text-xs text-slate-400"><span class="text-slate-500">成功标准:</span> 市场稳定、投资者保护</div><div class="text-xs text-slate-400"><span class="text-slate-500">衡量指标:</span> 首日表现、长期表现</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">综合评估框架</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">短期表现</span>：首日涨幅是否在合理范围（过高或破发都有问题）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">中期表现</span>：3-12个月是否跑赢大盘</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">长期价值</span>：是否实现可持续增长</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">过程质量</span>：信息披露是否充分、定价是否透明</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5：如何判断一笔并购的协同效应是否合理？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">协同效应评估框架</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">识别协同来源</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收入协同：具体的产品/客户/渠道</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>成本协同：哪些部门、多少人员、哪些费用</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">量化每个协同项</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>具体金额和时间表</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>一次性成本vs持续性节约</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实现概率评估</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">基准测试</span>：</span></div></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本协同</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 收入的1-3%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入协同</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 很少超过收入的1%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实现时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 2-3年</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实现率</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 历史平均60-70%</div></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">红旗警示</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>协同效应超过目标公司价值的20%以上</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>主要依赖收入协同而非成本协同</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>没有具体的协同实现计划</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>管理层对协同过于乐观</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6：分拆如何创造价值？为什么不是所有多元化公司都分拆？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分拆的价值创造机制</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">消除多元化折价</span>：专注化公司通常获得更高估值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">改善资本配置</span>：各业务独立融资、独立投资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">增强激励</span>：管理层激励与本业务直接挂钩</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">吸引专业投资者</span>：投资者可选择自己看好的业务</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不分拆的原因</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模经济</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 共享平台、采购、研发</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">范围经济</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 业务之间交叉销售、协同效应</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税务因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 分拆可能触发税务事件</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">债务契约</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 债务条款可能限制分拆</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">管理层利益</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 更大的帝国意味着更高的薪酬</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场时机</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 分拆后的业务可能不被市场认可</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决策框架</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">分拆价值 > 协同损失 + 交易成本 + 税务成本</p>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7：中概股回归A股的套利是否可持续？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">套利存在的条件</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>A股与美股估值差异大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>跨市场上市有制度障碍</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信息/资金流动不完全自由</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">套利不可持续的原因</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">估值收敛</span>：A股注册制降低稀缺性溢价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">制度改革</span>：科创板、北交所分流需求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">监管趋严</span>：借壳上市政策收紧</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">市场学习</span>：投资者更理性定价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">时间成本</span>：漫长的流程消耗套利空间</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对投资者的启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不应将跨市场估值差异视为"免费午餐"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关注具体公司的基本面而非套利逻辑</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑交易的时间成本和不确定性</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8：承销商在IPO中是否存在利益冲突？如何缓解？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">利益冲突来源</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定价冲突</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 承销商倾向低价以降低发行风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">分配冲突</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 将股票分配给关系投资者</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">研究冲突</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 投行部门影响研究部门评级</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">后续业务</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 维护机构客户关系vs发行人利益</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">缓解机制</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">市场机制</span>：声誉约束、竞争压力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">监管机制</span>：信息披露要求、研究独立性规则</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">合约机制</span>：超额配售权、稳定价格义务</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">治理机制</span>：独立董事、审计委员会</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9：SPAC是更好的上市方式吗？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">SPAC的优势</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">速度快</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 3-4个月vs传统IPO 6-12个月</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">确定性高</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 提前锁定估值和融资额</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">灵活性强</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 可以提供业绩预测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">专业帮助</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 发起人提供行业专长</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">SPAC的劣势</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">稀释严重</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 发起人通常获得20%股权</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本高</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 综合成本可能高于传统IPO</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">质量参差</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 部分SPAC目标公司质量较差</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">监管不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 监管机构正在收紧规则</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">适合SPAC的情况</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要快速上市的公司</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>传统IPO渠道受阻的公司</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要发起人专业帮助的公司</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资者视角</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>SPAC投资者需要仔细评估交易条款</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关注发起人的声誉和历史业绩</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>注意稀释效应和权证条款</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学术经典</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">文献</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Why New Issues are Underpriced</td><td class="px-3 py-2 text-xs text-slate-400">Rock</td><td class="px-3 py-2 text-xs text-slate-400">1986</td><td class="px-3 py-2 text-xs text-slate-400">赢家诅咒理论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">The Hubris Hypothesis of Corporate Takeovers</td><td class="px-3 py-2 text-xs text-slate-400">Roll</td><td class="px-3 py-2 text-xs text-slate-400">1986</td><td class="px-3 py-2 text-xs text-slate-400">管理层过度自信</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Takeovers, Stockholder Returns and their Gains</td><td class="px-3 py-2 text-xs text-slate-400">Jensen-Ruback</td><td class="px-3 py-2 text-xs text-slate-400">1983</td><td class="px-3 py-2 text-xs text-slate-400">并购价值创造</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">The Market for Corporate Control</td><td class="px-3 py-2 text-xs text-slate-400">Manne</td><td class="px-3 py-2 text-xs text-slate-400">1965</td><td class="px-3 py-2 text-xs text-slate-400">控制权市场理论</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">教材推荐</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《兼并、收购与重组》(Gaughan)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 研究生</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 并购全流程</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《投资银行学》(Rosenbaum)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> MBA/实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 实务操作详尽</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《私募股权》(Cendrowski)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> PE/VC实操</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《估值》(Damodaran)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 各层次</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 估值方法大全</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          IPO上市全流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解从私有企业到公众公司的转变过程</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">上市准备</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">改制·辅导</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">发行定价</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">询价·承销</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">上市交易</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">首日·锁定</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">后续运作</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">再融资·并购</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">上市准备</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">改制·辅导</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>公司制改造: 股份制/治理规范化</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>券商辅导: 1-3年规范运营期</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>财务审计+法律合规+信息披露</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">发行定价</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">询价·承销</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>询价机制: 路演→投资者报价→定价</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>可比公司法/DCF法确定价格区间</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>IPO折价: 通常折价10-20%激励认购</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">上市交易</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">首日·锁定</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>首日表现: 破发vs暴涨的信号含义</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>锁定期: 大股东6-36个月限售</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>超额配售权(绿鞋): 稳定股价机制</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">后续运作</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">再融资·并购</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>增发/可转债: 上市后再融资渠道</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>并购重组: 产业整合与协同效应</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>回购/退市: 资本结构动态调整</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          IPO估值计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">使用多种方法估算发行价</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">每股收益EPS</label>
+            <input type="number" id="comp-1-eps" value="2.5" min="0" step="0.1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">同行P/E倍数</label>
+            <input type="number" id="comp-1-pe" value="20" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">IPO折价率(%)</label>
+            <input type="number" id="comp-1-disc" value="15" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">发行股数(万)</label>
+            <input type="number" id="comp-1-shares" value="5000" min="0" step="500" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-1-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-1-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-1-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-1-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">定价效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">公允价格</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">发行价</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">募资规模</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">留给二级市场</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-1-note" style="display:none">
+          <span id="comp-1-note-icon"></span>
+          <span id="comp-1-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ P_{IPO} = EPS \times P/E_{同行} \]</div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          估值方法对比
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整增长预期，比较不同估值</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-2-total"></span>
+      </div>
+    </div>
+    <svg id="comp-2-svg" viewBox="0 0 600 380" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="40" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="42" y="50" fill="#64748b" font-size="11">估值(元)</text>
+      <rect id="comp-2-bar0" x="90" y="340" width="100" height="0" fill="#34d399" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv0" x="140" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-2-bar1" x="205" y="340" width="100" height="0" fill="#60a5fa" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv1" x="255" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-2-bar2" x="320" y="340" width="100" height="0" fill="#fbbf24" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv2" x="370" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+<rect id="comp-2-bar3" x="435" y="340" width="100" height="0" fill="#c084fc" rx="4" style="transition: y 0.5s ease, height 0.5s ease;"/>
+<text id="comp-2-bv3" x="485" y="335" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle"></text>
+
+      <text x="140" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">P/E</text>
+<text x="255" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">P/B</text>
+<text x="370" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">DCF</text>
+<text x="485" y="360" fill="#94a3b8" font-size="9" text-anchor="middle">EV/EBITDA</text>
+
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">增长预期 <span class="text-white font-mono" id="comp-2-sl">g = 10</span></div>
+      <input type="range" id="comp-2-slider" min="0" max="30" value="10" step="1">
+    </div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 资产定价 Chapter 04</div>
+    <div class="mt-2 md:mt-0">下一章：公募与私募基金投资策略 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: ' \\ P/E) \\', tip: '市盈率——花多少钱买1块钱的利润，越高说明市场越看好未来'},
+    {match: 'P_0 = Multiple \\times Metric', tip: '相对估值法——用可比公司的倍数乘以关键指标'},
+    {match: 'V_{AB} = V_A + V_B + Synergy', tip: '并购价值——A+B+协同效应-溢价=合并后总价值'},
+    {match: 'Premium = \\frac{P_{offer}', tip: '收购溢价——买价比市价高出多少'},
+    {match: 'Equity Value = Exit', tip: '股权价值 = 退出价值 - 净债务'},
+    {match: 'IRR = ', tip: '让NPV=0的折现率，超过资本成本就值得做'},
+    {match: 'Accretion/Dilution', tip: 'EPS增厚/稀释——并购后每股盈利是增是减'},
+    {match: '\\sum_{t=1}', tip: '把每年的现金流都折现到今天然后加起来'},
+    {match: 'V_{sum-of-parts}', tip: '分部估值——把各业务分别估值再加起来'},
+    {match: 'Conglomerate', tip: '多元化折价——集团整体价值低于各部分之和'},
+    {match: '套利收益 = (P_{A股}', tip: '跨市场套利——同一公司不同市场的价格差扣除成本'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  document.getElementById('comp-1-btn').addEventListener('click',function(){
+    var eps=parseFloat(document.getElementById('comp-1-eps').value);
+    var pe=parseFloat(document.getElementById('comp-1-pe').value);
+    var disc=parseFloat(document.getElementById('comp-1-disc').value);
+    var shares=parseFloat(document.getElementById('comp-1-shares').value);
+
+    var fair=eps*pe; var ipo=fair*(1-disc/100);
+    var raised=ipo*shares/10000;
+    document.getElementById('comp-1-out0').textContent=fair.toFixed(2);
+    document.getElementById('comp-1-out1').textContent=ipo.toFixed(2);
+    document.getElementById('comp-1-out2').textContent=raised.toFixed(1)+'亿';
+    document.getElementById('comp-1-out3').textContent=(fair-ipo).toFixed(2);
+    // Ring
+    var score=Math.max(0,Math.min(1,1-disc/100));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-1-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-1-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+(function(){
+  var slider=document.getElementById('comp-2-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var vals=[50*(1+c*0.02), 3*(1+c*0.01)*10, 50*(1+c*0.03), 12*(1+c*0.015)*3];
+    
+    var h0=Math.max(0,(vals[0]/100)*300);
+    document.getElementById('comp-2-bar0').setAttribute('y',340-h0);
+    document.getElementById('comp-2-bar0').setAttribute('height',h0);
+    document.getElementById('comp-2-bv0').setAttribute('y',340-h0-5);
+    document.getElementById('comp-2-bv0').textContent=vals[0].toFixed(1);
+    var h1=Math.max(0,(vals[1]/100)*300);
+    document.getElementById('comp-2-bar1').setAttribute('y',340-h1);
+    document.getElementById('comp-2-bar1').setAttribute('height',h1);
+    document.getElementById('comp-2-bv1').setAttribute('y',340-h1-5);
+    document.getElementById('comp-2-bv1').textContent=vals[1].toFixed(1);
+    var h2=Math.max(0,(vals[2]/100)*300);
+    document.getElementById('comp-2-bar2').setAttribute('y',340-h2);
+    document.getElementById('comp-2-bar2').setAttribute('height',h2);
+    document.getElementById('comp-2-bv2').setAttribute('y',340-h2-5);
+    document.getElementById('comp-2-bv2').textContent=vals[2].toFixed(1);
+    var h3=Math.max(0,(vals[3]/100)*300);
+    document.getElementById('comp-2-bar3').setAttribute('y',340-h3);
+    document.getElementById('comp-2-bar3').setAttribute('height',h3);
+    document.getElementById('comp-2-bv3').setAttribute('y',340-h3-5);
+    document.getElementById('comp-2-bv3').textContent=vals[3].toFixed(1);
+    document.getElementById('comp-2-sl').textContent='g = '+c.toFixed(1);
+    document.getElementById('comp-2-total').textContent='估值中位数: '+(([50*(1+c*0.02),30*(1+c*0.01),50*(1+c*0.03),36*(1+c*0.015)].sort(function(a,b){return a-b}))[1]).toFixed(1);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

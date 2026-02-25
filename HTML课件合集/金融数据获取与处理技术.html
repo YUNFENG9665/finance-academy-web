@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>并行计算 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">AI-Fin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">案例研究</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">常见问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 04</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">并行计算</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">金融AI的数据基础设施</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">数据源</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">处理方法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融数据全景图</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据分类体系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">金融数据
+├── 市场数据（Market Data）
+│   ├── 行情数据：价格、成交量、买卖盘
+│   ├── 指数数据：大盘指数、行业指数
+│   └── 衍生品数据：期权、期货价格
+│
+├── 基本面数据（Fundamental Data）
+│   ├── 财务报表：资产负债表、利润表、现金流量表
+│   ├── 公司公告：重大事项、股东变动
+│   └── 经营数据：产销量、用户数
+│
+├── 另类数据（Alternative Data）
+│   ├── 卫星图像：零售停车场、油罐存储
+│   ├── 社交媒体：情绪、话题热度
+│   ├── 消费数据：信用卡交易、电商销售
+│   └── 地理位置：人流、物流
+│
+└── 宏观数据（Macro Data）
+    ├── 经济指标：GDP、CPI、PMI
+    ├── 央行政策：利率、货币供应量
+    └── 国际数据：汇率、贸易数据</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">数据来源详解</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">主要数据供应商</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">数据商</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">Wind万得</span></td><td class="px-3 py-2 text-xs text-slate-400">综合</td><td class="px-3 py-2 text-xs text-slate-400">数据全面，机构标配</td><td class="px-3 py-2 text-xs text-slate-400">专业研究</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">国泰安CSMAR</span></td><td class="px-3 py-2 text-xs text-slate-400">学术</td><td class="px-3 py-2 text-xs text-slate-400">学术研究标准</td><td class="px-3 py-2 text-xs text-slate-400">学术论文</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">同花顺iFinD</span></td><td class="px-3 py-2 text-xs text-slate-400">综合</td><td class="px-3 py-2 text-xs text-slate-400">界面友好</td><td class="px-3 py-2 text-xs text-slate-400">投研分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">东方财富Choice</span></td><td class="px-3 py-2 text-xs text-slate-400">综合</td><td class="px-3 py-2 text-xs text-slate-400">性价比高</td><td class="px-3 py-2 text-xs text-slate-400">中小机构</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">Tushare</span></td><td class="px-3 py-2 text-xs text-slate-400">开源</td><td class="px-3 py-2 text-xs text-slate-400">免费/低成本</td><td class="px-3 py-2 text-xs text-slate-400">个人研究</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">AKShare</span></td><td class="px-3 py-2 text-xs text-slate-400">开源</td><td class="px-3 py-2 text-xs text-slate-400">免费、更新快</td><td class="px-3 py-2 text-xs text-slate-400">快速原型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">JoinQuant聚宽</span></td><td class="px-3 py-2 text-xs text-slate-400">量化平台</td><td class="px-3 py-2 text-xs text-slate-400">回测一体化</td><td class="px-3 py-2 text-xs text-slate-400">量化研究</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">RiceQuant米筐</span></td><td class="px-3 py-2 text-xs text-slate-400">量化平台</td><td class="px-3 py-2 text-xs text-slate-400">数据+回测</td><td class="px-3 py-2 text-xs text-slate-400">策略开发</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">数据获取方式对比</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">API调用</span></td><td class="px-3 py-2 text-xs text-slate-400">结构化、稳定</td><td class="px-3 py-2 text-xs text-slate-400">需要权限、有限制</td><td class="px-3 py-2 text-xs text-slate-400">正规数据获取</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">网页爬虫</span></td><td class="px-3 py-2 text-xs text-slate-400">灵活、成本低</td><td class="px-3 py-2 text-xs text-slate-400">不稳定、法律风险</td><td class="px-3 py-2 text-xs text-slate-400">补充数据源</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">数据库直连</span></td><td class="px-3 py-2 text-xs text-slate-400">高效、实时</td><td class="px-3 py-2 text-xs text-slate-400">需要授权</td><td class="px-3 py-2 text-xs text-slate-400">机构内部</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">文件下载</span></td><td class="px-3 py-2 text-xs text-slate-400">简单、批量</td><td class="px-3 py-2 text-xs text-slate-400">时效性差</td><td class="px-3 py-2 text-xs text-slate-400">历史数据</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">API数据获取</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">Tushare Pro数据接口</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import tushare as ts
+import pandas as pd
+
+ts.set_token(&#x27;your_token&#x27;)
+pro = ts.pro_api()
+
+def get_stock_list():
+    &quot;&quot;&quot;获取所有上市股票&quot;&quot;&quot;
+    df = pro.stock_basic(
+        exchange=&#x27;&#x27;,
+        list_status=&#x27;L&#x27;,  # L=上市
+        fields=&#x27;ts_code,symbol,name,area,industry,list_date&#x27;
+    )
+    return df
+
+def get_daily_price(ts_code, start_date, end_date):
+    &quot;&quot;&quot;获取日线数据&quot;&quot;&quot;
+    df = pro.daily(
+        ts_code=ts_code,
+        start_date=start_date,
+        end_date=end_date
+    )
+    return df.sort_values(&#x27;trade_date&#x27;)
+
+def get_financial_data(ts_code, period):
+    &quot;&quot;&quot;获取财务指标&quot;&quot;&quot;
+    # 利润表
+    income = pro.income(
+        ts_code=ts_code,
+        period=period,
+        fields=&#x27;ts_code,end_date,revenue,operate_profit,n_income&#x27;
+    )
+
+    # 资产负债表
+    balance = pro.balancesheet(
+        ts_code=ts_code,
+        period=period,
+        fields=&#x27;ts_code,end_date,total_assets,total_liab,total_hldr_eqy&#x27;
+    )
+
+    # 现金流量表
+    cashflow = pro.cashflow(
+        ts_code=ts_code,
+        period=period,
+        fields=&#x27;ts_code,end_date,n_cashflow_act,n_cashflow_inv_act&#x27;
+    )
+
+    return income, balance, cashflow
+
+def get_research_reports(ts_code, start_date, end_date):
+    &quot;&quot;&quot;获取个股研报&quot;&quot;&quot;
+    df = pro.report_rc(
+        ts_code=ts_code,
+        start_date=start_date,
+        end_date=end_date
+    )
+    return df</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">AKShare开源数据</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import akshare as ak
+
+def get_stock_history(symbol, period=&#x27;daily&#x27;, adjust=&#x27;qfq&#x27;):
+    &quot;&quot;&quot;获取股票历史行情&quot;&quot;&quot;
+    df = ak.stock_zh_a_hist(
+        symbol=symbol,  # 股票代码，如 &quot;000001&quot;
+        period=period,  # daily/weekly/monthly
+        adjust=adjust   # qfq前复权/hfq后复权/空字符串不复权
+    )
+    return df
+
+def get_top_list(date):
+    &quot;&quot;&quot;获取龙虎榜数据&quot;&quot;&quot;
+    df = ak.stock_lhb_detail_em(date=date)
+    return df
+
+def get_margin_data(symbol):
+    &quot;&quot;&quot;获取融资融券数据&quot;&quot;&quot;
+    df = ak.stock_margin_detail_szse(symbol=symbol)
+    return df
+
+def get_news_sentiment(symbol):
+    &quot;&quot;&quot;获取股票相关新闻&quot;&quot;&quot;
+    df = ak.stock_news_em(symbol=symbol)
+    return df</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">Wind API（机构级）</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from WindPy import w
+
+w.start()
+
+def get_realtime_quote(codes):
+    &quot;&quot;&quot;获取实时行情&quot;&quot;&quot;
+    data = w.wsq(codes, &quot;rt_last,rt_chg,rt_pct_chg,rt_vol&quot;)
+    return data
+
+def get_historical_data(code, start_date, end_date, fields):
+    &quot;&quot;&quot;获取历史数据&quot;&quot;&quot;
+    data = w.wsd(
+        codes=code,
+        fields=fields,
+        beginTime=start_date,
+        endTime=end_date,
+        options=&quot;Period=D;PriceAdj=F&quot;
+    )
+    return data
+
+def get_wind_financial(codes, report_date, indicators):
+    &quot;&quot;&quot;获取财务指标&quot;&quot;&quot;
+    data = w.wss(
+        codes=codes,
+        fields=indicators,
+        options=f&quot;rptDate={report_date};rptType=1&quot;
+    )
+    return data</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">网页数据采集</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">基础爬虫技术</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import requests
+from bs4 import BeautifulSoup
+import time
+import random
+
+class FinancialCrawler:
+    &quot;&quot;&quot;金融数据爬虫基类&quot;&quot;&quot;
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.headers = {
+            &#x27;User-Agent&#x27;: &#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36&#x27;,
+            &#x27;Accept&#x27;: &#x27;text/html,application/xhtml+xml,application/xml;q=0.9&#x27;,
+            &#x27;Accept-Language&#x27;: &#x27;zh-CN,zh;q=0.9,en;q=0.8&#x27;
+        }
+
+    def get_page(self, url, retry=3):
+        &quot;&quot;&quot;获取页面内容&quot;&quot;&quot;
+        for i in range(retry):
+            try:
+                response = self.session.get(
+                    url,
+                    headers=self.headers,
+                    timeout=10
+                )
+                response.raise_for_status()
+                response.encoding = &#x27;utf-8&#x27;
+                return response.text
+            except Exception as e:
+                print(f&quot;请求失败 ({i+1}/{retry}): {e}&quot;)
+                time.sleep(random.uniform(1, 3))
+        return None
+
+    def parse_table(self, html, table_id=None):
+        &quot;&quot;&quot;解析HTML表格&quot;&quot;&quot;
+        soup = BeautifulSoup(html, &#x27;html.parser&#x27;)
+        if table_id:
+            table = soup.find(&#x27;table&#x27;, id=table_id)
+        else:
+            table = soup.find(&#x27;table&#x27;)
+
+        if not table:
+            return None
+
+        rows = []
+        for tr in table.find_all(&#x27;tr&#x27;):
+            cells = [td.get_text(strip=True) for td in tr.find_all([&#x27;td&#x27;, &#x27;th&#x27;])]
+            if cells:
+                rows.append(cells)
+
+        return pd.DataFrame(rows[1:], columns=rows[0]) if rows else None</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">动态页面爬取（Selenium）</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+
+class DynamicCrawler:
+    &quot;&quot;&quot;动态页面爬虫&quot;&quot;&quot;
+
+    def __init__(self, headless=True):
+        options = Options()
+        if headless:
+            options.add_argument(&#x27;--headless&#x27;)
+        options.add_argument(&#x27;--disable-gpu&#x27;)
+        options.add_argument(&#x27;--no-sandbox&#x27;)
+
+        self.driver = webdriver.Chrome(options=options)
+        self.wait = WebDriverWait(self.driver, 10)
+
+    def get_dynamic_content(self, url, wait_element=None):
+        &quot;&quot;&quot;获取动态加载的内容&quot;&quot;&quot;
+        self.driver.get(url)
+
+        if wait_element:
+            self.wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, wait_element))
+            )
+
+        return self.driver.page_source
+
+    def scroll_to_load(self, scroll_times=5, wait_time=2):
+        &quot;&quot;&quot;滚动加载更多内容&quot;&quot;&quot;
+        for _ in range(scroll_times):
+            self.driver.execute_script(
+                &quot;window.scrollTo(0, document.body.scrollHeight);&quot;
+            )
+            time.sleep(wait_time)
+
+        return self.driver.page_source
+
+    def close(self):
+        &quot;&quot;&quot;关闭浏览器&quot;&quot;&quot;
+        self.driver.quit()</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">大规模数据采集（Scrapy）</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">&quot;&quot;&quot;
+financial_spider/
+├── scrapy.cfg
+├── financial_spider/
+│   ├── __init__.py
+│   ├── items.py
+│   ├── middlewares.py
+│   ├── pipelines.py
+│   ├── settings.py
+│   └── spiders/
+│       ├── __init__.py
+│       └── announcement_spider.py
+&quot;&quot;&quot;
+
+import scrapy
+
+class AnnouncementItem(scrapy.Item):
+    stock_code = scrapy.Field()
+    title = scrapy.Field()
+    publish_date = scrapy.Field()
+    content = scrapy.Field()
+    url = scrapy.Field()
+
+class AnnouncementSpider(scrapy.Spider):
+    name = &#x27;announcement&#x27;
+    allowed_domains = [&#x27;cninfo.com.cn&#x27;]
+
+    def start_requests(self):
+        # 起始URL
+        url = &#x27;http://www.cninfo.com.cn/new/disclosure&#x27;
+        yield scrapy.Request(url, callback=self.parse)
+
+    def parse(self, response):
+        # 解析列表页
+        for item in response.css(&#x27;.announcement-item&#x27;):
+            yield {
+                &#x27;title&#x27;: item.css(&#x27;.title::text&#x27;).get(),
+                &#x27;date&#x27;: item.css(&#x27;.date::text&#x27;).get(),
+                &#x27;url&#x27;: item.css(&#x27;a::attr(href)&#x27;).get()
+            }
+
+        # 翻页
+        next_page = response.css(&#x27;.next-page::attr(href)&#x27;).get()
+        if next_page:
+            yield response.follow(next_page, self.parse)</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">数据清洗与预处理</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">常见数据质量问题</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">缺失值</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> NaN、空值</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 删除、填充、插值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">异常值</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 极端值、错误数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 截断、替换、删除</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">重复数据</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 同一记录多次出现</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 去重</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">不一致</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 格式、单位不统一</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 标准化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">时间问题</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 时区、日期格式</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 统一转换</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">数据清洗流程</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import pandas as pd
+import numpy as np
+from scipy import stats
+
+class DataCleaner:
+    &quot;&quot;&quot;数据清洗工具&quot;&quot;&quot;
+
+    def __init__(self, df):
+        self.df = df.copy()
+        self.cleaning_log = []
+
+    def handle_missing_values(self, strategy=&#x27;auto&#x27;, columns=None):
+        &quot;&quot;&quot;处理缺失值&quot;&quot;&quot;
+        if columns is None:
+            columns = self.df.columns
+
+        for col in columns:
+            missing_count = self.df[col].isna().sum()
+            if missing_count == 0:
+                continue
+
+            missing_ratio = missing_count / len(self.df)
+
+            if strategy == &#x27;auto&#x27;:
+                if missing_ratio &gt; 0.5:
+                    # 缺失超过50%，删除列
+                    self.df.drop(col, axis=1, inplace=True)
+                    self.cleaning_log.append(f&quot;删除列 {col}：缺失率 {missing_ratio:.1%}&quot;)
+                elif self.df[col].dtype in [&#x27;float64&#x27;, &#x27;int64&#x27;]:
+                    # 数值型：中位数填充
+                    median_val = self.df[col].median()
+                    self.df[col].fillna(median_val, inplace=True)
+                    self.cleaning_log.append(f&quot;列 {col} 用中位数 {median_val} 填充&quot;)
+                else:
+                    # 类别型：众数填充
+                    mode_val = self.df[col].mode()[0]
+                    self.df[col].fillna(mode_val, inplace=True)
+                    self.cleaning_log.append(f&quot;列 {col} 用众数 &#x27;{mode_val}&#x27; 填充&quot;)
+
+            elif strategy == &#x27;drop&#x27;:
+                self.df.dropna(subset=[col], inplace=True)
+
+            elif strategy == &#x27;ffill&#x27;:
+                self.df[col].fillna(method=&#x27;ffill&#x27;, inplace=True)
+
+            elif strategy == &#x27;interpolate&#x27;:
+                self.df[col].interpolate(method=&#x27;linear&#x27;, inplace=True)
+
+        return self
+
+    def handle_outliers(self, columns, method=&#x27;zscore&#x27;, threshold=3):
+        &quot;&quot;&quot;处理异常值&quot;&quot;&quot;
+        for col in columns:
+            if self.df[col].dtype not in [&#x27;float64&#x27;, &#x27;int64&#x27;]:
+                continue
+
+            if method == &#x27;zscore&#x27;:
+                z_scores = np.abs(stats.zscore(self.df[col].dropna()))
+                outlier_mask = z_scores &gt; threshold
+                outlier_count = outlier_mask.sum()
+
+                # 用边界值替换
+                mean = self.df[col].mean()
+                std = self.df[col].std()
+                lower, upper = mean - threshold * std, mean + threshold * std
+                self.df[col] = self.df[col].clip(lower, upper)
+
+            elif method == &#x27;iqr&#x27;:
+                Q1 = self.df[col].quantile(0.25)
+                Q3 = self.df[col].quantile(0.75)
+                IQR = Q3 - Q1
+                lower = Q1 - 1.5 * IQR
+                upper = Q3 + 1.5 * IQR
+
+                outlier_count = ((self.df[col] &lt; lower) | (self.df[col] &gt; upper)).sum()
+                self.df[col] = self.df[col].clip(lower, upper)
+
+            elif method == &#x27;percentile&#x27;:
+                lower = self.df[col].quantile(0.01)
+                upper = self.df[col].quantile(0.99)
+                self.df[col] = self.df[col].clip(lower, upper)
+
+            self.cleaning_log.append(
+                f&quot;列 {col} 处理 {outlier_count} 个异常值 (方法: {method})&quot;
+            )
+
+        return self
+
+    def remove_duplicates(self, subset=None, keep=&#x27;first&#x27;):
+        &quot;&quot;&quot;删除重复数据&quot;&quot;&quot;
+        before_count = len(self.df)
+        self.df.drop_duplicates(subset=subset, keep=keep, inplace=True)
+        after_count = len(self.df)
+
+        self.cleaning_log.append(
+            f&quot;删除 {before_count - after_count} 条重复数据&quot;
+        )
+        return self
+
+    def standardize_columns(self, column_mapping):
+        &quot;&quot;&quot;标准化列名&quot;&quot;&quot;
+        self.df.rename(columns=column_mapping, inplace=True)
+        return self
+
+    def convert_types(self, type_mapping):
+        &quot;&quot;&quot;转换数据类型&quot;&quot;&quot;
+        for col, dtype in type_mapping.items():
+            try:
+                if dtype == &#x27;datetime&#x27;:
+                    self.df[col] = pd.to_datetime(self.df[col])
+                elif dtype == &#x27;numeric&#x27;:
+                    self.df[col] = pd.to_numeric(self.df[col], errors=&#x27;coerce&#x27;)
+                else:
+                    self.df[col] = self.df[col].astype(dtype)
+            except Exception as e:
+                self.cleaning_log.append(f&quot;列 {col} 类型转换失败: {e}&quot;)
+        return self
+
+    def get_result(self):
+        &quot;&quot;&quot;获取清洗结果&quot;&quot;&quot;
+        return self.df, self.cleaning_log</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">股票数据特殊处理</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class StockDataProcessor:
+    &quot;&quot;&quot;股票数据专用处理器&quot;&quot;&quot;
+
+    def __init__(self, df):
+        self.df = df.copy()
+
+    def adjust_price(self, method=&#x27;forward&#x27;):
+        &quot;&quot;&quot;复权处理&quot;&quot;&quot;
+        if method == &#x27;forward&#x27;:  # 前复权
+            # 假设df中有adj_factor（复权因子）列
+            if &#x27;adj_factor&#x27; in self.df.columns:
+                latest_factor = self.df[&#x27;adj_factor&#x27;].iloc[-1]
+                for col in [&#x27;open&#x27;, &#x27;high&#x27;, &#x27;low&#x27;, &#x27;close&#x27;]:
+                    self.df[f&#x27;{col}_adj&#x27;] = self.df[col] * self.df[&#x27;adj_factor&#x27;] / latest_factor
+
+        elif method == &#x27;backward&#x27;:  # 后复权
+            if &#x27;adj_factor&#x27; in self.df.columns:
+                first_factor = self.df[&#x27;adj_factor&#x27;].iloc[0]
+                for col in [&#x27;open&#x27;, &#x27;high&#x27;, &#x27;low&#x27;, &#x27;close&#x27;]:
+                    self.df[f&#x27;{col}_adj&#x27;] = self.df[col] * self.df[&#x27;adj_factor&#x27;] / first_factor
+
+        return self
+
+    def handle_suspension(self, method=&#x27;ffill&#x27;):
+        &quot;&quot;&quot;处理停牌数据&quot;&quot;&quot;
+        # 识别停牌日（成交量为0或NaN）
+        suspension_mask = (self.df[&#x27;volume&#x27;] == 0) | self.df[&#x27;volume&#x27;].isna()
+
+        if method == &#x27;ffill&#x27;:
+            # 用前一天数据填充
+            self.df.loc[suspension_mask, [&#x27;open&#x27;, &#x27;high&#x27;, &#x27;low&#x27;, &#x27;close&#x27;]] = np.nan
+            self.df[[&#x27;open&#x27;, &#x27;high&#x27;, &#x27;low&#x27;, &#x27;close&#x27;]] = \
+                self.df[[&#x27;open&#x27;, &#x27;high&#x27;, &#x27;low&#x27;, &#x27;close&#x27;]].fillna(method=&#x27;ffill&#x27;)
+
+        elif method == &#x27;remove&#x27;:
+            # 删除停牌日
+            self.df = self.df[~suspension_mask]
+
+        return self
+
+    def align_trading_days(self, trading_calendar):
+        &quot;&quot;&quot;对齐交易日&quot;&quot;&quot;
+        self.df[&#x27;date&#x27;] = pd.to_datetime(self.df[&#x27;date&#x27;])
+        trading_calendar = pd.to_datetime(trading_calendar)
+
+        # 只保留交易日数据
+        self.df = self.df[self.df[&#x27;date&#x27;].isin(trading_calendar)]
+
+        return self
+
+    def calculate_returns(self, periods=[1, 5, 20]):
+        &quot;&quot;&quot;计算收益率&quot;&quot;&quot;
+        for period in periods:
+            self.df[f&#x27;return_{period}d&#x27;] = \
+                self.df[&#x27;close&#x27;].pct_change(period)
+
+            # 对数收益率
+            self.df[f&#x27;log_return_{period}d&#x27;] = \
+                np.log(self.df[&#x27;close&#x27;] / self.df[&#x27;close&#x27;].shift(period))
+
+        return self</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">特征工程</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">价量特征</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class PriceVolumeFeatures:
+    &quot;&quot;&quot;价量特征工程&quot;&quot;&quot;
+
+    def __init__(self, df):
+        self.df = df.copy()
+
+    def add_moving_averages(self, windows=[5, 10, 20, 60]):
+        &quot;&quot;&quot;添加移动平均线&quot;&quot;&quot;
+        for window in windows:
+            self.df[f&#x27;ma_{window}&#x27;] = self.df[&#x27;close&#x27;].rolling(window).mean()
+            self.df[f&#x27;ma_{window}_ratio&#x27;] = self.df[&#x27;close&#x27;] / self.df[f&#x27;ma_{window}&#x27;]
+
+            # 成交量均线
+            self.df[f&#x27;vol_ma_{window}&#x27;] = self.df[&#x27;volume&#x27;].rolling(window).mean()
+
+        return self
+
+    def add_volatility(self, windows=[5, 20, 60]):
+        &quot;&quot;&quot;添加波动率指标&quot;&quot;&quot;
+        returns = self.df[&#x27;close&#x27;].pct_change()
+
+        for window in windows:
+            # 历史波动率
+            self.df[f&#x27;volatility_{window}&#x27;] = returns.rolling(window).std() * np.sqrt(252)
+
+            # 真实波动幅度（ATR）
+            high_low = self.df[&#x27;high&#x27;] - self.df[&#x27;low&#x27;]
+            high_close = abs(self.df[&#x27;high&#x27;] - self.df[&#x27;close&#x27;].shift(1))
+            low_close = abs(self.df[&#x27;low&#x27;] - self.df[&#x27;close&#x27;].shift(1))
+            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+            self.df[f&#x27;atr_{window}&#x27;] = true_range.rolling(window).mean()
+
+        return self
+
+    def add_momentum(self, windows=[5, 10, 20]):
+        &quot;&quot;&quot;添加动量指标&quot;&quot;&quot;
+        for window in windows:
+            # 动量
+            self.df[f&#x27;momentum_{window}&#x27;] = self.df[&#x27;close&#x27;].pct_change(window)
+
+            # RSI
+            delta = self.df[&#x27;close&#x27;].diff()
+            gain = (delta.where(delta &gt; 0, 0)).rolling(window).mean()
+            loss = (-delta.where(delta &lt; 0, 0)).rolling(window).mean()
+            rs = gain / loss
+            self.df[f&#x27;rsi_{window}&#x27;] = 100 - (100 / (1 + rs))
+
+        return self
+
+    def add_volume_features(self):
+        &quot;&quot;&quot;添加成交量特征&quot;&quot;&quot;
+        # 量比
+        self.df[&#x27;volume_ratio&#x27;] = self.df[&#x27;volume&#x27;] / self.df[&#x27;volume&#x27;].rolling(5).mean()
+
+        # 换手率变化
+        if &#x27;turnover_rate&#x27; in self.df.columns:
+            self.df[&#x27;turnover_change&#x27;] = self.df[&#x27;turnover_rate&#x27;].pct_change()
+
+        # 量价关系
+        self.df[&#x27;price_volume_corr&#x27;] = \
+            self.df[&#x27;close&#x27;].rolling(20).corr(self.df[&#x27;volume&#x27;])
+
+        return self
+
+    def add_technical_indicators(self):
+        &quot;&quot;&quot;添加技术指标&quot;&quot;&quot;
+        # MACD
+        exp1 = self.df[&#x27;close&#x27;].ewm(span=12, adjust=False).mean()
+        exp2 = self.df[&#x27;close&#x27;].ewm(span=26, adjust=False).mean()
+        self.df[&#x27;macd&#x27;] = exp1 - exp2
+        self.df[&#x27;macd_signal&#x27;] = self.df[&#x27;macd&#x27;].ewm(span=9, adjust=False).mean()
+        self.df[&#x27;macd_hist&#x27;] = self.df[&#x27;macd&#x27;] - self.df[&#x27;macd_signal&#x27;]
+
+        # 布林带
+        self.df[&#x27;bb_middle&#x27;] = self.df[&#x27;close&#x27;].rolling(20).mean()
+        self.df[&#x27;bb_std&#x27;] = self.df[&#x27;close&#x27;].rolling(20).std()
+        self.df[&#x27;bb_upper&#x27;] = self.df[&#x27;bb_middle&#x27;] + 2 * self.df[&#x27;bb_std&#x27;]
+        self.df[&#x27;bb_lower&#x27;] = self.df[&#x27;bb_middle&#x27;] - 2 * self.df[&#x27;bb_std&#x27;]
+        self.df[&#x27;bb_width&#x27;] = (self.df[&#x27;bb_upper&#x27;] - self.df[&#x27;bb_lower&#x27;]) / self.df[&#x27;bb_middle&#x27;]
+        self.df[&#x27;bb_position&#x27;] = (self.df[&#x27;close&#x27;] - self.df[&#x27;bb_lower&#x27;]) / \
+                                  (self.df[&#x27;bb_upper&#x27;] - self.df[&#x27;bb_lower&#x27;])
+
+        # KDJ
+        low_min = self.df[&#x27;low&#x27;].rolling(9).min()
+        high_max = self.df[&#x27;high&#x27;].rolling(9).max()
+        rsv = (self.df[&#x27;close&#x27;] - low_min) / (high_max - low_min) * 100
+        self.df[&#x27;kdj_k&#x27;] = rsv.ewm(com=2, adjust=False).mean()
+        self.df[&#x27;kdj_d&#x27;] = self.df[&#x27;kdj_k&#x27;].ewm(com=2, adjust=False).mean()
+        self.df[&#x27;kdj_j&#x27;] = 3 * self.df[&#x27;kdj_k&#x27;] - 2 * self.df[&#x27;kdj_d&#x27;]
+
+        return self
+
+    def get_features(self):
+        &quot;&quot;&quot;获取所有特征&quot;&quot;&quot;
+        return self.df</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">财务特征</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class FinancialFeatures:
+    &quot;&quot;&quot;财务特征工程&quot;&quot;&quot;
+
+    def __init__(self, df):
+        self.df = df.copy()
+
+    def add_profitability_ratios(self):
+        &quot;&quot;&quot;添加盈利能力指标&quot;&quot;&quot;
+        # 毛利率
+        self.df[&#x27;gross_margin&#x27;] = \
+            (self.df[&#x27;revenue&#x27;] - self.df[&#x27;cost&#x27;]) / self.df[&#x27;revenue&#x27;]
+
+        # 净利率
+        self.df[&#x27;net_margin&#x27;] = self.df[&#x27;net_income&#x27;] / self.df[&#x27;revenue&#x27;]
+
+        # ROE（净资产收益率）
+        self.df[&#x27;roe&#x27;] = self.df[&#x27;net_income&#x27;] / self.df[&#x27;equity&#x27;]
+
+        # ROA（总资产收益率）
+        self.df[&#x27;roa&#x27;] = self.df[&#x27;net_income&#x27;] / self.df[&#x27;total_assets&#x27;]
+
+        # ROIC（投入资本回报率）
+        invested_capital = self.df[&#x27;equity&#x27;] + self.df[&#x27;long_term_debt&#x27;]
+        self.df[&#x27;roic&#x27;] = self.df[&#x27;operating_income&#x27;] * (1 - 0.25) / invested_capital
+
+        return self
+
+    def add_solvency_ratios(self):
+        &quot;&quot;&quot;添加偿债能力指标&quot;&quot;&quot;
+        # 资产负债率
+        self.df[&#x27;debt_ratio&#x27;] = self.df[&#x27;total_liabilities&#x27;] / self.df[&#x27;total_assets&#x27;]
+
+        # 流动比率
+        self.df[&#x27;current_ratio&#x27;] = self.df[&#x27;current_assets&#x27;] / self.df[&#x27;current_liabilities&#x27;]
+
+        # 速动比率
+        self.df[&#x27;quick_ratio&#x27;] = \
+            (self.df[&#x27;current_assets&#x27;] - self.df[&#x27;inventory&#x27;]) / self.df[&#x27;current_liabilities&#x27;]
+
+        # 利息覆盖倍数
+        self.df[&#x27;interest_coverage&#x27;] = \
+            self.df[&#x27;operating_income&#x27;] / self.df[&#x27;interest_expense&#x27;]
+
+        return self
+
+    def add_efficiency_ratios(self):
+        &quot;&quot;&quot;添加运营效率指标&quot;&quot;&quot;
+        # 应收账款周转率
+        self.df[&#x27;receivable_turnover&#x27;] = self.df[&#x27;revenue&#x27;] / self.df[&#x27;accounts_receivable&#x27;]
+
+        # 存货周转率
+        self.df[&#x27;inventory_turnover&#x27;] = self.df[&#x27;cost&#x27;] / self.df[&#x27;inventory&#x27;]
+
+        # 总资产周转率
+        self.df[&#x27;asset_turnover&#x27;] = self.df[&#x27;revenue&#x27;] / self.df[&#x27;total_assets&#x27;]
+
+        # 应收账款周转天数
+        self.df[&#x27;receivable_days&#x27;] = 365 / self.df[&#x27;receivable_turnover&#x27;]
+
+        # 存货周转天数
+        self.df[&#x27;inventory_days&#x27;] = 365 / self.df[&#x27;inventory_turnover&#x27;]
+
+        return self
+
+    def add_growth_ratios(self):
+        &quot;&quot;&quot;添加成长能力指标&quot;&quot;&quot;
+        # 营收增长率
+        self.df[&#x27;revenue_growth&#x27;] = self.df[&#x27;revenue&#x27;].pct_change()
+
+        # 净利润增长率
+        self.df[&#x27;income_growth&#x27;] = self.df[&#x27;net_income&#x27;].pct_change()
+
+        # 总资产增长率
+        self.df[&#x27;asset_growth&#x27;] = self.df[&#x27;total_assets&#x27;].pct_change()
+
+        # 可持续增长率
+        self.df[&#x27;sustainable_growth&#x27;] = \
+            self.df[&#x27;roe&#x27;] * (1 - self.df[&#x27;dividend_payout_ratio&#x27;])
+
+        return self
+
+    def add_valuation_ratios(self, market_cap=None):
+        &quot;&quot;&quot;添加估值指标&quot;&quot;&quot;
+        if market_cap is not None:
+            self.df[&#x27;market_cap&#x27;] = market_cap
+
+        if &#x27;market_cap&#x27; in self.df.columns:
+            # 市盈率
+            self.df[&#x27;pe_ratio&#x27;] = self.df[&#x27;market_cap&#x27;] / self.df[&#x27;net_income&#x27;]
+
+            # 市净率
+            self.df[&#x27;pb_ratio&#x27;] = self.df[&#x27;market_cap&#x27;] / self.df[&#x27;equity&#x27;]
+
+            # 市销率
+            self.df[&#x27;ps_ratio&#x27;] = self.df[&#x27;market_cap&#x27;] / self.df[&#x27;revenue&#x27;]
+
+            # EV/EBITDA
+            enterprise_value = self.df[&#x27;market_cap&#x27;] + self.df[&#x27;total_debt&#x27;] - self.df[&#x27;cash&#x27;]
+            self.df[&#x27;ev_ebitda&#x27;] = enterprise_value / self.df[&#x27;ebitda&#x27;]
+
+        return self
+
+    def add_quality_indicators(self):
+        &quot;&quot;&quot;添加质量指标&quot;&quot;&quot;
+        # 盈利质量（经营现金流/净利润）
+        self.df[&#x27;earnings_quality&#x27;] = \
+            self.df[&#x27;operating_cashflow&#x27;] / self.df[&#x27;net_income&#x27;]
+
+        # 资本支出比率
+        self.df[&#x27;capex_ratio&#x27;] = self.df[&#x27;capex&#x27;] / self.df[&#x27;operating_cashflow&#x27;]
+
+        # 自由现金流
+        self.df[&#x27;free_cashflow&#x27;] = self.df[&#x27;operating_cashflow&#x27;] - self.df[&#x27;capex&#x27;]
+
+        # 应计项目占比
+        self.df[&#x27;accruals&#x27;] = (self.df[&#x27;net_income&#x27;] - self.df[&#x27;operating_cashflow&#x27;]) \
+                               / self.df[&#x27;total_assets&#x27;]
+
+        return self</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">因子合成与标准化</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class FactorProcessor:
+    &quot;&quot;&quot;因子处理器&quot;&quot;&quot;
+
+    def __init__(self, df):
+        self.df = df.copy()
+
+    def standardize(self, columns, method=&#x27;zscore&#x27;):
+        &quot;&quot;&quot;因子标准化&quot;&quot;&quot;
+        for col in columns:
+            if method == &#x27;zscore&#x27;:
+                # Z-score标准化
+                mean = self.df[col].mean()
+                std = self.df[col].std()
+                self.df[f&#x27;{col}_std&#x27;] = (self.df[col] - mean) / std
+
+            elif method == &#x27;rank&#x27;:
+                # 排序百分位
+                self.df[f&#x27;{col}_std&#x27;] = self.df[col].rank(pct=True)
+
+            elif method == &#x27;minmax&#x27;:
+                # Min-Max归一化
+                min_val = self.df[col].min()
+                max_val = self.df[col].max()
+                self.df[f&#x27;{col}_std&#x27;] = (self.df[col] - min_val) / (max_val - min_val)
+
+        return self
+
+    def neutralize(self, factor_col, neutralize_cols):
+        &quot;&quot;&quot;因子中性化（行业、市值中性）&quot;&quot;&quot;
+        import statsmodels.api as sm
+
+        X = self.df[neutralize_cols]
+        X = sm.add_constant(X)
+        y = self.df[factor_col]
+
+        model = sm.OLS(y, X, missing=&#x27;drop&#x27;).fit()
+        self.df[f&#x27;{factor_col}_neutral&#x27;] = model.resid
+
+        return self
+
+    def winsorize(self, columns, limits=(0.01, 0.99)):
+        &quot;&quot;&quot;缩尾处理&quot;&quot;&quot;
+        from scipy.stats import mstats
+
+        for col in columns:
+            self.df[col] = mstats.winsorize(
+                self.df[col],
+                limits=[limits[0], 1 - limits[1]]
+            )
+
+        return self
+
+    def combine_factors(self, factor_cols, weights=None, method=&#x27;equal&#x27;):
+        &quot;&quot;&quot;因子合成&quot;&quot;&quot;
+        if method == &#x27;equal&#x27;:
+            weights = [1 / len(factor_cols)] * len(factor_cols)
+        elif method == &#x27;ic_weighted&#x27;:
+            # 使用IC加权（需要收益率数据）
+            weights = self._calculate_ic_weights(factor_cols)
+
+        self.df[&#x27;combined_factor&#x27;] = sum(
+            w * self.df[col] for w, col in zip(weights, factor_cols)
+        )
+
+        return self
+
+    def _calculate_ic_weights(self, factor_cols, return_col=&#x27;future_return&#x27;):
+        &quot;&quot;&quot;计算IC加权权重&quot;&quot;&quot;
+        ics = []
+        for col in factor_cols:
+            ic = self.df[col].corr(self.df[return_col])
+            ics.append(abs(ic))
+
+        total_ic = sum(ics)
+        return [ic / total_ic for ic in ics]</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">数据存储方案</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">存储方案对比</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方案</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">CSV/Parquet</span></td><td class="px-3 py-2 text-xs text-slate-400">本地小规模</td><td class="px-3 py-2 text-xs text-slate-400">简单、通用</td><td class="px-3 py-2 text-xs text-slate-400">查询慢、不支持并发</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">SQLite</span></td><td class="px-3 py-2 text-xs text-slate-400">本地中规模</td><td class="px-3 py-2 text-xs text-slate-400">轻量、SQL支持</td><td class="px-3 py-2 text-xs text-slate-400">单文件、并发有限</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">MySQL</span></td><td class="px-3 py-2 text-xs text-slate-400">中大规模结构化</td><td class="px-3 py-2 text-xs text-slate-400">成熟稳定、生态丰富</td><td class="px-3 py-2 text-xs text-slate-400">运维成本</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">PostgreSQL</span></td><td class="px-3 py-2 text-xs text-slate-400">复杂查询</td><td class="px-3 py-2 text-xs text-slate-400">功能强大</td><td class="px-3 py-2 text-xs text-slate-400">学习曲线</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">MongoDB</span></td><td class="px-3 py-2 text-xs text-slate-400">非结构化</td><td class="px-3 py-2 text-xs text-slate-400">灵活、易扩展</td><td class="px-3 py-2 text-xs text-slate-400">事务支持弱</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">ClickHouse</span></td><td class="px-3 py-2 text-xs text-slate-400">时序大数据</td><td class="px-3 py-2 text-xs text-slate-400">查询极快</td><td class="px-3 py-2 text-xs text-slate-400">不适合频繁更新</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">InfluxDB</span></td><td class="px-3 py-2 text-xs text-slate-400">时序数据</td><td class="px-3 py-2 text-xs text-slate-400">专门优化</td><td class="px-3 py-2 text-xs text-slate-400">功能相对单一</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">Redis</span></td><td class="px-3 py-2 text-xs text-slate-400">实时缓存</td><td class="px-3 py-2 text-xs text-slate-400">极快</td><td class="px-3 py-2 text-xs text-slate-400">内存限制</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">数据库设计</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">sql</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">-- 股票基本信息表
+CREATE TABLE stock_info (
+    stock_code VARCHAR(10) PRIMARY KEY,
+    stock_name VARCHAR(50) NOT NULL,
+    industry VARCHAR(50),
+    list_date DATE,
+    delist_date DATE,
+    exchange VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_industry (industry),
+    INDEX idx_list_date (list_date)
+);
+
+-- 日线行情表
+CREATE TABLE daily_price (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    stock_code VARCHAR(10) NOT NULL,
+    trade_date DATE NOT NULL,
+    open_price DECIMAL(10, 4),
+    high_price DECIMAL(10, 4),
+    low_price DECIMAL(10, 4),
+    close_price DECIMAL(10, 4),
+    volume BIGINT,
+    amount DECIMAL(20, 4),
+    adj_factor DECIMAL(10, 6),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_code_date (stock_code, trade_date),
+    INDEX idx_trade_date (trade_date),
+    FOREIGN KEY (stock_code) REFERENCES stock_info(stock_code)
+) PARTITION BY RANGE (YEAR(trade_date)) (
+    PARTITION p2020 VALUES LESS THAN (2021),
+    PARTITION p2021 VALUES LESS THAN (2022),
+    PARTITION p2022 VALUES LESS THAN (2023),
+    PARTITION p2023 VALUES LESS THAN (2024),
+    PARTITION p2024 VALUES LESS THAN (2025),
+    PARTITION p_future VALUES LESS THAN MAXVALUE
+);
+
+-- 财务报表表
+CREATE TABLE financial_report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    stock_code VARCHAR(10) NOT NULL,
+    report_date DATE NOT NULL,
+    report_type VARCHAR(20),  -- 年报、季报、半年报
+    revenue DECIMAL(20, 4),
+    operating_profit DECIMAL(20, 4),
+    net_income DECIMAL(20, 4),
+    total_assets DECIMAL(20, 4),
+    total_liabilities DECIMAL(20, 4),
+    equity DECIMAL(20, 4),
+    operating_cashflow DECIMAL(20, 4),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_code_date (stock_code, report_date),
+    INDEX idx_report_date (report_date)
+);
+
+-- 因子表
+CREATE TABLE factor_values (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    stock_code VARCHAR(10) NOT NULL,
+    trade_date DATE NOT NULL,
+    factor_name VARCHAR(50) NOT NULL,
+    factor_value DECIMAL(20, 8),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_code_date_factor (stock_code, trade_date, factor_name),
+    INDEX idx_factor_date (factor_name, trade_date)
+);</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">Python数据库操作</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+import pandas as pd
+
+class FinancialDatabase:
+    &quot;&quot;&quot;金融数据库操作类&quot;&quot;&quot;
+
+    def __init__(self, connection_string):
+        self.engine = create_engine(connection_string, pool_size=10)
+        self.Session = sessionmaker(bind=self.engine)
+
+    def save_dataframe(self, df, table_name, if_exists=&#x27;append&#x27;, chunksize=10000):
+        &quot;&quot;&quot;保存DataFrame到数据库&quot;&quot;&quot;
+        df.to_sql(
+            table_name,
+            self.engine,
+            if_exists=if_exists,
+            index=False,
+            chunksize=chunksize,
+            method=&#x27;multi&#x27;
+        )
+
+    def query(self, sql, params=None):
+        &quot;&quot;&quot;执行SQL查询&quot;&quot;&quot;
+        with self.engine.connect() as conn:
+            result = pd.read_sql(text(sql), conn, params=params)
+        return result
+
+    def get_stock_price(self, stock_code, start_date, end_date):
+        &quot;&quot;&quot;获取股票价格数据&quot;&quot;&quot;
+        sql = &quot;&quot;&quot;
+            SELECT stock_code, trade_date, open_price, high_price,
+                   low_price, close_price, volume, amount
+            FROM daily_price
+            WHERE stock_code = :code
+              AND trade_date BETWEEN :start AND :end
+            ORDER BY trade_date
+        &quot;&quot;&quot;
+        return self.query(sql, {
+            &#x27;code&#x27;: stock_code,
+            &#x27;start&#x27;: start_date,
+            &#x27;end&#x27;: end_date
+        })
+
+    def get_latest_factors(self, factor_names, trade_date):
+        &quot;&quot;&quot;获取最新因子值&quot;&quot;&quot;
+        placeholders = &#x27;,&#x27;.join([&#x27;:f&#x27; + str(i) for i in range(len(factor_names))])
+        sql = f&quot;&quot;&quot;
+            SELECT stock_code, factor_name, factor_value
+            FROM factor_values
+            WHERE factor_name IN ({placeholders})
+              AND trade_date = :date
+        &quot;&quot;&quot;
+        params = {&#x27;date&#x27;: trade_date}
+        params.update({f&#x27;f{i}&#x27;: name for i, name in enumerate(factor_names)})
+
+        df = self.query(sql, params)
+        return df.pivot(index=&#x27;stock_code&#x27;, columns=&#x27;factor_name&#x27;, values=&#x27;factor_value&#x27;)
+
+    def upsert_factors(self, df):
+        &quot;&quot;&quot;更新或插入因子数据&quot;&quot;&quot;
+        # 使用INSERT ... ON DUPLICATE KEY UPDATE
+        sql = &quot;&quot;&quot;
+            INSERT INTO factor_values (stock_code, trade_date, factor_name, factor_value)
+            VALUES (:code, :date, :name, :value)
+            ON DUPLICATE KEY UPDATE factor_value = :value
+        &quot;&quot;&quot;
+
+        with self.engine.connect() as conn:
+            for _, row in df.iterrows():
+                conn.execute(text(sql), {
+                    &#x27;code&#x27;: row[&#x27;stock_code&#x27;],
+                    &#x27;date&#x27;: row[&#x27;trade_date&#x27;],
+                    &#x27;name&#x27;: row[&#x27;factor_name&#x27;],
+                    &#x27;value&#x27;: row[&#x27;factor_value&#x27;]
+                })
+            conn.commit()</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">时序数据库（ClickHouse）</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from clickhouse_driver import Client
+
+class ClickHouseStorage:
+    &quot;&quot;&quot;ClickHouse时序数据存储&quot;&quot;&quot;
+
+    def __init__(self, host=&#x27;localhost&#x27;, port=9000, database=&#x27;finance&#x27;):
+        self.client = Client(host=host, port=port, database=database)
+
+    def create_tick_table(self):
+        &quot;&quot;&quot;创建tick数据表&quot;&quot;&quot;
+        sql = &quot;&quot;&quot;
+            CREATE TABLE IF NOT EXISTS tick_data (
+                stock_code String,
+                tick_time DateTime64(3),
+                price Decimal64(4),
+                volume UInt64,
+                amount Decimal64(4),
+                bid_price1 Decimal64(4),
+                bid_volume1 UInt64,
+                ask_price1 Decimal64(4),
+                ask_volume1 UInt64
+            )
+            ENGINE = MergeTree()
+            PARTITION BY toYYYYMM(tick_time)
+            ORDER BY (stock_code, tick_time)
+            TTL tick_time + INTERVAL 1 YEAR
+        &quot;&quot;&quot;
+        self.client.execute(sql)
+
+    def insert_tick_data(self, data):
+        &quot;&quot;&quot;批量插入tick数据&quot;&quot;&quot;
+        sql = &quot;&quot;&quot;
+            INSERT INTO tick_data
+            (stock_code, tick_time, price, volume, amount,
+             bid_price1, bid_volume1, ask_price1, ask_volume1)
+            VALUES
+        &quot;&quot;&quot;
+        self.client.execute(sql, data)
+
+    def query_ohlcv(self, stock_code, start_time, end_time, interval=&#x27;1m&#x27;):
+        &quot;&quot;&quot;查询OHLCV数据&quot;&quot;&quot;
+        interval_sql = {
+            &#x27;1m&#x27;: &#x27;toStartOfMinute(tick_time)&#x27;,
+            &#x27;5m&#x27;: &#x27;toStartOfFiveMinute(tick_time)&#x27;,
+            &#x27;1h&#x27;: &#x27;toStartOfHour(tick_time)&#x27;,
+            &#x27;1d&#x27;: &#x27;toDate(tick_time)&#x27;
+        }
+
+        sql = f&quot;&quot;&quot;
+            SELECT
+                {interval_sql[interval]} as time,
+                argMin(price, tick_time) as open,
+                max(price) as high,
+                min(price) as low,
+                argMax(price, tick_time) as close,
+                sum(volume) as volume,
+                sum(amount) as amount
+            FROM tick_data
+            WHERE stock_code = %(code)s
+              AND tick_time BETWEEN %(start)s AND %(end)s
+            GROUP BY time
+            ORDER BY time
+        &quot;&quot;&quot;
+
+        return self.client.execute(sql, {
+            &#x27;code&#x27;: stock_code,
+            &#x27;start&#x27;: start_time,
+            &#x27;end&#x27;: end_time
+        })</pre></div>
+  </div>
+</section>
+
+
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">收益率计算</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">简单收益率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_t = \frac{P_t - P_{t-1}}{P_{t-1}} = \frac{P_t}{P_{t-1}} - 1\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对数收益率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[r_t = \ln\left(\frac{P_t}{P_{t-1}}\right) = \ln(P_t) - \ln(P_{t-1})\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">多期累计收益率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{t,T} = \prod_{i=t}^{T}(1 + R_i) - 1\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">波动率计算</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">历史波动率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sigma = \sqrt{\frac{\sum_{i=1}^{n}(r_i - \bar{r})^2}{n-1}} \times \sqrt{252}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">指数加权波动率（EWMA）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sigma_t^2 = \lambda \sigma_{t-1}^2 + (1-\lambda)r_t^2\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">技术指标</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">RSI</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[RSI = 100 - \frac{100}{1 + RS}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(RS = \frac{平均上涨幅度}{平均下跌幅度}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">MACD</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MACD = EMA_{12} - EMA_{26}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Signal = EMA_9(MACD)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">布林带</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Upper = MA_{20} + 2\sigma\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Lower = MA_{20} - 2\sigma\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">财务比率</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">杜邦分解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ROE = \frac{净利润}{销售收入} \times \frac{销售收入}{总资产} \times \frac{总资产}{股东权益}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ROE = 净利率 \times 资产周转率 \times 权益乘数\]</div>
+    </div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">案例研究</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">数</span>
+        <h3 class="text-white font-semibold text-sm">案例1：构建量化因子数据库</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某量化私募需要建立一个因子数据库，支持日度因子计算和历史回测。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统架构</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">┌──────────────────────────────────────────────────────────────┐
+│                      因子数据库系统                           │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
+│  │  数据采集   │───→│  数据处理   │───→│  因子计算   │      │
+│  │  Scheduler  │    │  Pipeline   │    │  Engine     │      │
+│  └─────────────┘    └─────────────┘    └─────────────┘      │
+│         │                  │                  │              │
+│         ↓                  ↓                  ↓              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                    数据存储层                        │    │
+│  ├─────────────┬─────────────┬─────────────┐           │    │
+│  │  原始数据   │  清洗数据   │  因子数据   │           │    │
+│  │  (MySQL)    │  (Parquet)  │  (ClickHouse)│          │    │
+│  └─────────────┴─────────────┴─────────────┘           │    │
+│                           │                              │    │
+│                           ↓                              │    │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                    API服务层                         │    │
+│  │  - 因子查询接口  - 回测数据接口  - 实时数据接口     │    │
+│  └─────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实现代码</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import schedule
+import time
+from datetime import datetime, timedelta
+
+class FactorDatabase:
+    &quot;&quot;&quot;因子数据库管理&quot;&quot;&quot;
+
+    def __init__(self):
+        self.data_fetcher = DataFetcher()
+        self.data_cleaner = DataCleaner()
+        self.factor_engine = FactorEngine()
+        self.storage = FinancialDatabase(CONNECTION_STRING)
+
+    def daily_update(self):
+        &quot;&quot;&quot;每日数据更新流程&quot;&quot;&quot;
+        today = datetime.now().strftime(&#x27;%Y%m%d&#x27;)
+
+        # 1. 获取最新数据
+        print(f&quot;[{today}] 开始获取最新数据...&quot;)
+        price_data = self.data_fetcher.fetch_daily_price(today)
+        financial_data = self.data_fetcher.fetch_financial_data()
+
+        # 2. 数据清洗
+        print(f&quot;[{today}] 开始数据清洗...&quot;)
+        price_cleaned = self.data_cleaner.clean_price_data(price_data)
+        financial_cleaned = self.data_cleaner.clean_financial_data(financial_data)
+
+        # 3. 计算因子
+        print(f&quot;[{today}] 开始计算因子...&quot;)
+        factors = self.factor_engine.calculate_all_factors(
+            price_cleaned, financial_cleaned, today
+        )
+
+        # 4. 存储结果
+        print(f&quot;[{today}] 保存数据...&quot;)
+        self.storage.save_dataframe(price_cleaned, &#x27;daily_price&#x27;)
+        self.storage.upsert_factors(factors)
+
+        print(f&quot;[{today}] 日度更新完成&quot;)
+
+    def calculate_historical_factors(self, start_date, end_date):
+        &quot;&quot;&quot;计算历史因子&quot;&quot;&quot;
+        dates = pd.date_range(start_date, end_date, freq=&#x27;B&#x27;)
+
+        for date in dates:
+            date_str = date.strftime(&#x27;%Y%m%d&#x27;)
+            print(f&quot;计算 {date_str} 的因子...&quot;)
+
+            # 获取历史数据
+            price_data = self.storage.get_stock_price_all(date_str)
+            financial_data = self.storage.get_financial_data(date_str)
+
+            # 计算因子
+            factors = self.factor_engine.calculate_all_factors(
+                price_data, financial_data, date_str
+            )
+
+            # 存储
+            self.storage.upsert_factors(factors)
+
+class FactorEngine:
+    &quot;&quot;&quot;因子计算引擎&quot;&quot;&quot;
+
+    def __init__(self):
+        self.factor_configs = self._load_factor_configs()
+
+    def calculate_all_factors(self, price_df, financial_df, date):
+        &quot;&quot;&quot;计算所有因子&quot;&quot;&quot;
+        results = []
+
+        # 价量因子
+        pv_factors = self._calculate_price_volume_factors(price_df)
+        results.append(pv_factors)
+
+        # 财务因子
+        fin_factors = self._calculate_financial_factors(financial_df)
+        results.append(fin_factors)
+
+        # 合并并标准化
+        all_factors = pd.concat(results, axis=1)
+        standardized = self._standardize_factors(all_factors)
+
+        # 转换为长格式
+        factor_long = standardized.reset_index().melt(
+            id_vars=[&#x27;stock_code&#x27;],
+            var_name=&#x27;factor_name&#x27;,
+            value_name=&#x27;factor_value&#x27;
+        )
+        factor_long[&#x27;trade_date&#x27;] = date
+
+        return factor_long
+
+    def _calculate_price_volume_factors(self, df):
+        &quot;&quot;&quot;计算价量因子&quot;&quot;&quot;
+        factors = pd.DataFrame(index=df[&#x27;stock_code&#x27;].unique())
+
+        for code in factors.index:
+            stock_data = df[df[&#x27;stock_code&#x27;] == code].copy()
+
+            if len(stock_data) &lt; 20:
+                continue
+
+            # 动量因子
+            factors.loc[code, &#x27;momentum_20&#x27;] = \
+                stock_data[&#x27;close&#x27;].iloc[-1] / stock_data[&#x27;close&#x27;].iloc[-20] - 1
+
+            # 波动率因子
+            returns = stock_data[&#x27;close&#x27;].pct_change()
+            factors.loc[code, &#x27;volatility_20&#x27;] = returns.tail(20).std() * np.sqrt(252)
+
+            # 换手率因子
+            if &#x27;turnover_rate&#x27; in stock_data.columns:
+                factors.loc[code, &#x27;turnover_avg_20&#x27;] = \
+                    stock_data[&#x27;turnover_rate&#x27;].tail(20).mean()
+
+        return factors
+
+    def _calculate_financial_factors(self, df):
+        &quot;&quot;&quot;计算财务因子&quot;&quot;&quot;
+        factors = pd.DataFrame(index=df[&#x27;stock_code&#x27;].unique())
+
+        for code in factors.index:
+            fin_data = df[df[&#x27;stock_code&#x27;] == code].iloc[-1]
+
+            # ROE
+            if fin_data[&#x27;equity&#x27;] &gt; 0:
+                factors.loc[code, &#x27;roe&#x27;] = fin_data[&#x27;net_income&#x27;] / fin_data[&#x27;equity&#x27;]
+
+            # 资产负债率
+            if fin_data[&#x27;total_assets&#x27;] &gt; 0:
+                factors.loc[code, &#x27;debt_ratio&#x27;] = \
+                    fin_data[&#x27;total_liabilities&#x27;] / fin_data[&#x27;total_assets&#x27;]
+
+            # 营收增长率
+            if &#x27;revenue_yoy&#x27; in fin_data:
+                factors.loc[code, &#x27;revenue_growth&#x27;] = fin_data[&#x27;revenue_yoy&#x27;]
+
+        return factors
+
+    def _standardize_factors(self, df):
+        &quot;&quot;&quot;因子标准化&quot;&quot;&quot;
+        for col in df.columns:
+            # 缩尾处理
+            lower = df[col].quantile(0.01)
+            upper = df[col].quantile(0.99)
+            df[col] = df[col].clip(lower, upper)
+
+            # Z-score标准化
+            df[col] = (df[col] - df[col].mean()) / df[col].std()
+
+        return df
+
+def run_scheduler():
+    db = FactorDatabase()
+
+    # 每天18:00执行日度更新
+    schedule.every().day.at(&quot;18:00&quot;).do(db.daily_update)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(60)</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">数</span>
+        <h3 class="text-white font-semibold text-sm">案例2：实时行情数据处理系统</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某交易系统需要处理实时tick数据，计算实时技术指标，并支持秒级查询。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统设计</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import redis
+from kafka import KafkaConsumer, KafkaProducer
+import json
+
+class RealtimeDataPipeline:
+    &quot;&quot;&quot;实时数据处理管道&quot;&quot;&quot;
+
+    def __init__(self):
+        self.redis_client = redis.Redis(host=&#x27;localhost&#x27;, port=6379)
+        self.kafka_consumer = KafkaConsumer(
+            &#x27;tick_data&#x27;,
+            bootstrap_servers=[&#x27;localhost:9092&#x27;],
+            value_deserializer=lambda x: json.loads(x.decode(&#x27;utf-8&#x27;))
+        )
+        self.kafka_producer = KafkaProducer(
+            bootstrap_servers=[&#x27;localhost:9092&#x27;],
+            value_serializer=lambda x: json.dumps(x).encode(&#x27;utf-8&#x27;)
+        )
+
+    def process_tick(self, tick):
+        &quot;&quot;&quot;处理单条tick数据&quot;&quot;&quot;
+        stock_code = tick[&#x27;stock_code&#x27;]
+        price = tick[&#x27;price&#x27;]
+        volume = tick[&#x27;volume&#x27;]
+        timestamp = tick[&#x27;timestamp&#x27;]
+
+        # 更新Redis缓存
+        self._update_cache(stock_code, tick)
+
+        # 计算实时指标
+        indicators = self._calculate_realtime_indicators(stock_code)
+
+        # 发布计算结果
+        self.kafka_producer.send(&#x27;indicators&#x27;, indicators)
+
+        return indicators
+
+    def _update_cache(self, stock_code, tick):
+        &quot;&quot;&quot;更新缓存数据&quot;&quot;&quot;
+        # 保存最新价格
+        self.redis_client.hset(f&#x27;latest:{stock_code}&#x27;, mapping={
+            &#x27;price&#x27;: tick[&#x27;price&#x27;],
+            &#x27;volume&#x27;: tick[&#x27;volume&#x27;],
+            &#x27;timestamp&#x27;: tick[&#x27;timestamp&#x27;]
+        })
+
+        # 保存分钟K线（保留最近1000条）
+        minute_key = f&quot;minute:{stock_code}&quot;
+        self.redis_client.lpush(minute_key, json.dumps(tick))
+        self.redis_client.ltrim(minute_key, 0, 999)
+
+    def _calculate_realtime_indicators(self, stock_code):
+        &quot;&quot;&quot;计算实时指标&quot;&quot;&quot;
+        # 获取历史数据
+        minute_data = self.redis_client.lrange(f&quot;minute:{stock_code}&quot;, 0, 59)
+        prices = [json.loads(d)[&#x27;price&#x27;] for d in minute_data]
+
+        if len(prices) &lt; 20:
+            return {}
+
+        prices = np.array(prices[::-1])  # 时间顺序
+
+        indicators = {
+            &#x27;stock_code&#x27;: stock_code,
+            &#x27;ma5&#x27;: np.mean(prices[-5:]),
+            &#x27;ma20&#x27;: np.mean(prices[-20:]),
+            &#x27;momentum&#x27;: (prices[-1] / prices[-20] - 1) * 100,
+            &#x27;volatility&#x27;: np.std(np.diff(prices) / prices[:-1]) * np.sqrt(252 * 240)
+        }
+
+        return indicators
+
+    def run(self):
+        &quot;&quot;&quot;运行数据处理&quot;&quot;&quot;
+        print(&quot;开始处理实时数据...&quot;)
+        for message in self.kafka_consumer:
+            tick = message.value
+            indicators = self.process_tick(tick)
+            print(f&quot;处理完成: {tick[&#x27;stock_code&#x27;]} @ {tick[&#x27;price&#x27;]}&quot;)</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">数</span>
+        <h3 class="text-white font-semibold text-sm">案例3：另类数据采集与处理</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某对冲基金希望利用卫星图像数据预测零售公司的销售额。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据处理流程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import cv2
+import numpy as np
+from PIL import Image
+import torch
+from torchvision import models, transforms
+
+class SatelliteDataProcessor:
+    &quot;&quot;&quot;卫星图像数据处理&quot;&quot;&quot;
+
+    def __init__(self):
+        # 加载预训练的目标检测模型
+        self.model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+        self.model.eval()
+
+        self.transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+
+    def count_cars_in_parking_lot(self, image_path):
+        &quot;&quot;&quot;统计停车场车辆数量&quot;&quot;&quot;
+        # 加载图像
+        image = Image.open(image_path).convert(&#x27;RGB&#x27;)
+        image_tensor = self.transform(image)
+
+        # 目标检测
+        with torch.no_grad():
+            predictions = self.model([image_tensor])
+
+        # 筛选车辆（类别ID=3为car）
+        boxes = predictions[0][&#x27;boxes&#x27;]
+        labels = predictions[0][&#x27;labels&#x27;]
+        scores = predictions[0][&#x27;scores&#x27;]
+
+        car_count = ((labels == 3) &amp; (scores &gt; 0.5)).sum().item()
+
+        return car_count
+
+    def calculate_parking_lot_occupancy(self, image_path, total_spots):
+        &quot;&quot;&quot;计算停车场占用率&quot;&quot;&quot;
+        car_count = self.count_cars_in_parking_lot(image_path)
+        occupancy = car_count / total_spots
+        return occupancy, car_count
+
+    def analyze_time_series(self, image_paths, dates, total_spots):
+        &quot;&quot;&quot;分析时间序列图像&quot;&quot;&quot;
+        results = []
+
+        for image_path, date in zip(image_paths, dates):
+            occupancy, car_count = self.calculate_parking_lot_occupancy(
+                image_path, total_spots
+            )
+            results.append({
+                &#x27;date&#x27;: date,
+                &#x27;car_count&#x27;: car_count,
+                &#x27;occupancy&#x27;: occupancy
+            })
+
+        return pd.DataFrame(results)
+
+class SocialMediaSentiment:
+    &quot;&quot;&quot;社交媒体情绪分析&quot;&quot;&quot;
+
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.sentiment_model = self._load_sentiment_model()
+
+    def _load_sentiment_model(self):
+        &quot;&quot;&quot;加载情感分析模型&quot;&quot;&quot;
+        from transformers import pipeline
+        return pipeline(&quot;sentiment-analysis&quot;, model=&quot;uer/roberta-base-finetuned-jd-binary-chinese&quot;)
+
+    def analyze_weibo_sentiment(self, keyword, date):
+        &quot;&quot;&quot;分析微博情绪&quot;&quot;&quot;
+        # 获取微博数据（示例）
+        posts = self._fetch_weibo_posts(keyword, date)
+
+        sentiments = []
+        for post in posts:
+            result = self.sentiment_model(post[&#x27;content&#x27;][:512])
+            sentiments.append({
+                &#x27;post_id&#x27;: post[&#x27;id&#x27;],
+                &#x27;content&#x27;: post[&#x27;content&#x27;],
+                &#x27;sentiment&#x27;: result[0][&#x27;label&#x27;],
+                &#x27;score&#x27;: result[0][&#x27;score&#x27;],
+                &#x27;likes&#x27;: post[&#x27;likes&#x27;],
+                &#x27;reposts&#x27;: post[&#x27;reposts&#x27;]
+            })
+
+        # 计算加权情绪得分
+        df = pd.DataFrame(sentiments)
+        df[&#x27;weight&#x27;] = df[&#x27;likes&#x27;] + df[&#x27;reposts&#x27;]
+        df[&#x27;sentiment_numeric&#x27;] = df[&#x27;sentiment&#x27;].map({&#x27;POSITIVE&#x27;: 1, &#x27;NEGATIVE&#x27;: -1})
+
+        weighted_sentiment = (df[&#x27;sentiment_numeric&#x27;] * df[&#x27;weight&#x27;]).sum() / df[&#x27;weight&#x27;].sum()
+
+        return {
+            &#x27;date&#x27;: date,
+            &#x27;keyword&#x27;: keyword,
+            &#x27;weighted_sentiment&#x27;: weighted_sentiment,
+            &#x27;post_count&#x27;: len(posts),
+            &#x27;positive_ratio&#x27;: (df[&#x27;sentiment&#x27;] == &#x27;POSITIVE&#x27;).mean()
+        }</pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">常见问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q1: 如何处理股票数据的前复权和后复权？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def adjust_price(df, adj_factor, method=&#x27;forward&#x27;):
+    &quot;&quot;&quot;
+    复权处理
+
+    forward: 前复权，以最新数据为基准向前调整
+    backward: 后复权，以最早数据为基准向后调整
+    &quot;&quot;&quot;
+    if method == &#x27;forward&#x27;:
+        # 前复权：当前价格不变，历史价格调整
+        latest_factor = adj_factor.iloc[-1]
+        adj_ratio = adj_factor / latest_factor
+    else:
+        # 后复权：历史价格不变，当前价格调整
+        first_factor = adj_factor.iloc[0]
+        adj_ratio = adj_factor / first_factor
+
+    for col in [&#x27;open&#x27;, &#x27;high&#x27;, &#x27;low&#x27;, &#x27;close&#x27;]:
+        df[col] = df[col] * adj_ratio
+
+    # 成交量反向调整
+    df[&#x27;volume&#x27;] = df[&#x27;volume&#x27;] / adj_ratio
+
+    return df</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">选择建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">前复权</span>：适合分析当前股价走势，与当前价格对比</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">后复权</span>：适合计算真实收益率，回测策略</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q2: 如何处理财务数据的时点问题？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">财务数据有两个关键时点：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">报告期末</span>：财务数据所属期间</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">公告日期</span>：实际披露时间</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">避免未来信息泄露</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def get_point_in_time_financial(df, query_date):
+    &quot;&quot;&quot;
+    获取时点财务数据
+    使用公告日期而非报告期末日期
+    &quot;&quot;&quot;
+    # 只使用query_date之前已公告的数据
+    available = df[df[&#x27;announcement_date&#x27;] &lt;= query_date]
+
+    # 取最新的报告
+    latest = available.sort_values(&#x27;report_date&#x27;).groupby(&#x27;stock_code&#x27;).last()
+
+    return latest</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q3: 如何高效处理大规模数据？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">分块处理</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def process_large_file(file_path, chunksize=100000):
+    &quot;&quot;&quot;分块处理大文件&quot;&quot;&quot;
+    results = []
+    for chunk in pd.read_csv(file_path, chunksize=chunksize):
+        processed = process_chunk(chunk)
+        results.append(processed)
+    return pd.concat(results)</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">使用Parquet格式</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">df.to_parquet(&#x27;data.parquet&#x27;, engine=&#x27;pyarrow&#x27;)
+
+df = pd.read_parquet(&#x27;data.parquet&#x27;, columns=[&#x27;date&#x27;, &#x27;close&#x27;, &#x27;volume&#x27;])</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">使用Dask并行处理</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import dask.dataframe as dd
+
+ddf = dd.read_parquet(&#x27;data/*.parquet&#x27;)
+
+result = ddf.groupby(&#x27;stock_code&#x27;)[&#x27;close&#x27;].mean().compute()</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q4: 如何处理不同数据源的合并？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def merge_data_sources(price_df, financial_df, news_df, date_col=&#x27;date&#x27;):
+    &quot;&quot;&quot;
+    合并多数据源
+    &quot;&quot;&quot;
+    # 确保日期格式一致
+    for df in [price_df, financial_df, news_df]:
+        df[date_col] = pd.to_datetime(df[date_col])
+
+    # 价格数据：日度
+    # 财务数据：季度 -&gt; 向前填充到日度
+    financial_daily = financial_df.set_index(date_col).resample(&#x27;D&#x27;).ffill()
+
+    # 新闻数据：不定期 -&gt; 按日聚合
+    news_daily = news_df.groupby(date_col).agg({
+        &#x27;sentiment&#x27;: &#x27;mean&#x27;,
+        &#x27;news_count&#x27;: &#x27;sum&#x27;
+    })
+
+    # 合并
+    merged = price_df.merge(
+        financial_daily, on=[date_col, &#x27;stock_code&#x27;], how=&#x27;left&#x27;
+    ).merge(
+        news_daily, on=date_col, how=&#x27;left&#x27;
+    )
+
+    return merged</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q5: 爬虫数据采集有哪些法律风险？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">合规建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>遵守网站的robots.txt协议</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>控制请求频率，避免对服务器造成压力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>不要绕过登录验证或付费墙</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>不要采集个人隐私信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>仅用于研究目的，不要商业化未授权数据</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">技术措施</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import time
+import random
+
+class PoliteSpider:
+    def __init__(self, delay_range=(1, 3)):
+        self.delay_range = delay_range
+
+    def fetch(self, url):
+        # 随机延迟
+        time.sleep(random.uniform(*self.delay_range))
+
+        # 检查robots.txt
+        if not self.is_allowed(url):
+            return None
+
+        response = requests.get(url, headers=self.headers)
+        return response
+
+    def is_allowed(self, url):
+        &quot;&quot;&quot;检查是否允许爬取&quot;&quot;&quot;
+        from urllib.robotparser import RobotFileParser
+        rp = RobotFileParser()
+        rp.set_url(f&quot;{urlparse(url).scheme}://{urlparse(url).netloc}/robots.txt&quot;)
+        rp.read()
+        return rp.can_fetch(&quot;*&quot;, url)</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q6: 如何保证数据质量？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class DataQualityChecker:
+    &quot;&quot;&quot;数据质量检查&quot;&quot;&quot;
+
+    def __init__(self, df):
+        self.df = df
+        self.issues = []
+
+    def check_completeness(self, required_columns):
+        &quot;&quot;&quot;检查完整性&quot;&quot;&quot;
+        for col in required_columns:
+            if col not in self.df.columns:
+                self.issues.append(f&quot;缺少列: {col}&quot;)
+            else:
+                missing_rate = self.df[col].isna().mean()
+                if missing_rate &gt; 0.1:
+                    self.issues.append(f&quot;列 {col} 缺失率过高: {missing_rate:.1%}&quot;)
+        return self
+
+    def check_consistency(self):
+        &quot;&quot;&quot;检查一致性&quot;&quot;&quot;
+        # 检查价格关系
+        if all(col in self.df.columns for col in [&#x27;high&#x27;, &#x27;low&#x27;, &#x27;open&#x27;, &#x27;close&#x27;]):
+            invalid = (self.df[&#x27;high&#x27;] &lt; self.df[&#x27;low&#x27;]).sum()
+            if invalid &gt; 0:
+                self.issues.append(f&quot;高低价异常: {invalid}条&quot;)
+        return self
+
+    def check_timeliness(self, date_col, max_delay_days=1):
+        &quot;&quot;&quot;检查时效性&quot;&quot;&quot;
+        if date_col in self.df.columns:
+            latest_date = pd.to_datetime(self.df[date_col]).max()
+            delay = (pd.Timestamp.now() - latest_date).days
+            if delay &gt; max_delay_days:
+                self.issues.append(f&quot;数据延迟: {delay}天&quot;)
+        return self
+
+    def report(self):
+        &quot;&quot;&quot;生成质量报告&quot;&quot;&quot;
+        return {
+            &#x27;total_rows&#x27;: len(self.df),
+            &#x27;issues&#x27;: self.issues,
+            &#x27;passed&#x27;: len(self.issues) == 0
+        }</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q7: 如何处理实时数据的延迟问题？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class RealtimeDataBuffer:
+    &quot;&quot;&quot;实时数据缓冲处理&quot;&quot;&quot;
+
+    def __init__(self, max_delay_ms=1000):
+        self.max_delay_ms = max_delay_ms
+        self.buffer = {}
+        self.timestamps = {}
+
+    def add_data(self, stock_code, data, timestamp):
+        &quot;&quot;&quot;添加数据并检查延迟&quot;&quot;&quot;
+        current_time = time.time() * 1000
+        delay = current_time - timestamp
+
+        if delay &gt; self.max_delay_ms:
+            # 数据延迟过大，标记警告
+            data[&#x27;delayed&#x27;] = True
+            data[&#x27;delay_ms&#x27;] = delay
+
+        self.buffer[stock_code] = data
+        self.timestamps[stock_code] = timestamp
+
+    def get_latest(self, stock_code, max_age_ms=5000):
+        &quot;&quot;&quot;获取最新数据&quot;&quot;&quot;
+        if stock_code not in self.buffer:
+            return None
+
+        age = time.time() * 1000 - self.timestamps[stock_code]
+        if age &gt; max_age_ms:
+            return None  # 数据过期
+
+        return self.buffer[stock_code]</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q8: 如何设计数据更新策略？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">日线行情</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新频率:</span> 每日</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新策略:</span> 收盘后全量更新</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">分钟数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新频率:</span> 盘中实时</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新策略:</span> 增量追加</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财务数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新频率:</span> 季度</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新策略:</span> 公告后增量更新</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">因子数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新频率:</span> 每日</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新策略:</span> 增量计算</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">新闻数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新频率:</span> 实时</div><div class="text-xs text-slate-400"><span class="text-slate-500">更新策略:</span> 流式处理</div></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class DataUpdateScheduler:
+    &quot;&quot;&quot;数据更新调度&quot;&quot;&quot;
+
+    def schedule_daily_update(self):
+        &quot;&quot;&quot;日度数据更新调度&quot;&quot;&quot;
+        schedule.every().day.at(&quot;15:30&quot;).do(self.update_daily_price)
+        schedule.every().day.at(&quot;18:00&quot;).do(self.calculate_daily_factors)
+
+    def schedule_realtime_update(self):
+        &quot;&quot;&quot;实时数据更新&quot;&quot;&quot;
+        # 使用消息队列进行实时处理
+        pass
+
+    def schedule_financial_update(self):
+        &quot;&quot;&quot;财务数据更新（财报季加密）&quot;&quot;&quot;
+        # 4月底前更新年报
+        schedule.every().day.at(&quot;20:00&quot;).do(
+            self.check_and_update_financials
+        )</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q9: 如何处理多个市场的数据对齐？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def align_multi_market_data(data_dict, reference_calendar):
+    &quot;&quot;&quot;
+    对齐多个市场的数据
+
+    data_dict: {&#x27;A股&#x27;: df1, &#x27;港股&#x27;: df2, &#x27;美股&#x27;: df3}
+    reference_calendar: 参考交易日历
+    &quot;&quot;&quot;
+    aligned_data = {}
+
+    for market, df in data_dict.items():
+        # 转换时区
+        if market == &#x27;美股&#x27;:
+            df[&#x27;datetime&#x27;] = df[&#x27;datetime&#x27;].dt.tz_convert(&#x27;Asia/Shanghai&#x27;)
+
+        # 重采样到日度
+        daily = df.set_index(&#x27;datetime&#x27;).resample(&#x27;D&#x27;).last()
+
+        # 对齐到参考日历
+        aligned = daily.reindex(reference_calendar, method=&#x27;ffill&#x27;)
+
+        aligned_data[market] = aligned
+
+    return aligned_data</pre></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据平台</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[Tushare Pro](https://tushare.pro)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 开源</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 免费/积分制，数据全面</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[AKShare](https://akshare.xyz)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 开源</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 完全免费，更新快</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[JoinQuant](https://www.joinquant.com)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 量化平台</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 数据+回测一体化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[Wind](https://www.wind.com.cn)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 商业</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 机构标配</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学习资源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《Python金融数据分析》</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 书籍</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 金融数据处理基础</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《机器学习与量化投资》</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 书籍</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 因子工程实践</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">pandas官方文档</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 文档</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 数据处理核心技能</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">开源项目</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[qlib](https://github.com/microsoft/qlib)</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 微软量化框架</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[backtrader](https://github.com/mementum/backtrader)</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 回测框架</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[ta-lib](https://github.com/mrjbq7/ta-lib)</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 技术分析库</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          金融数据工程流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从数据获取到可用数据集的全链路</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">数据获取</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">API·爬虫·数据库</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">数据清洗</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">缺失·异常</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">特征工程</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">变换·构造</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">质量验证</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">完整·准确</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">数据获取</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">API·爬虫·数据库</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>行情数据: Wind/Bloomberg/Tushare API</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>财务数据: 年报/季报/XBRL解析</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>另类数据: 新闻/社交媒体/卫星图像</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">数据清洗</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">缺失·异常</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>缺失值: 插值/前向填充/多重插补</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>异常值: 3σ/IQR/Winsorize处理</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>一致性: 日期对齐/频率统一/标准化</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">特征工程</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">变换·构造</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>收益率: 简单收益率vs对数收益率</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>技术指标: MA/RSI/MACD等派生特征</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>基本面因子: ROE/PB/市值等标准化</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">质量验证</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">完整·准确</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>完整性检查: 缺失率/覆盖率统计</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>准确性校验: 与多源数据交叉验证</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>时效性: 数据延迟/前视偏差防范</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          数据缺失率-模型精度关系
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线查看缺失率对模型精度的影响</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">缺失率%</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">模型精度%</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-1-thresh"/>
+      <text id="comp-1-thresh-l" x="575" y="0" fill="#475569" font-size="8">可接受阈值</text>
+      
+      
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">精度曲线</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">模型敏感度 <span class="text-white font-mono" id="comp-1-sv">S = 3</span></div>
+      <input type="range" id="comp-1-slider" min="1" max="5" value="3" step="0.5">
+    </div>
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">当前精度</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">精度损失</div>
+        <div class="font-mono text-lg font-bold" style="color:#f87171" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">可接受</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          数据质量评分计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">综合评估数据集质量</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">完整性(0-100)</label>
+            <input type="number" id="comp-2-comp" value="85" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">准确性(0-100)</label>
+            <input type="number" id="comp-2-acc" value="90" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">时效性(0-100)</label>
+            <input type="number" id="comp-2-time" value="70" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">一致性(0-100)</label>
+            <input type="number" id="comp-2-cons" value="80" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">数据质量</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">综合质量分</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">质量等级</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">短板分数</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">改善重点</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ Q = w_1 \cdot 完整性 + w_2 \cdot 准确性 + w_3 \cdot 时效性 \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 人工智能金融 Chapter 04</div>
+    <div class="mt-2 md:mt-0">下一章：文本分析与自然语言处理 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\frac{P_t - P_{t-1}}{P_{t-1}}', tip: '简单收益率——今天比昨天涨了百分之多少'},
+    {match: 'r_t = ', tip: 't时刻的收益率——金融时间序列的基本观测'},
+    {match: '\\prod', tip: '所有数相乘再开n次方，复利计算用这个更准确'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: 'r_t^2', tip: '收益率的平方——衡量波动率的代理变量'},
+    {match: 'ROE = ', tip: '股东每投入1块钱能赚多少，ROE=15%意味着100块本金一年赚15块'},
+    {match: '净利率 \\times', tip: '杜邦分析：ROE = 赚钱能力 × 运营效率 × 杠杆倍数'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=50,yMax=100;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=3;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 95-c*x*0.3;})(0);
+    var y1=(function(x){return 95-c*x*0.3;})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+    var thY=yc(80);
+    document.getElementById('comp-1-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-1-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-1-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+  var sl=document.getElementById('comp-1-slider');
+  sl.addEventListener('input',function(){
+    sliderVal=parseFloat(sl.value);
+    document.getElementById('comp-1-sv').textContent='S = '+sliderVal.toFixed(1);
+    drawCurves();
+  });
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 95-c*x*0.3;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='模型预测精度';
+    document.getElementById('comp-1-m1').textContent=(95-y).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='相对完整数据';
+    document.getElementById('comp-1-m2').textContent=(y>=80?'达标':'不达标').toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='80%阈值';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='缺失率%='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='模型精度%='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var comp=parseFloat(document.getElementById('comp-2-comp').value);
+    var acc=parseFloat(document.getElementById('comp-2-acc').value);
+    var time=parseFloat(document.getElementById('comp-2-time').value);
+    var cons=parseFloat(document.getElementById('comp-2-cons').value);
+
+    var q=comp*0.3+acc*0.35+time*0.2+cons*0.15;
+    document.getElementById('comp-2-out0').textContent=q.toFixed(1);
+    document.getElementById('comp-2-out1').textContent=q>85?'A级':(q>70?'B级':(q>55?'C级':'D级'));
+    document.getElementById('comp-2-out2').textContent=Math.min(comp,acc,time,cons).toFixed(0);
+    document.getElementById('comp-2-out3').textContent=[['完整',comp],['准确',acc],['时效',time],['一致',cons]].sort(function(a,b){return a[1]-b[1]})[0][0]+'性最弱';
+    // Ring
+    var score=Math.max(0,Math.min(1,q/100));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投资决策理论与实物期权 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">CorpFin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 04</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">投资决策理论与实物期权</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">掌握企业资本预算决策的核心方法</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">决策准则</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">期权模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">资本预算的重要性</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">资本预算</span>（Capital Budgeting）是企业最重要的财务决策之一：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">金额大</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 通常占企业资产的重要部分</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 决定企业规模</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">周期长</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 影响持续多年</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 决定长期竞争力</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">不可逆</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 难以轻易撤回</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 试错成本高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">战略性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 体现企业战略方向</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 影响市场地位</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资本预算流程</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1. 项目识别</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 发现投资机会</div><div class="text-xs text-slate-400"><span class="text-slate-500">责任方:</span> 业务部门</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2. 现金流预测</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 估计收入和成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">责任方:</span> 财务+业务</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">3. 项目评估</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> NPV/IRR分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">责任方:</span> 财务部门</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">4. 项目选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 资本配置决策</div><div class="text-xs text-slate-400"><span class="text-slate-500">责任方:</span> 管理层/董事会</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">5. 事后审计</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 实际vs预测</div><div class="text-xs text-slate-400"><span class="text-slate-500">责任方:</span> 财务部门</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">净现值法（NPV）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">NPV的定义与计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NPV = \sum_{t=0}^{n} \frac{CF_t}{(1+r)^t} = -I_0 + \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决策规则</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">NPV > 0</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 接受项目</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 创造股东价值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">NPV < 0</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 拒绝项目</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 毁灭股东价值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">NPV = 0</div><div class="text-xs text-slate-400"><span class="text-slate-500">决策:</span> 无差异</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 收益恰好覆盖成本</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">NPV的优点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑货币时间价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑全部现金流</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>直接衡量价值创造</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可加性：多项目NPV可相加</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">NPV的局限性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>依赖现金流预测准确性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>依赖折现率的选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不考虑管理灵活性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>难以处理战略价值</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">内部收益率（IRR）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">IRR的定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">使NPV等于零的折现率：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[0 = \sum_{t=0}^{n} \frac{CF_t}{(1+IRR)^t}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决策规则</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>IRR > WACC（资本成本）：接受项目</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>IRR < WACC：拒绝项目</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">IRR的问题与解决方案</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">问题</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原因</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">解决方案</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">多重IRR</td><td class="px-3 py-2 text-xs text-slate-400">存在多个使NPV=0的利率</td><td class="px-3 py-2 text-xs text-slate-400">现金流符号多次变化</td><td class="px-3 py-2 text-xs text-slate-400">使用NPV或MIRR</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">规模问题</td><td class="px-3 py-2 text-xs text-slate-400">忽略投资规模</td><td class="px-3 py-2 text-xs text-slate-400">比率指标</td><td class="px-3 py-2 text-xs text-slate-400">用NPV排序</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">互斥项目</td><td class="px-3 py-2 text-xs text-slate-400">与NPV可能矛盾</td><td class="px-3 py-2 text-xs text-slate-400">再投资假设不同</td><td class="px-3 py-2 text-xs text-slate-400">以NPV为准</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">非常规现金流</td><td class="px-3 py-2 text-xs text-slate-400">可能无解或负解</td><td class="px-3 py-2 text-xs text-slate-400">总现金流入<流出</td><td class="px-3 py-2 text-xs text-slate-400">使用NPV</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">修正内部收益率（MIRR）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MIRR = \sqrt[n]{\frac{FV(正现金流)}{PV(负现金流)}} - 1\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">MIRR假设再投资按WACC进行，更为合理。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">其他资本预算方法</h3>
+      </div>
+      <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">回收期</td><td class="px-3 py-2 text-xs text-slate-400">收回初始投资的时间</td><td class="px-3 py-2 text-xs text-slate-400">简单、流动性</td><td class="px-3 py-2 text-xs text-slate-400">忽略时间价值和后期现金流</td><td class="px-3 py-2 text-xs text-slate-400">快速筛选</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">折现回收期</td><td class="px-3 py-2 text-xs text-slate-400">折现后回收期</td><td class="px-3 py-2 text-xs text-slate-400">考虑时间价值</td><td class="px-3 py-2 text-xs text-slate-400">仍忽略后期现金流</td><td class="px-3 py-2 text-xs text-slate-400">改进筛选</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利指数(PI)</td><td class="px-3 py-2 text-xs text-slate-400">NPV/投资</td><td class="px-3 py-2 text-xs text-slate-400">资本约束下有用</td><td class="px-3 py-2 text-xs text-slate-400">规模问题</td><td class="px-3 py-2 text-xs text-slate-400">资本配给</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">会计收益率(ARR)</td><td class="px-3 py-2 text-xs text-slate-400">平均利润/平均投资</td><td class="px-3 py-2 text-xs text-slate-400">与报表一致</td><td class="px-3 py-2 text-xs text-slate-400">忽略时间价值和现金流</td><td class="px-3 py-2 text-xs text-slate-400">业绩考核</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">盈利指数（PI）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PI = \frac{PV(未来现金流)}{初始投资} = 1 + \frac{NPV}{I_0}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">决策规则：PI > 1则接受。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">增量现金流分析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">增量现金流原则</span>：只考虑因项目决策而产生的现金流变化。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[增量CF = (收入 - 成本 - 折旧)(1-T) + 折旧 - CAPEX - \Delta NWC\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">现金流分析要点</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">沉没成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否计入:</span> 否</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 已发生，与决策无关</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">机会成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否计入:</span> 是</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 放弃的最佳替代方案</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">附带效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否计入:</span> 是</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 对其他项目的影响</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">间接费用</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否计入:</span> 看情况</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 仅计入增量部分</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">融资成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否计入:</span> 否</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 已在WACC中考虑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">通货膨胀</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否计入:</span> 保持一致</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 名义vs实际</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">6</div>
+        <h3 class="text-white font-semibold">实物期权理论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统NPV的局限</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>假设"现在或永不"决策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>忽略管理灵活性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>低估高不确定性项目</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实物期权类型</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">期权类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类比金融期权</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">实例</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">延迟期权</td><td class="px-3 py-2 text-xs text-slate-400">等待更多信息再投资</td><td class="px-3 py-2 text-xs text-slate-400">看涨期权</td><td class="px-3 py-2 text-xs text-slate-400">矿产开发权</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">扩张期权</td><td class="px-3 py-2 text-xs text-slate-400">扩大成功项目</td><td class="px-3 py-2 text-xs text-slate-400">看涨期权</td><td class="px-3 py-2 text-xs text-slate-400">试点项目</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">收缩期权</td><td class="px-3 py-2 text-xs text-slate-400">缩小失败项目</td><td class="px-3 py-2 text-xs text-slate-400">看跌期权</td><td class="px-3 py-2 text-xs text-slate-400">灵活产能</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">放弃期权</td><td class="px-3 py-2 text-xs text-slate-400">终止失败项目</td><td class="px-3 py-2 text-xs text-slate-400">看跌期权</td><td class="px-3 py-2 text-xs text-slate-400">清算价值</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">转换期权</td><td class="px-3 py-2 text-xs text-slate-400">改变产品或投入</td><td class="px-3 py-2 text-xs text-slate-400">组合期权</td><td class="px-3 py-2 text-xs text-slate-400">灵活工厂</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">分阶段期权</td><td class="px-3 py-2 text-xs text-slate-400">分步投资</td><td class="px-3 py-2 text-xs text-slate-400">复合期权</td><td class="px-3 py-2 text-xs text-slate-400">研发项目</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实物期权价值</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[项目总价值 = NPV_{传统} + 实物期权价值\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[扩展NPV = E[V^*] - I\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(V^*\) 是考虑最优行使策略后的项目价值。</p>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：NPV完整计算</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NPV = -I_0 + \sum_{t=1}^{n} \frac{CF_t}{(1+WACC)^t} + \frac{TV_n}{(1+WACC)^n}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">终值（Terminal Value）计算</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">永续增长法：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[TV = \frac{CF_{n+1}}{WACC - g} = \frac{CF_n(1+g)}{WACC - g}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">退出倍数法：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[TV = EBITDA_n \times 退出倍数\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：增量现金流模板</h3>
+      </div>
+      <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">项目</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">计算</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">销售收入</td><td class="px-3 py-2 text-xs text-slate-400">+收入</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">减：可变成本</td><td class="px-3 py-2 text-xs text-slate-400">-可变成本</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">减：固定成本</td><td class="px-3 py-2 text-xs text-slate-400">-增量固定成本</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">减：折旧</td><td class="px-3 py-2 text-xs text-slate-400">-折旧（非现金）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">= EBIT</td><td class="px-3 py-2 text-xs text-slate-400">息税前利润</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">减：所得税</td><td class="px-3 py-2 text-xs text-slate-400">-EBIT×T</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">= NOPAT</td><td class="px-3 py-2 text-xs text-slate-400">税后营业利润</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">加：折旧</td><td class="px-3 py-2 text-xs text-slate-400">+折旧（加回）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">减：CAPEX</td><td class="px-3 py-2 text-xs text-slate-400">-资本支出</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">减：ΔNWC</td><td class="px-3 py-2 text-xs text-slate-400">-营运资本变化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">= 自由现金流</td><td class="px-3 py-2 text-xs text-slate-400">FCF</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：等价年金法（EAA）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">用于比较寿命不同的互斥项目：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[EAA = \frac{NPV}{\text{年金现值因子}} = \frac{NPV \times r}{1 - (1+r)^{-n}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">选择EAA较高的项目。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：实物期权定价</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">延迟期权的Black-Scholes近似</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = V \cdot N(d_1) - I \cdot e^{-rT} \cdot N(d_2)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(V\) = 项目资产现值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(I\) = 投资成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(T\) = 期权期限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\sigma\) = 项目价值波动率</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[d_1 = \frac{\ln(V/I) + (r + \sigma^2/2)T}{\sigma\sqrt{T}}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[d_2 = d_1 - \sigma\sqrt{T}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">二叉树模型更适合实物期权</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可处理美式期权特征</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>便于多阶段决策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>参数更直观</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">亚</span>
+        <h3 class="text-white font-semibold text-sm">案例1：亚马逊的长期投资哲学</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：亚马逊长期牺牲短期利润追求长期增长，挑战传统投资评估方法。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资特点</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长期视角</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 接受多年亏损</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统评估的挑战:</span> 短期NPV可能为负</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模优先</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 大量资本支出</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统评估的挑战:</span> 现金流压力大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平台投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> AWS等基础设施</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统评估的挑战:</span> 回报时间长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">创新投入</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 研发支出巨大</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统评估的挑战:</span> 高不确定性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">AWS的投资决策分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>2006年启动，初期无法预测规模</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>传统NPV可能低估，因为：</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>忽略扩张期权</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>忽略学习曲线效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>忽略平台生态价值</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贝索斯的框架</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关注自由现金流，而非利润</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>"第一类决策"（不可逆）谨慎，"第二类决策"（可逆）快速</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长期思维，接受短期批评</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">思考</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>传统NPV能捕捉亚马逊的价值吗？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何评估战略性投资？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场为什么给亚马逊高估值？</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">医</span>
+        <h3 class="text-white font-semibold text-sm">案例2：医药公司的研发投资决策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：新药研发是实物期权理论的经典应用场景。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">新药研发特点</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">阶段</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">耗时</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">成功率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">投资</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">期权特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">临床前</td><td class="px-3 py-2 text-xs text-slate-400">2-4年</td><td class="px-3 py-2 text-xs text-slate-400">30%</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">扩张期权</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">临床I期</td><td class="px-3 py-2 text-xs text-slate-400">1-2年</td><td class="px-3 py-2 text-xs text-slate-400">70%</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">继续/放弃</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">临床II期</td><td class="px-3 py-2 text-xs text-slate-400">2-3年</td><td class="px-3 py-2 text-xs text-slate-400">33%</td><td class="px-3 py-2 text-xs text-slate-400">高</td><td class="px-3 py-2 text-xs text-slate-400">继续/放弃</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">临床III期</td><td class="px-3 py-2 text-xs text-slate-400">2-4年</td><td class="px-3 py-2 text-xs text-slate-400">25-30%</td><td class="px-3 py-2 text-xs text-slate-400">很高</td><td class="px-3 py-2 text-xs text-slate-400">最后决策</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">审批</td><td class="px-3 py-2 text-xs text-slate-400">1-2年</td><td class="px-3 py-2 text-xs text-slate-400">85%</td><td class="px-3 py-2 text-xs text-slate-400">低</td><td class="px-3 py-2 text-xs text-slate-400">上市准备</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实物期权分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[项目价值 = \sum_{阶段} P(到达该阶段) \times [NPV(继续) \times P(成功) + NPV(放弃) \times P(失败)]\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统NPV vs 实物期权价值</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">传统NPV</div><div class="text-xs text-slate-400"><span class="text-slate-500">项目A（低风险）:</span> 1亿</div><div class="text-xs text-slate-400"><span class="text-slate-500">项目B（高风险）:</span> -0.5亿</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实物期权价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">项目A（低风险）:</span> 0.2亿</div><div class="text-xs text-slate-400"><span class="text-slate-500">项目B（高风险）:</span> 1亿</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">总价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">项目A（低风险）:</span> 1.2亿</div><div class="text-xs text-slate-400"><span class="text-slate-500">项目B（高风险）:</span> 0.5亿</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>高不确定性项目可能被传统NPV低估</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>分阶段投资创造期权价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>放弃期权可能比想象的更有价值</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">T</span>
+        <h3 class="text-white font-semibold text-sm">案例3：特斯拉Gigafactory的投资决策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：特斯拉的超级工厂是资本密集型投资的典型案例。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资规模</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>总投资：50-70亿美元</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产能：年产50GWh电池</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>就业：超过10,000人</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统NPV分析的挑战</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 电动车市场快速变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 现金流预测困难</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">技术迭代</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 电池技术快速发展</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 设备可能过时</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">竞争格局</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 传统车企和新势力</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 市场份额不确定</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政策风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 补贴政策变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 收入波动</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实物期权视角</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">扩张期权</span>：成功后可复制到其他地区</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">收缩期权</span>：可调整产能利用率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">转换期权</span>：可为其他车企代工</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">学习效应</span>：成本曲线下降</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决策结果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>已建成多个Gigafactory</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>电池成本大幅下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产能利用率持续提升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>战略价值超过财务价值</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么NPV被认为是最好的资本预算方法？相比其他方法有什么优势？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>直接衡量价值创造</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑货币时间价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑全部现金流</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可加性便于组合决策</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">IRR在什么情况下可能给出错误的决策？如何修正？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>非常规现金流导致多重IRR</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>互斥项目规模不同</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>再投资假设不合理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用NPV或MIRR</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">什么是实物期权？为什么传统NPV可能低估项目价值？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>管理灵活性的价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>等待信息的权利</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>调整决策的能力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不确定性创造期权价值</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如何预测投资项目的现金流？有哪些常见错误？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>分解为收入和成本组成部分</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>常见错误：混淆会计利润与现金流</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>常见错误：遗漏营运资本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>常见错误：包含沉没成本</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">不确定性很高的项目应该如何评估？敏感性分析和情景分析如何使用？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>敏感性分析：单变量变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>情景分析：多变量组合</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>蒙特卡洛模拟：概率分布</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实物期权：价值灵活性</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何判断一个项目是否具有显著的实物期权价值？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高不确定性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可分阶段投资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>存在学习机会</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>有可量化的灵活性</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">为什么很多企业仍然使用回收期法而不是NPV？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>简单易懂</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>流动性考虑</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不确定性厌恶</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>激励机制扭曲</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">实物期权理论很美，但实务中如何应用？有什么困难？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>参数估计困难（波动率）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>模型复杂度高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能过度合理化坏项目</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>缺乏市场验证</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">人工智能如何改变资本预算决策？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>更精准的现金流预测</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实时风险监控</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自动化敏感性分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>决策支持系统</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《公司财务原理》</td><td class="px-3 py-2 text-xs text-slate-400">Brealey, Myers, Allen</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">投资决策经典</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《实物期权》</td><td class="px-3 py-2 text-xs text-slate-400">Copeland & Antikarov</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">实物期权专著</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《不确定性下的投资》</td><td class="px-3 py-2 text-xs text-slate-400">Dixit & Pindyck</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">实物期权理论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《估值》</td><td class="px-3 py-2 text-xs text-slate-400">McKinsey</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">实务导向</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">论文</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"The Theory of Investment of the Firm"</td><td class="px-3 py-2 text-xs text-slate-400">Jorgenson</td><td class="px-3 py-2 text-xs text-slate-400">1963</td><td class="px-3 py-2 text-xs text-slate-400">投资理论基础</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Evaluating Natural Resource Investments"</td><td class="px-3 py-2 text-xs text-slate-400">Brennan & Schwartz</td><td class="px-3 py-2 text-xs text-slate-400">1985</td><td class="px-3 py-2 text-xs text-slate-400">实物期权应用</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"A Conceptual Framework for Analyzing the Risk-Return...</td><td class="px-3 py-2 text-xs text-slate-400">Kester</td><td class="px-3 py-2 text-xs text-slate-400">1984</td><td class="px-3 py-2 text-xs text-slate-400">增长期权</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>麦肯锡《估值》- 实务导向的估值方法</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>HBS案例库 - 投资决策案例</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>CFA教材 - 资本预算章节</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">软件工具</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Excel</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 基础NPV/IRR</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 通用、灵活</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">@Risk</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 蒙特卡洛模拟</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 概率分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">DPL</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 决策树分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 实物期权</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Python</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 自定义分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 可编程</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          项目投资决策流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从项目评估到最终决策的方法论</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">现金流估计</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">预测·折现</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">NPV分析</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">净现值法</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">辅助指标</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">IRR·PI·PP</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">实物期权</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">灵活性价值</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">现金流估计</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">预测·折现</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>增量现金流: 有项目vs无项目的差额</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>沉没成本不计入，机会成本必须计入</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>终值估算: 残值/清算价值/永续价值</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">NPV分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">净现值法</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>NPV=Σ CFt/(1+r)^t - I₀</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>NPV>0→项目创造价值→应该投资</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>折现率=WACC(反映项目风险)</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">辅助指标</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">IRR·PI·PP</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>IRR: 使NPV=0的折现率(内含报酬率)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>PI: 获利指数=PV(CF)/I₀>1→投资</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>回收期: 多快收回初始投资</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">实物期权</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">灵活性价值</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>延迟期权: 等待更多信息再决策</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>扩张期权: 成功后追加投资的权利</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>放弃期权: 失败后止损退出的权利</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          NPV与IRR计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">评估投资项目价值</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">初始投资(万)</label>
+            <input type="number" id="comp-1-i0" value="1000" min="0" step="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">年均现金流(万)</label>
+            <input type="number" id="comp-1-cf" value="300" min="0" step="50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">项目年限</label>
+            <input type="number" id="comp-1-n" value="5" min="1" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">折现率(%)</label>
+            <input type="number" id="comp-1-r" value="10" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-1-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-1-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-1-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-1-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">投资价值</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">NPV(万)</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">IRR</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">获利指数PI</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">回收期</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-1-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-1-note" style="display:none">
+          <span id="comp-1-note-icon"></span>
+          <span id="comp-1-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ NPV = -I_0 + \sum_{t=1}^{n}\frac{CF_t}{(1+r)^t} \]</div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          NPV敏感性分析
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线查看不同折现率下的NPV</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-2-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-2-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-2-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-2-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">折现率%</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">NPV(万)</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-2-thresh"/>
+      <text id="comp-2-thresh-l" x="575" y="0" fill="#475569" font-size="8">NPV=0 (IRR)</text>
+      
+      
+      <line id="comp-2-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-2-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">NPV</text>
+      <circle id="comp-2-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-2-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-2-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-2 gap-3 text-center" id="comp-2-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">NPV</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-2-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">IRR距离</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-2-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m1s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 公司金融 Chapter 04</div>
+    <div class="mt-2 md:mt-0">下一章：资本结构理论与优化策略 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: 'NPV = ', tip: '把未来所有现金流折算到今天值多少钱，正数=值得投资'},
+    {match: '(1+IRR)^t', tip: '让NPV=0的折现率，超过资本成本就值得做'},
+    {match: '(1+WACC)^t', tip: '公司借钱的综合成本，是债务成本和股权成本的加权平均'},
+    {match: 'e^{-rT}', tip: '把未来的钱按连续复利折算到今天值多少'},
+    {match: '\\sigma^2', tip: '方差——标准差的平方，衡量数据的分散程度'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  document.getElementById('comp-1-btn').addEventListener('click',function(){
+    var i0=parseFloat(document.getElementById('comp-1-i0').value);
+    var cf=parseFloat(document.getElementById('comp-1-cf').value);
+    var n=parseFloat(document.getElementById('comp-1-n').value);
+    var r=parseFloat(document.getElementById('comp-1-r').value);
+
+    var npv=-i0; var rd=r/100;
+    for(var t=1;t<=n;t++)npv+=cf/Math.pow(1+rd,t);
+    var irr_l=0,irr_h=1; for(var it=0;it<50;it++){var m=(irr_l+irr_h)/2;var nv=-i0;for(var t=1;t<=n;t++)nv+=cf/Math.pow(1+m,t);if(nv>0)irr_l=m;else irr_h=m;}
+    var irr=(irr_l+irr_h)/2*100; var pi=(npv+i0)/i0; var pb=i0/cf;
+    document.getElementById('comp-1-out0').textContent=npv.toFixed(0);
+    document.getElementById('comp-1-out1').textContent=irr.toFixed(1)+'%';
+    document.getElementById('comp-1-out2').textContent=pi.toFixed(2);
+    document.getElementById('comp-1-out3').textContent=pb.toFixed(1)+'年';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.max(0,Math.min(1,npv/(i0*0.5)+0.5))));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-1-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-1-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=25,yMax=800;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return (function(){var s=0;for(var t=1;t<=5;t++)s+=300/Math.pow(1+x/100,t);return s-1000;})();})(0);
+    var y1=(function(x){return (function(){var s=0;for(var t=1;t<=5;t++)s+=300/Math.pow(1+x/100,t);return s-1000;})();})(xMax);
+    var cl=document.getElementById('comp-2-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+    var thY=yc(0);
+    document.getElementById('comp-2-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-2-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-2-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-2-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return (function(){var s=0;for(var t=1;t<=5;t++)s+=300/Math.pow(1+x/100,t);return s-1000;})();})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-2-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-2-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-2-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-2-readout').style.display='grid';
+    
+    document.getElementById('comp-2-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-2-m0s').textContent=y>0?'值得投资':'不值得投资';
+    document.getElementById('comp-2-m1').textContent=(Math.abs(x-15.2)).toFixed(2);
+    document.getElementById('comp-2-m1s').textContent='IRR≈15.2%';
+    var infoEl=document.getElementById('comp-2-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='折现率%='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='NPV(万)='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

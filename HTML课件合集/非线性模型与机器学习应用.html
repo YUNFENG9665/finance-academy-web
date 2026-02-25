@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非线性模型与机器学习应用 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Econometrics</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">算法与实现</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 07</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">非线性模型与机器学习应用</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">探索计量经济学与机器学习的融合，理解预测与因果推断的不同范式</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">ML算法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">评估指标</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">预测 vs 因果推断</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">两种范式的根本区别</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">目标</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测（Prediction）:</span> 预测\(Y\)的值</div><div class="text-xs text-slate-400"><span class="text-slate-500">因果推断（Causal Inference）:</span> 估计\(X\)对\(Y\)的因果效应</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">关注</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测（Prediction）:</span> \(\hat{Y}\)的准确性</div><div class="text-xs text-slate-400"><span class="text-slate-500">因果推断（Causal Inference）:</span> \(\hat{\beta}\)的无偏性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">变量选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测（Prediction）:</span> 提升预测力即可</div><div class="text-xs text-slate-400"><span class="text-slate-500">因果推断（Causal Inference）:</span> 需要因果图指导</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">相关性</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测（Prediction）:</span> 有用</div><div class="text-xs text-slate-400"><span class="text-slate-500">因果推断（Causal Inference）:</span> 不充分</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型复杂度</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测（Prediction）:</span> 可以很复杂</div><div class="text-xs text-slate-400"><span class="text-slate-500">因果推断（Causal Inference）:</span> 偏好简单解释</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">评估</div><div class="text-xs text-slate-400"><span class="text-slate-500">预测（Prediction）:</span> 样本外预测误差</div><div class="text-xs text-slate-400"><span class="text-slate-500">因果推断（Causal Inference）:</span> 识别策略可信度</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">偏差-方差权衡（Bias-Variance Tradeoff）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E[(Y - \hat{Y})^2] = \underbrace{Bias(\hat{Y})^2}_{\text{偏差}} + \underbrace{Var(\hat{Y})}_{\text{方差}} + \underbrace{\sigma^2}_{\text{不可约误差}}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>简单模型：高偏差、低方差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>复杂模型：低偏差、高方差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>机器学习：寻找最优权衡点</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">正则化方法</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">过拟合问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">模型在训练集表现好，但在新数据上表现差。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">惩罚回归的一般形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{\beta} \sum_{i=1}^{n}(Y_i - X_i'\beta)^2 + \lambda \cdot Penalty(\beta)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">LASSO（L1正则化）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{\beta} \sum_{i=1}^{n}(Y_i - X_i'\beta)^2 + \lambda \sum_{j=1}^{p}|\beta_j|\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">特点：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产生稀疏解（部分\(\beta_j = 0\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自动变量选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>适合高维数据</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Ridge回归（L2正则化）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{\beta} \sum_{i=1}^{n}(Y_i - X_i'\beta)^2 + \lambda \sum_{j=1}^{p}\beta_j^2\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">特点：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>系数收缩但不为零</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>处理多重共线性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数值稳定</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">弹性网（Elastic Net）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{\beta} \sum_{i=1}^{n}(Y_i - X_i'\beta)^2 + \lambda_1 \sum|\beta_j| + \lambda_2 \sum\beta_j^2\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">结合L1和L2的优点。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">调参方法</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交叉验证</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 最常用，选择使CV误差最小的\(\lambda\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信息准则</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> AIC、BIC选择</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1SE规则</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 选择CV误差在1标准误内的最简模型</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">树模型</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决策树（Decision Tree）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">递归二分：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{j,s} \left[\min_{c_1} \sum_{x_i \in R_1} (y_i - c_1)^2 + \min_{c_2} \sum_{x_i \in R_2} (y_i - c_2)^2\right]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(R_1 = \{X|X_j \leq s\}\)，\(R_2 = \{X|X_j > s\}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">剪枝（Pruning）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_T \sum_{m=1}^{|T|}\sum_{i \in R_m}(y_i - \hat{y}_{R_m})^2 + \alpha|T|\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">\(\alpha\)控制复杂度惩罚。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">随机森林（Random Forest）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>Bootstrap采样\(B\)个训练集</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>每个训练集建一棵树，每次分裂随机选\(m\)个特征</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>预测：回归取平均，分类取投票</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{f}_{RF}(x) = \frac{1}{B}\sum_{b=1}^{B}T_b(x)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">优点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>降低方差（集成效应）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不易过拟合</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可计算变量重要性</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">梯度提升树（GBDT/XGBoost）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">顺序训练，每棵树拟合前面树的残差：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[F_m(x) = F_{m-1}(x) + \nu \cdot h_m(x)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(h_m(x)\)拟合\(-\frac{\partial L(y, F_{m-1}(x))}{\partial F_{m-1}(x)}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">XGBoost目标函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Obj = \sum_{i=1}^{n}L(y_i, \hat{y}_i) + \sum_{k=1}^{K}\Omega(f_k)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Omega(f) = \gamma T + \frac{1}{2}\lambda\sum_{j=1}^{T}w_j^2\]</div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">神经网络</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">多层感知机（MLP）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{Y} = f^{(L)}(W^{(L)} \cdot f^{(L-1)}(W^{(L-1)} \cdot ... f^{(1)}(W^{(1)} X + b^{(1)})...) + b^{(L)})\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">激活函数</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Sigmoid</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\sigma(x) = \frac{1}{1+e^{-x}}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 输出(0,1)，梯度消失</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Tanh</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 输出(-1,1)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">ReLU</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\max(0, x)\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 最常用，计算简单</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Softmax</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\frac{e^{x_i}}{\sum_j e^{x_j}}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 多分类输出层</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反向传播（Backpropagation）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">使用链式法则计算梯度，梯度下降更新参数。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">深度学习在金融中的应用</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MLP</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 通用函数逼近</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融应用:</span> 信用评分、因子预测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CNN</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 局部特征提取</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融应用:</span> 图表识别、卫星图像</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">RNN/LSTM</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 序列建模</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融应用:</span> 时间序列预测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Transformer</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 注意力机制</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融应用:</span> 文本分析、价格预测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">GAN</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 生成模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融应用:</span> 数据增强、情景模拟</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型选择与评估</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交叉验证（Cross-Validation）</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">K折交叉验证</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>将数据分成K份</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>轮流用K-1份训练，1份验证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>计算平均验证误差</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CV_K = \frac{1}{K}\sum_{k=1}^{K}MSE_k\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">时间序列交叉验证</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>滚动窗口（Rolling Window）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>扩展窗口（Expanding Window）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不能随机分割（信息泄露）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型评估指标</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回归问题</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MSE</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\frac{1}{n}\sum(y_i - \hat{y}_i)^2\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 均方误差</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">RMSE</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\sqrt{MSE}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 与\(y\)同单位</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MAE</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\frac{1}{n}\sum</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> y_i - \hat{y}_i</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> \)</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> 对异常值稳健</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(R^2_{OOS}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(1 - \frac{\sum(y_i - \hat{y}_i)^2}{\sum(y_i - \bar{y})^2}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 样本外R²</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分类问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>准确率、精确率、召回率、F1</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>AUC-ROC</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对数损失（Log Loss）</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">机器学习因果推断</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">双重机器学习（Double/Debiased ML）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解决高维控制变量问题：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = D\theta + g_0(X) + U\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D = m_0(X) + V\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">步骤</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>用ML估计\(\hat{g}_0(X)\)（\(Y\)对\(X\)的条件期望）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>用ML估计\(\hat{m}_0(X)\)（\(D\)对\(X\)的条件期望）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>用残差回归：\(Y - \hat{g}_0(X) = (D - \hat{m}_0(X))\theta + error\)</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">正交化消除正则化偏差</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因果森林（Causal Forest）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">估计条件平均处理效应（CATE）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\tau(x) = E[Y(1) - Y(0)|X=x]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">修改随机森林的分裂准则，最大化处理效应的异质性。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应用场景</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>个性化定价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>精准营销</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策异质性效应</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">可解释性</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型可解释性的重要性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管要求（如GDPR）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>风险管理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>模型验证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>业务洞察</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">可解释性方法</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">变量重要性</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 全局</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 随机森林/GBDT内置</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">部分依赖图（PDP）</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 全局</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 边际效应可视化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">SHAP值</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 局部+全局</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 基于博弈论的归因</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">LIME</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 局部</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 局部线性近似</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">注意力权重</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 模型特定</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> Transformer解释</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">SHAP（Shapley Additive Explanations）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\phi_j = \sum_{S \subseteq N \setminus \{j\}} \frac{|S|!(p-|S|-1)!}{p!}[f(S \cup \{j\}) - f(S)]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">特点：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论基础（Shapley值）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>局部可加性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>一致性</span></div></div>
+  </div>
+</section>
+
+
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键算法与实现</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">LASSO路径算法</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">坐标下降法</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对每个系数\(\beta_j\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\beta_j^{new} = \text{soft}(\beta_j^{LS}, \lambda)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中软阈值函数：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\text{soft}(z, \lambda) = \text{sign}(z)(|z| - \lambda)_+\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">梯度提升伪代码</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">初始化 F_0(x) = 0
+for m = 1 to M:
+    计算残差: r_i = y_i - F_{m-1}(x_i)
+    拟合树 h_m 到残差
+    更新: F_m(x) = F_{m-1}(x) + ν * h_m(x)
+return F_M(x)</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">神经网络训练</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">梯度下降变体</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">SGD</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 随机梯度，噪声大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Momentum</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 累积历史梯度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Adam</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 自适应学习率，最常用</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">AdaGrad</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 稀疏特征友好</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">正则化技术</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Dropout：随机丢弃神经元</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Early Stopping：验证误差上升时停止</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Batch Normalization：层间归一化</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">股</span>
+        <h3 class="text-white font-semibold text-sm">案例一：股票收益预测（LASSO特征选择）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">从数百个潜在预测因子中选择有效的股票收益预测变量。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本：A股3000+股票</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>期间：2010-2023年月度数据</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>特征：200+公司特征和市场变量</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">方法</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第一步：LASSO变量选择</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{\beta} \sum_{t,i}(R_{i,t+1} - X_{it}'\beta)^2 + \lambda \sum_j|\beta_j|\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第二步：交叉验证选择\(\lambda\)</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用时间序列CV</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>滚动窗口：60个月训练，12个月验证</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">结果</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">\(\lambda\)</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">非零系数数</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">样本内\(R^2\)</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">样本外\(R^2\)</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">0.001</td><td class="px-3 py-2 text-xs text-slate-400">156</td><td class="px-3 py-2 text-xs text-slate-400">4.5%</td><td class="px-3 py-2 text-xs text-slate-400">0.8%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">0.005</td><td class="px-3 py-2 text-xs text-slate-400">45</td><td class="px-3 py-2 text-xs text-slate-400">3.2%</td><td class="px-3 py-2 text-xs text-slate-400">1.2%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">0.01</td><td class="px-3 py-2 text-xs text-slate-400">23</td><td class="px-3 py-2 text-xs text-slate-400">2.8%</td><td class="px-3 py-2 text-xs text-slate-400">1.5%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">0.02 (CV最优)</td><td class="px-3 py-2 text-xs text-slate-400">12</td><td class="px-3 py-2 text-xs text-slate-400">2.1%</td><td class="px-3 py-2 text-xs text-slate-400">1.8%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">0.05</td><td class="px-3 py-2 text-xs text-slate-400">5</td><td class="px-3 py-2 text-xs text-slate-400">1.2%</td><td class="px-3 py-2 text-xs text-slate-400">1.1%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">选出的重要因子</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">动量(12m)</div><div class="text-xs text-slate-400"><span class="text-slate-500">LASSO系数:</span> 0.023</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> 3.45</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BM</div><div class="text-xs text-slate-400"><span class="text-slate-500">LASSO系数:</span> 0.018</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> 2.89</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模</div><div class="text-xs text-slate-400"><span class="text-slate-500">LASSO系数:</span> -0.015</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> -2.67</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">换手率</div><div class="text-xs text-slate-400"><span class="text-slate-500">LASSO系数:</span> -0.012</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> -2.34</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">ROE</div><div class="text-xs text-slate-400"><span class="text-slate-500">LASSO系数:</span> 0.009</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> 1.98</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资策略回测</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">策略</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年化收益</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">夏普比率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">最大回撤</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">LASSO选股</td><td class="px-3 py-2 text-xs text-slate-400">18.5%</td><td class="px-3 py-2 text-xs text-slate-400">0.89</td><td class="px-3 py-2 text-xs text-slate-400">-28%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">全因子等权</td><td class="px-3 py-2 text-xs text-slate-400">12.3%</td><td class="px-3 py-2 text-xs text-slate-400">0.56</td><td class="px-3 py-2 text-xs text-slate-400">-35%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">基准指数</td><td class="px-3 py-2 text-xs text-slate-400">8.2%</td><td class="px-3 py-2 text-xs text-slate-400">0.32</td><td class="px-3 py-2 text-xs text-slate-400">-45%</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例二：信用风险评估（XGBoost）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">建立违约预测模型，比较传统Logit与XGBoost的性能。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本：某银行100,000笔贷款</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>违约率：约3%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>特征：50个借款人特征</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">Logit</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">随机森林</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">XGBoost</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">AUC（测试集）</td><td class="px-3 py-2 text-xs text-slate-400">0.75</td><td class="px-3 py-2 text-xs text-slate-400">0.82</td><td class="px-3 py-2 text-xs text-slate-400">0.85</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">KS统计量</td><td class="px-3 py-2 text-xs text-slate-400">0.38</td><td class="px-3 py-2 text-xs text-slate-400">0.48</td><td class="px-3 py-2 text-xs text-slate-400">0.52</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">准确率</td><td class="px-3 py-2 text-xs text-slate-400">72%</td><td class="px-3 py-2 text-xs text-slate-400">78%</td><td class="px-3 py-2 text-xs text-slate-400">81%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">训练时间</td><td class="px-3 py-2 text-xs text-slate-400">2s</td><td class="px-3 py-2 text-xs text-slate-400">45s</td><td class="px-3 py-2 text-xs text-slate-400">30s</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">可解释性</td><td class="px-3 py-2 text-xs text-slate-400">高</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">XGBoost超参数</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">max_depth</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优值:</span> 6</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">learning_rate</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优值:</span> 0.1</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">n_estimators</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优值:</span> 200</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">min_child_weight</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优值:</span> 5</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">subsample</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优值:</span> 0.8</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">变量重要性（XGBoost）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信用评分</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性得分:</span> 0.18</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">负债收入比</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性得分:</span> 0.15</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">历史逾期次数</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性得分:</span> 0.12</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">贷款金额</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性得分:</span> 0.10</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工作年限</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性得分:</span> 0.08</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">SHAP分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信用评分低于600时违约概率急剧上升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>负债收入比与违约风险呈非线性关系</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>存在交互效应：低收入+高负债风险更高</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">监管考量</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>虽然XGBoost预测更准，但Logit更易解释</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实践中常用XGBoost预筛选+Logit最终模型</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>SHAP提供的解释可满足部分监管要求</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例三：因果森林估计营销效应异质性</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">银行推广新信用卡，不同客户对营销活动的响应是否不同？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>随机实验：50%客户收到促销邮件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>目标：识别高响应群体，优化营销资源</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本：200,000客户</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>处理：收到促销邮件（D=1）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：是否申请信用卡（Y）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>协变量：年龄、收入、历史交易等</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">方法：因果森林</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">估计条件平均处理效应：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\tau}(x) = E[Y(1) - Y(0)|X=x]\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平均处理效应（ATE）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{ATE} = 3.2\% \quad (SE = 0.4\%)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">促销邮件平均提升申请率3.2个百分点。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">异质性效应（CATE）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">年轻高收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">CATE:</span> 5.8%</div><div class="text-xs text-slate-400"><span class="text-slate-500">95%置信区间:</span> [4.2%, 7.4%]</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">年轻低收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">CATE:</span> 4.1%</div><div class="text-xs text-slate-400"><span class="text-slate-500">95%置信区间:</span> [2.8%, 5.4%]</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">年长高收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">CATE:</span> 2.3%</div><div class="text-xs text-slate-400"><span class="text-slate-500">95%置信区间:</span> [1.2%, 3.4%]</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">年长低收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">CATE:</span> 1.1%</div><div class="text-xs text-slate-400"><span class="text-slate-500">95%置信区间:</span> [0.2%, 2.0%]</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">变量重要性（对效应异质性的贡献）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">年龄</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性:</span> 0.28</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性:</span> 0.22</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">历史消费额</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性:</span> 0.18</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">账户年限</div><div class="text-xs text-slate-400"><span class="text-slate-500">重要性:</span> 0.12</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">营销优化建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>优先定向年轻高收入客户（CATE最高）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>对低响应群体减少营销投入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>预期ROI提升40%（相比无差别营销）</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1: 机器学习与传统计量经济学的核心区别是什么？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">目标</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统计量经济学:</span> 参数估计、因果推断</div><div class="text-xs text-slate-400"><span class="text-slate-500">机器学习:</span> 预测准确性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统计量经济学:</span> 理论驱动</div><div class="text-xs text-slate-400"><span class="text-slate-500">机器学习:</span> 数据驱动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">复杂度</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统计量经济学:</span> 偏好简单模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">机器学习:</span> 可以很复杂</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">推断</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统计量经济学:</span> 假设检验、置信区间</div><div class="text-xs text-slate-400"><span class="text-slate-500">机器学习:</span> 较少关注</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">样本外验证</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统计量经济学:</span> 不太强调</div><div class="text-xs text-slate-400"><span class="text-slate-500">机器学习:</span> 核心关注</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可解释性</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统计量经济学:</span> 必须</div><div class="text-xs text-slate-400"><span class="text-slate-500">机器学习:</span> 可选</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">但两者正在融合</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>机器学习因果推断</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高维计量经济学</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可解释AI</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2: 为什么LASSO能实现变量选择而Ridge不能？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">几何解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>LASSO：L1约束区域是菱形，角点对应稀疏解</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Ridge：L2约束区域是圆形，解通常不在坐标轴上</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数学原因</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">L1在原点不可微，存在次梯度条件导致精确的零解。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\beta}_j^{LASSO} = 0 \quad \text{当} \quad |X_j'(Y - X_{-j}\beta_{-j})| < \lambda\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实践影响</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高维数据首选LASSO</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多重共线性时Ridge更稳定</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>弹性网结合两者优点</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3: 如何避免机器学习模型的过拟合？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">过拟合的信号</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>训练误差远小于验证误差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>模型对小变化敏感</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>参数值异常大</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决方案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">正则化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 惩罚复杂度</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用模型:</span> 线性模型、神经网络</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Early Stopping</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 验证误差上升时停止</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用模型:</span> 迭代算法</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Dropout</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 随机丢弃神经元</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用模型:</span> 神经网络</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交叉验证</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 选择最优超参数</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用模型:</span> 所有模型</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">集成方法</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 降低方差</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用模型:</span> 树模型</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数据增强</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 增加有效样本量</div><div class="text-xs text-slate-400"><span class="text-slate-500">适用模型:</span> 深度学习</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4: 如何在金融预测中正确使用交叉验证？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">时间序列数据的特殊性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不能随机分割（未来信息泄露）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据有时间依赖性</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">正确方法</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">滚动窗口CV</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">训练期: [1, T1]    验证期: [T1+1, T1+h]
+训练期: [2, T1+1]  验证期: [T1+2, T1+h+1]
+...</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">扩展窗口CV</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">训练期: [1, T1]    验证期: [T1+1, T1+h]
+训练期: [1, T1+1]  验证期: [T1+2, T1+h+1]
+...</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">间隔期（Gap）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在训练和验证之间留出间隔，避免信息泄露。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5: XGBoost在金融中为什么表现好？如何调参？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">XGBoost的优势</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>处理缺失值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>自动特征交互</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>正则化防过拟合</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>计算高效</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融数据特点的匹配</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>非线性关系</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>特征间复杂交互</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>噪音大</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键超参数调优</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">参数</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作用</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">调优建议</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">n_estimators</td><td class="px-3 py-2 text-xs text-slate-400">树的数量</td><td class="px-3 py-2 text-xs text-slate-400">从100开始，观察验证曲线</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">max_depth</td><td class="px-3 py-2 text-xs text-slate-400">树的深度</td><td class="px-3 py-2 text-xs text-slate-400">3-10，金融数据通常不宜过深</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">learning_rate</td><td class="px-3 py-2 text-xs text-slate-400">学习率</td><td class="px-3 py-2 text-xs text-slate-400">0.01-0.3，与n_estimators权衡</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">subsample</td><td class="px-3 py-2 text-xs text-slate-400">样本采样率</td><td class="px-3 py-2 text-xs text-slate-400">0.6-0.9</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">colsample_bytree</td><td class="px-3 py-2 text-xs text-slate-400">特征采样率</td><td class="px-3 py-2 text-xs text-slate-400">0.6-0.9</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">reg_alpha</td><td class="px-3 py-2 text-xs text-slate-400">L1正则化</td><td class="px-3 py-2 text-xs text-slate-400">0-1</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">reg_lambda</td><td class="px-3 py-2 text-xs text-slate-400">L2正则化</td><td class="px-3 py-2 text-xs text-slate-400">1-10</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">调参顺序</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>先调n_estimators + learning_rate</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>再调max_depth + min_child_weight</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>最后调正则化参数</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6: 如何解释神经网络的预测结果？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">挑战</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">神经网络是"黑箱"，难以直接解释。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决方案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 特征重要性</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>置换重要性（Permutation Importance）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>梯度基方法（Saliency Maps）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. SHAP值</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\phi_j(f, x) = \sum_{S} \frac{|S|!(p-|S|-1)!}{p!}[f(S \cup \{j\}) - f(S)]\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可加性：\(f(x) = \sum_j \phi_j + E[f(X)]\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>局部一致性</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. LIME（局部可解释）</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在预测点附近拟合线性模型：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\xi = \arg\min_{g \in G} L(f, g, \pi_x) + \Omega(g)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">4. 注意力机制</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Transformer架构提供的注意力权重可视化。</p>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判性问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7: 机器学习在金融中的局限性是什么？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要局限</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">数据非平稳</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融数据分布随时间变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>历史模式可能不再适用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>"此次不同"的风险</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">信噪比低</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融预测本质困难</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>即使最好的模型R²也很低</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过拟合风险高</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">自我毁灭性</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>成功策略被套利消除</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>alpha衰减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要持续更新</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">可解释性不足</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管要求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>风险管理需要理解</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>客户信任</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">因果识别</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>ML擅长相关性，不擅长因果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策建议需要因果</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8: 双重机器学习（Double ML）解决了什么问题？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">问题背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">高维控制变量下估计处理效应。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统方法的问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OLS：维度灾难</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>LASSO直接用：正则化偏差</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Double ML的解决方案</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">正交化</span></span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">消除估计\(g_0(X)\)和\(m_0(X)\)的偏差对\(\theta\)的影响</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">Neyman正交矩</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\psi(W; \theta, \eta) = (Y - g_0(X) - (D - m_0(X))\theta)(D - m_0(X))\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">交叉拟合</span></span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">避免过拟合导致的偏差</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键结果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\hat{\theta}\)是\(\sqrt{n}\)一致的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>即使用复杂ML估计扰动函数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可以进行标准推断</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9: 金融中的ML应用应该注意什么伦理问题？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要伦理考量</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">算法歧视</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信用评分可能对特定群体不公平</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代理变量问题（如邮政编码）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>公平性约束需要纳入模型</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">透明性</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>客户有权知道为何被拒绝</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>"可解释的AI"法规要求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GDPR的"解释权"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">隐私保护</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>替代数据使用边界</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据安全</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>客户同意</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">系统性风险</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>算法同质化导致市场脆弱</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>闪崩风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管套利</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">模型风险管理</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>验证和监控</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>压力测试</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>文档和审计</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">"The Elements of Statistical Learning"</span> - Hastie, Tibshirani, Friedman</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>ML圣经，免费在线</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论严谨</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">"Introduction to Statistical Learning"</span> - James et al.</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>ESL的入门版</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代码丰富</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">"Deep Learning"</span> - Goodfellow, Bengio, Courville</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>深度学习权威</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论深入</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">金融ML</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">"Machine Learning for Asset Managers"</span> - López de Prado</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融ML实践</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>避免常见错误</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">"Advances in Financial Machine Learning"</span> - López de Prado</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高级主题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工业界视角</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">因果推断+ML</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">"Causal Inference for the Brave and True"</span> - 免费在线</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因果推断+Python</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现代方法</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">工具包</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">Python</span>: scikit-learn, XGBoost, TensorFlow, PyTorch</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">R</span>: caret, mlr3, ranger, keras</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          机器学习建模流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从数据准备到模型部署的ML全流程</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">数据准备</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">特征·划分</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">模型选择</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">线性→深度</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">调优评估</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">超参·指标</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">金融应用</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">预测·风控</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">数据准备</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">特征·划分</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>特征工程: 标准化/编码/交互项</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>训练/验证/测试集划分(60/20/20)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>过拟合防范: 交叉验证+正则化</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">模型选择</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">线性→深度</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>线性模型+正则化: Lasso/Ridge/ElasticNet</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>树模型: 随机森林/GBDT/XGBoost</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>神经网络: MLP/CNN/RNN/Transformer</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">调优评估</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">超参·指标</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>网格搜索/贝叶斯优化调超参</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>回归: MSE/MAE/R², 分类: AUC/F1</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>偏差-方差权衡: 模型复杂度vs泛化</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">金融应用</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">预测·风控</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>收益率预测: 特征→收益的非线性映射</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>信用评分: 违约概率的ML估计</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>可解释性: SHAP/LIME解释黑箱模型</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          激活函数可视化器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击比较不同激活函数</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">x</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">f(x)</text>
+      
+      
+      
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">Sigmoid</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">温度参数 <span class="text-white font-mono" id="comp-1-sv">T = 1</span></div>
+      <input type="range" id="comp-1-slider" min="0.5" max="3" value="1" step="0.1">
+    </div>
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">f(x)</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">梯度</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">饱和度</div>
+        <div class="font-mono text-lg font-bold" style="color:#f87171" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          模型性能对比计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">比较线性与非线性模型</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">线性模型R²</label>
+            <input type="number" id="comp-2-r2l" value="0.65" min="0" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">非线性模型R²</label>
+            <input type="number" id="comp-2-r2n" value="0.82" min="0" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">样本量</label>
+            <input type="number" id="comp-2-n" value="500" min="0" step="50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">参数数量</label>
+            <input type="number" id="comp-2-k" value="20" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">模型能力</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">线性Adj-R²</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">ML Adj-R²</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">提升幅度</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">模型选择</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ R^2_{adj} = 1 - \frac{(1-R^2)(n-1)}{n-k-1} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 计量经济学 Chapter 07</div>
+    <div class="mt-2 md:mt-0">下一章：计量经济实证研究报告 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: '\\max(0, x)', tip: 'ReLU——正数保留负数归零，最常用的激活函数'},
+    {match: '\\frac{e^{x_i}}{\\sum_j e^{x_j}}', tip: 'Softmax——把一组数转成概率分布，和为1'},
+    {match: '\\frac{1}{n}\\sum', tip: '所有数加起来除以个数，就是平均数'},
+    {match: 'R^2_{O', tip: 'R方——模型能解释多少比例的数据变动，越接近1越好'},
+    {match: '1 - \\frac{\\sum(y_i - \\hat{y}_i)^2}{\\sum(y_i - \\bar{y})^2}', tip: 'R方的计算——1-残差平方和÷总平方和'},
+    {match: '\\sigma^2', tip: '方差——标准差的平方，衡量数据的分散程度'},
+    {match: '\\hat{f}_{RF}(x) = \\frac{1}{B}\\sum', tip: '随机森林——多棵决策树投票取平均'},
+    {match: 'F_m(x) = F_{m-1}(x) + \\nu', tip: '梯度提升——每轮修正上一轮的错误'},
+    {match: 'CV_K = \\frac{1}{K}', tip: 'K折交叉验证——把数据分K份轮流验证'},
+    {match: '\\hat{\\beta}', tip: '回归系数的估计值——X每变化1单位，Y平均变化多少'},
+    {match: '\\phi_j(f, x)', tip: 'SHAP值——每个特征对预测的贡献'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=10,yMax=1.2;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=1;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 1/(1+Math.exp(-(x-5)*c));})(0);
+    var y1=(function(x){return 1/(1+Math.exp(-(x-5)*c));})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+  }
+  drawCurves();
+  
+  var sl=document.getElementById('comp-1-slider');
+  sl.addEventListener('input',function(){
+    sliderVal=parseFloat(sl.value);
+    document.getElementById('comp-1-sv').textContent='T = '+sliderVal.toFixed(1);
+    drawCurves();
+  });
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 1/(1+Math.exp(-(x-5)*c));})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='输出值';
+    document.getElementById('comp-1-m1').textContent=(y*(1-y)*sliderVal).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='f\u0027(x)';
+    document.getElementById('comp-1-m2').textContent=(Math.abs(y-0.5)*2).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='梯度消失风险';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='x='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='f(x)='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var r2l=parseFloat(document.getElementById('comp-2-r2l').value);
+    var r2n=parseFloat(document.getElementById('comp-2-r2n').value);
+    var n=parseFloat(document.getElementById('comp-2-n').value);
+    var k=parseFloat(document.getElementById('comp-2-k').value);
+
+    var adj_l=1-(1-r2l)*(n-1)/(n-3-1);
+    var adj_n=1-(1-r2n)*(n-1)/(n-k-1);
+    var improve=(adj_n-adj_l)/adj_l*100;
+    document.getElementById('comp-2-out0').textContent=adj_l.toFixed(4);
+    document.getElementById('comp-2-out1').textContent=adj_n.toFixed(4);
+    document.getElementById('comp-2-out2').textContent=improve.toFixed(1)+'%';
+    document.getElementById('comp-2-out3').textContent=improve>10?'ML优势明显':(improve>0?'ML略优':'线性足够');
+    // Ring
+    var score=Math.max(0,Math.min(1,r2n));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

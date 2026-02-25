@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宏观经济数据体系与衡量指标 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 01</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">宏观经济数据体系与衡量指标</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">宏观经济学的数据基础，理解经济运行的度量方法</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">5</div><div class="text-xs text-slate-500 mt-1">核心指标</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">关键模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">国内生产总值（GDP）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">GDP是衡量一国经济活动总量的核心指标，代表一定时期内一国境内生产的全部最终产品和服务的市场价值。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">三种计算方法</span>（理论上等价）：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">角度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">支出法</td><td class="px-3 py-2 text-xs text-slate-400">GDP = C + I + G + NX</td><td class="px-3 py-2 text-xs text-slate-400">谁在买？</td><td class="px-3 py-2 text-xs text-slate-400">数据易得，全球通用</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">收入法</td><td class="px-3 py-2 text-xs text-slate-400">GDP = 工资 + 利润 + 租金 + 利息 + 折旧 + 间接税</td><td class="px-3 py-2 text-xs text-slate-400">谁在赚？</td><td class="px-3 py-2 text-xs text-slate-400">反映分配结构</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">生产法</td><td class="px-3 py-2 text-xs text-slate-400">GDP = Σ增加值</td><td class="px-3 py-2 text-xs text-slate-400">谁在生产？</td><td class="px-3 py-2 text-xs text-slate-400">避免重复计算</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键区分</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">名义 GDP vs 实际 GDP</span>：是否剔除价格变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>名义GDP：按当期价格计算</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实际GDP：按基期价格计算（剔除通胀）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">GDP vs GNP</span>：属地原则 vs 属人原则</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GDP：境内生产，不论生产者国籍</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GNP：国民生产，不论在哪里生产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">GDP vs GNI</span>：生产 vs 收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GNI = GDP + 来自国外的净要素收入</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">GDP的局限性</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">不含非市场活动</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 家务劳动未计入</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 全职主妇的贡献</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">不反映福利</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 污染产生GDP但降低福利</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 雾霾治理</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">分配不均</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 总量增长不等于普惠</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 基尼系数</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">地下经济</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 灰色收入未统计</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 现金交易</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">价格指数与通货膨胀</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要价格指数对比</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指数</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">覆盖范围</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">发布机构</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CPI</td><td class="px-3 py-2 text-xs text-slate-400">消费品篮子</td><td class="px-3 py-2 text-xs text-slate-400">与居民生活最相关，滞后指标</td><td class="px-3 py-2 text-xs text-slate-400">统计局</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">PPI</td><td class="px-3 py-2 text-xs text-slate-400">生产者价格</td><td class="px-3 py-2 text-xs text-slate-400">领先指标，反映成本压力</td><td class="px-3 py-2 text-xs text-slate-400">统计局</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">GDP平减指数</td><td class="px-3 py-2 text-xs text-slate-400">全部最终产品</td><td class="px-3 py-2 text-xs text-slate-400">覆盖最广，季度更新</td><td class="px-3 py-2 text-xs text-slate-400">统计局</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">PCE</td><td class="px-3 py-2 text-xs text-slate-400">个人消费支出</td><td class="px-3 py-2 text-xs text-slate-400">美联储偏好，权重动态调整</td><td class="px-3 py-2 text-xs text-slate-400">BEA</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">通胀率计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi_t = \frac{P_t - P_{t-1}}{P_{t-1}} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">CPI计算原理</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CPI_t = \frac{\sum_{i} p_{it} \cdot q_{i0}}{\sum_{i} p_{i0} \cdot q_{i0}} \times 100\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">采用拉氏指数（固定基期数量权重），会产生替代偏差。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">核心通胀</span>：剔除食品和能源的通胀</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原因：食品和能源价格波动大，受供给冲击影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>意义：更好反映潜在通胀趋势，货币政策参考</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">中国CPI权重结构</span>（2021年调整后）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">食品烟酒</div><div class="text-xs text-slate-400"><span class="text-slate-500">权重:</span> ~28%</div><div class="text-xs text-slate-400"><span class="text-slate-500">波动性:</span> 高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">居住</div><div class="text-xs text-slate-400"><span class="text-slate-500">权重:</span> ~24%</div><div class="text-xs text-slate-400"><span class="text-slate-500">波动性:</span> 中</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交通通信</div><div class="text-xs text-slate-400"><span class="text-slate-500">权重:</span> ~13%</div><div class="text-xs text-slate-400"><span class="text-slate-500">波动性:</span> 高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">教育文娱</div><div class="text-xs text-slate-400"><span class="text-slate-500">权重:</span> ~10%</div><div class="text-xs text-slate-400"><span class="text-slate-500">波动性:</span> 低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">其他</div><div class="text-xs text-slate-400"><span class="text-slate-500">权重:</span> ~25%</div><div class="text-xs text-slate-400"><span class="text-slate-500">波动性:</span> 中</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">就业与失业指标</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">失业率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[u = \frac{失业人口}{劳动力} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">劳动参与率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[LFPR = \frac{劳动力}{工作年龄人口} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">就业率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ER = \frac{就业人口}{工作年龄人口} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">失业类型详解</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原因</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">持续性</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策应对</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">摩擦性</td><td class="px-3 py-2 text-xs text-slate-400">工作转换、信息不对称</td><td class="px-3 py-2 text-xs text-slate-400">短期（1-3月）</td><td class="px-3 py-2 text-xs text-slate-400">改善就业信息服务</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">结构性</td><td class="px-3 py-2 text-xs text-slate-400">技能不匹配、产业转型</td><td class="px-3 py-2 text-xs text-slate-400">长期（数年）</td><td class="px-3 py-2 text-xs text-slate-400">职业培训、教育改革</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">周期性</td><td class="px-3 py-2 text-xs text-slate-400">经济衰退、需求不足</td><td class="px-3 py-2 text-xs text-slate-400">随周期变化</td><td class="px-3 py-2 text-xs text-slate-400">宏观刺激政策</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">季节性</td><td class="px-3 py-2 text-xs text-slate-400">行业季节性特征</td><td class="px-3 py-2 text-xs text-slate-400">可预测</td><td class="px-3 py-2 text-xs text-slate-400">季节调整</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">自然失业率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[u^* = 摩擦性失业率 + 结构性失业率\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">经济处于潜在产出时的失业率，不存在周期性失业。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">奥肯定律</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{Y - Y^*}{Y^*} = -\beta(u - u^*)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">GDP缺口与失业率的关系，\(\beta \approx 2\)（美国经验值）</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">经济增长的衡量</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">增长率计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[g = \frac{Y_t - Y_{t-1}}{Y_{t-1}} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">环比增长 vs 同比增长</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">同比</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \((Y_t - Y_{t-4})/Y_{t-4}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 消除季节性，滞后性强</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">环比</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \((Y_t - Y_{t-1})/Y_{t-1}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 反映最新趋势，波动大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">环比年化</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \((1+g_{环比})^4 - 1\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 国际可比性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人均GDP</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\text{人均GDP} = \frac{GDP}{人口}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">反映生活水平，但忽略分配不均问题。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">PPP调整</span>：购买力平价，用于跨国比较</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[GDP_{PPP} = GDP_{名义} \times \frac{PPP汇率}{市场汇率}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>发展中国家PPP调整后GDP通常更高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原因：非贸易品（服务、房租）价格较低</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">国际收支与外部均衡</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">国际收支平衡表</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">账户</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">内容</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">借方（流出）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贷方（流入）</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">经常账户</td><td class="px-3 py-2 text-xs text-slate-400">贸易、服务、收入、转移</td><td class="px-3 py-2 text-xs text-slate-400">进口、支付</td><td class="px-3 py-2 text-xs text-slate-400">出口、收入</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">资本账户</td><td class="px-3 py-2 text-xs text-slate-400">资本转移</td><td class="px-3 py-2 text-xs text-slate-400">对外转移</td><td class="px-3 py-2 text-xs text-slate-400">接受转移</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">金融账户</td><td class="px-3 py-2 text-xs text-slate-400">直接投资、证券投资、其他投资</td><td class="px-3 py-2 text-xs text-slate-400">对外投资</td><td class="px-3 py-2 text-xs text-slate-400">外来投资</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">储备资产</td><td class="px-3 py-2 text-xs text-slate-400">外汇储备变动</td><td class="px-3 py-2 text-xs text-slate-400">储备增加</td><td class="px-3 py-2 text-xs text-slate-400">储备减少</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键恒等式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CA + KA + FA + 储备变动 = 0\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经常账户与储蓄投资</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CA = S - I = (S_p - I) + (T - G)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人储蓄-投资缺口</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政府储蓄（财政盈余/赤字）</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：GDP恒等式</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">支出法分解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = C + I + G + (X - M)\]</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">组成部分</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">中国占比（2023）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">美国占比（2023）</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">C（消费）</td><td class="px-3 py-2 text-xs text-slate-400">居民消费支出</td><td class="px-3 py-2 text-xs text-slate-400">~38%</td><td class="px-3 py-2 text-xs text-slate-400">~68%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">I（投资）</td><td class="px-3 py-2 text-xs text-slate-400">固定资本形成+存货</td><td class="px-3 py-2 text-xs text-slate-400">~42%</td><td class="px-3 py-2 text-xs text-slate-400">~18%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">G（政府）</td><td class="px-3 py-2 text-xs text-slate-400">政府消费支出</td><td class="px-3 py-2 text-xs text-slate-400">~16%</td><td class="px-3 py-2 text-xs text-slate-400">~17%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">NX（净出口）</td><td class="px-3 py-2 text-xs text-slate-400">出口-进口</td><td class="px-3 py-2 text-xs text-slate-400">~4%</td><td class="px-3 py-2 text-xs text-slate-400">~-3%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">封闭经济储蓄-投资恒等式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[S = I\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = C + I + G\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[S = Y - C - G = I\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">开放经济</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[S - I = NX\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[S = I + NX\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：GDP平减指数</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\text{GDP平减指数} = \frac{\text{名义GDP}}{\text{实际GDP}} \times 100\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">与CPI的区别</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">覆盖范围</div><div class="text-xs text-slate-400"><span class="text-slate-500">GDP平减指数:</span> 全部最终产品</div><div class="text-xs text-slate-400"><span class="text-slate-500">CPI:</span> 消费品篮子</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">权重</div><div class="text-xs text-slate-400"><span class="text-slate-500">GDP平减指数:</span> 派氏指数（当期权重）</div><div class="text-xs text-slate-400"><span class="text-slate-500">CPI:</span> 拉氏指数（基期权重）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">进口品</div><div class="text-xs text-slate-400"><span class="text-slate-500">GDP平减指数:</span> 不包含</div><div class="text-xs text-slate-400"><span class="text-slate-500">CPI:</span> 包含</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">更新频率</div><div class="text-xs text-slate-400"><span class="text-slate-500">GDP平减指数:</span> 季度</div><div class="text-xs text-slate-400"><span class="text-slate-500">CPI:</span> 月度</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：奥肯定律</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{Y - Y^*}{Y^*} = -\beta(u - u^*)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>失业率每高于自然率1个百分点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GDP缺口约为-2%（美国经验）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>反映劳动力与产出的关系</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证估计</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Delta u = -\frac{1}{\beta}(g_Y - g_{Y^*})\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国：β ≈ 2</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国：β ≈ 3-4（就业弹性较低）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：费雪方程</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[i = r + \pi^e\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(i\)：名义利率（可观察）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(r\)：实际利率（事前难观察）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\pi^e\)：预期通胀率</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">费雪效应</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预期通胀上升1%，名义利率上升约1%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实际利率由实体经济决定（储蓄-投资均衡）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">事后实际利率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[r_{ex-post} = i - \pi_{实际}\]</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例1：中国GDP统计争议与修正</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：中国GDP数据长期面临质量质疑。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要争议</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">地方加总问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 省级GDP之和 > 全国GDP</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能原因:</span> 重复统计、政绩压力</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平滑过度</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 季度增速过于稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能原因:</span> 统计方法、估算成分高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">服务业计量</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 数字经济难以捕捉</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能原因:</span> 统计方法滞后</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">替代指标尝试</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">克强指数</span>：用电量、铁路货运量、贷款发放量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">卫星灯光数据</span>：夜间灯光亮度变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">高频数据</span>：PMI、港口吞吐量、房地产销售</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>任何单一指标都有局限，需要多维度交叉验证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>高频指标可以弥补官方数据的时滞</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>大数据方法为宏观监测提供新工具</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分析框架</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">官方GDP数据 → 与高频指标对照 → 卫星数据验证 → 综合判断
+     ↓              ↓              ↓
+   政策参考      投资决策       学术研究</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">美</span>
+        <h3 class="text-white font-semibold text-sm">案例2：美国就业数据的市场影响</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：非农就业数据是金融市场最重要的宏观数据之一。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据特征</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">发布时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 每月第一个周五8:30（美东时间）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">发布机构</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 劳工统计局（BLS）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">核心指标</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 非农就业人数、失业率、平均时薪</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">样本规模</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 约14万家企业、约60万个工作场所</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场影响机制</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">非农数据发布 → 市场预期修正 → 美联储政策预期变化 → 资产价格调整
+                    ↓
+            意外向好：股市涨、债市跌、美元涨
+            意外向差：股市跌、债市涨、美元跌</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">2023年9月实例</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预期：+17万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实际：+33.6万（大幅超预期）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场反应：美债收益率飙升、股市下跌、美元走强</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原因：数据支持美联储"higher for longer"</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>关注预期差而非绝对数值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>数据修正同样重要（前两个月常有大幅修正）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>细分数据（行业、工时）提供额外信息</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">胀</span>
+        <h3 class="text-white font-semibold text-sm">案例3：通胀度量的争议与改进</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：CPI作为最常用的通胀指标，存在多种偏差。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">CPI的主要偏差</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">替代偏差</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 消费者会用便宜品替代贵品</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 高估通胀</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">质量变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 产品质量提升未被充分计入</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 高估通胀</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">新产品偏差</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 新产品价格下降快，纳入滞后</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 高估通胀</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">零售渠道</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 电商降低购买成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 高估通胀</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">博斯金委员会（1996）结论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国CPI年均高估通胀约1.1个百分点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>导致社保支出过度调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>推动统计方法改进</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不同人群的通胀体验差异</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">老年人</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征:</span> 医疗支出占比高</div><div class="text-xs text-slate-400"><span class="text-slate-500">感受的通胀:</span> 高于官方CPI</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">年轻人</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征:</span> 房租、教育支出高</div><div class="text-xs text-slate-400"><span class="text-slate-500">感受的通胀:</span> 高于官方CPI</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高收入者</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征:</span> 服务消费占比高</div><div class="text-xs text-slate-400"><span class="text-slate-500">感受的通胀:</span> 接近官方CPI</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">低收入者</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征:</span> 食品支出占比高</div><div class="text-xs text-slate-400"><span class="text-slate-500">感受的通胀:</span> 波动大</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>单一CPI数字掩盖了分配效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>个人化通胀指数更有实际意义</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>核心通胀更适合货币政策参考</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">GDP能衡量一个国家的福利水平吗？有什么局限性？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：非市场活动、环境成本、收入分配、休闲价值</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">为什么实际GDP比名义GDP更适合衡量经济增长？在什么情况下名义GDP也有意义？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：价格变化的剔除、名义GDP与税收/债务的关系</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">失业率为0是否意味着经济最优？什么是自然失业率，为什么它不为零？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：摩擦性失业的必要性、劳动市场效率</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如果CPI上涨5%，工资上涨3%，实际购买力如何变化？不同收入群体受到的影响相同吗？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：实际工资计算、消费结构差异</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">经常账户逆差一定是坏事吗？美国为何能长期维持逆差，而其他国家不行？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：储蓄-投资缺口、美元霸权、资本流动</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何判断一个国家的GDP统计数据是否可靠？有哪些交叉验证的方法？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：克强指数、卫星数据、能源消费、税收收入</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">数字经济时代，GDP统计面临什么新挑战？免费服务、数据价值如何计入？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：Google搜索的价值、社交媒体、共享经济</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">"绿色GDP"应该如何计算？为什么难以实施？环境成本的货币化有什么困难？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：外部性定价、代际公平、国际比较</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">中国和美国GDP的组成结构差异（消费占比38% vs 68%）说明了什么问题？这种结构是否需要调整？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：发展阶段、增长模式、再平衡</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《宏观经济学》</td><td class="px-3 py-2 text-xs text-slate-400">曼昆</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">标准中级教材，叙述清晰</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《宏观经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Blanchard</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">欧洲视角，政策导向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《高级宏观经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Romer</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">研究生标准，理论严谨</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《宏观经济学讲义》</td><td class="px-3 py-2 text-xs text-slate-400">徐高</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">中国视角，案例丰富</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据来源</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">来源</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">覆盖</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">网址</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">国家统计局</td><td class="px-3 py-2 text-xs text-slate-400">中国</td><td class="px-3 py-2 text-xs text-slate-400">官方权威</td><td class="px-3 py-2 text-xs text-slate-400">stats.gov.cn</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">中国人民银行</td><td class="px-3 py-2 text-xs text-slate-400">中国金融</td><td class="px-3 py-2 text-xs text-slate-400">货币信贷数据</td><td class="px-3 py-2 text-xs text-slate-400">pbc.gov.cn</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FRED</td><td class="px-3 py-2 text-xs text-slate-400">美国</td><td class="px-3 py-2 text-xs text-slate-400">免费便捷</td><td class="px-3 py-2 text-xs text-slate-400">fred.stlouisfed.org</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">BEA</td><td class="px-3 py-2 text-xs text-slate-400">美国GDP</td><td class="px-3 py-2 text-xs text-slate-400">详细分解</td><td class="px-3 py-2 text-xs text-slate-400">bea.gov</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">BLS</td><td class="px-3 py-2 text-xs text-slate-400">美国就业</td><td class="px-3 py-2 text-xs text-slate-400">权威就业数据</td><td class="px-3 py-2 text-xs text-slate-400">bls.gov</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">IMF</td><td class="px-3 py-2 text-xs text-slate-400">全球</td><td class="px-3 py-2 text-xs text-slate-400">国际比较</td><td class="px-3 py-2 text-xs text-slate-400">imf.org</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">World Bank</td><td class="px-3 py-2 text-xs text-slate-400">全球</td><td class="px-3 py-2 text-xs text-slate-400">发展数据</td><td class="px-3 py-2 text-xs text-slate-400">worldbank.org</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">OECD</td><td class="px-3 py-2 text-xs text-slate-400">发达国家</td><td class="px-3 py-2 text-xs text-slate-400">政策分析</td><td class="px-3 py-2 text-xs text-slate-400">oecd.org</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GDP简史：Diane Coyle《GDP简史》- 理解GDP的起源和局限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>统计方法：Moulton (2018) "The Measurement of Output, Prices, and Productivity"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国数据：Holz (2014) "The Quality of China's GDP Statistics"</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          宏观数据→市场反应传导链
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击每个阶段查看详情，理解经济数据如何驱动资产价格</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">数据发布</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">GDP·非农·CPI</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">预期比较</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">实际值 vs 共识预期</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">政策预期</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">央行利率路径调整</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">资产联动</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">股·债·汇价格调整</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">数据发布</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">GDP·非农·CPI</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 每月/季度定期发布：非农(月初)、CPI(月中)、GDP(季末)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 样本量巨大：非农覆盖14万家企业、60万工作场所</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 关注绝对值+修正值+分项数据</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 中国：统计局月度/季度发布</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">预期比较</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">实际值 vs 共识预期</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 市场提前消化预期，关键在于'预期差'</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 超预期(Beat)或不及预期(Miss)驱动价格</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 例: 非农+33.6万 vs 预期+17万 = 大幅超预期</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 前两个月修正值也会引发市场重新定价</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">政策预期</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">央行利率路径调整</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• 强劲数据→加息概率上升/降息推迟</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• 疲软数据→降息预期升温</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• CME FedWatch工具实时反映市场押注</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• 前瞻指引(Forward Guidance)锚定预期</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">资产联动</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">股·债·汇价格调整</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 数据超预期向好: 美债收益率↑ 股市↓ 美元↑</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 数据不及预期: 美债收益率↓ 股市↑ 美元↓</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 跨市场传导通常在数据发布后数秒至数分钟内完成</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 二阶效应: 行业轮动、利率敏感板块分化</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          经济结构演变: GDP支出法构成与发展阶段
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整储蓄倾向，观察从投资驱动到消费驱动的结构转型</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-sv">c = 5</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 395" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10"><path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern></defs><rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/><line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/><line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/><text x="560" y="365" fill="#64748b" font-size="12">人均GDP(千美元)</text><text x="42" y="20" fill="#64748b" font-size="12">占GDP%</text>
+      <line id="comp-1-mk0" x1="0" y1="10" x2="0" y2="340" stroke="#f87171" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+<text id="comp-1-mkl0" x="0" y="8" fill="#f87171" font-size="9" text-anchor="middle" opacity="0.5">中国</text>
+<line id="comp-1-mk1" x1="0" y1="10" x2="0" y2="340" stroke="#60a5fa" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+<text id="comp-1-mkl1" x="0" y="8" fill="#60a5fa" font-size="9" text-anchor="middle" opacity="0.5">美国</text>
+
+      <polyline id="comp-1-c0" points="" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline id="comp-1-c1" points="" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline id="comp-1-c2" points="" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline id="comp-1-c3" points="" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <line id="comp-1-vline" x1="70" y1="10" x2="70" y2="340" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+<circle id="comp-1-dot0" cx="70" cy="340" r="5" fill="#34d399" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-dot1" cx="70" cy="340" r="5" fill="#60a5fa" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-dot2" cx="70" cy="340" r="5" fill="#fbbf24" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-dot3" cx="70" cy="340" r="5" fill="#f87171" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-gdot" cx="70" cy="340" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+
+      <line x1="80" y1="378" x2="94" y2="378" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/><text x="98" y="381" fill="#34d399" font-size="9">消费C</text>
+<line x1="205" y1="378" x2="219" y2="378" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/><text x="223" y="381" fill="#60a5fa" font-size="9">投资I</text>
+<line x1="330" y1="378" x2="344" y2="378" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/><text x="348" y="381" fill="#fbbf24" font-size="9">政府G</text>
+<line x1="455" y1="378" x2="469" y2="378" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"/><text x="473" y="381" fill="#f87171" font-size="9">净出口NX</text>
+
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">储蓄倾向 <span class="text-white font-mono" id="comp-1-sl">c = 5</span></div>
+      <input type="range" id="comp-1-slider" min="1" max="10" value="5" step="1">
+    </div>
+    <div class="mt-3 px-2 grid grid-cols-4 gap-2">
+      <div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">消费C</div><div class="font-mono text-sm font-bold" style="color:#34d399" id="comp-1-rv0">&mdash;</div></div>
+<div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">投资I</div><div class="font-mono text-sm font-bold" style="color:#60a5fa" id="comp-1-rv1">&mdash;</div></div>
+<div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">政府G</div><div class="font-mono text-sm font-bold" style="color:#fbbf24" id="comp-1-rv2">&mdash;</div></div>
+<div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">净出口NX</div><div class="font-mono text-sm font-bold" style="color:#f87171" id="comp-1-rv3">&mdash;</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          GDP增长率分解计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">输入各组成部分增速，计算GDP增长率贡献</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">消费增速 (%)</label>
+            <input type="number" id="comp-2-gc" value="5" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">投资增速 (%)</label>
+            <input type="number" id="comp-2-gi" value="8" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">政府支出增速 (%)</label>
+            <input type="number" id="comp-2-gg" value="3" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">净出口增速 (%)</label>
+            <input type="number" id="comp-2-gn" value="-2" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">增长健康度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">GDP增长率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">消费贡献</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">投资贡献</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">经济状态</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ g_{GDP} = \sum w_i \cdot g_i \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 01</div>
+    <div class="mt-2 md:mt-0">下一章：货币理论与通货膨胀机制 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '(Y_t - ', tip: '时间序列当期值——t时刻的观测值'},
+    {match: '(1+g_{环比})^4', tip: '把季度增速换算成年增速'},
+    {match: '\\pi^e', tip: '预期通胀——人们预期未来物价会涨多少'},
+    {match: '\\pi_t = \\frac{P_t - P_{t-1}}{P_{t-1}}', tip: '通胀率——物价比去年涨了百分之多少'},
+    {match: 'CPI_t', tip: '消费者物价指数——一篮子商品今年比基年贵了多少'},
+    {match: 'u = \\frac{失业人口}{劳动力}', tip: '失业率——找工作但找不到的人占劳动力比例'},
+    {match: 'LFPR = \\frac{劳动力}{工作年龄人口}', tip: '劳参率——适龄人口中有多少人在工作或找工作'},
+    {match: 'ER = \\frac{就业人口}{工作年龄人口}', tip: '就业率——适龄人口中有多少人在工作'},
+    {match: 'u^* = 摩擦性失业', tip: '自然失业率——即使经济景气也存在的失业'},
+    {match: '\\frac{Y - Y^*}{Y^*}', tip: '产出缺口——实际GDP偏离潜在GDP多少'},
+    {match: 'g = \\frac{Y_t - Y_{t-1}}{Y_{t-1}}', tip: '经济增长率——GDP比去年增长了百分之多少'},
+    {match: '人均GDP', tip: 'GDP除以总人口，衡量平均生活水平'},
+    {match: 'CA + KA + FA + 储备变动 = 0', tip: '国际收支恒等式——经常+资本+金融账户之和为零'},
+    {match: 'CA = S - I', tip: '经常账户 = 储蓄-投资，存多花少就顺差'},
+    {match: 'Y = C + I + G + (X - M)', tip: 'GDP = 消费+投资+政府支出+净出口，一国经济总产出'},
+    {match: 'Y = C + I + G', tip: '封闭经济GDP = 消费+投资+政府支出'},
+    {match: 'S = I + NX', tip: '储蓄 = 投资+净出口，储蓄不是投资就是出口'},
+    {match: 'GDP平减指数', tip: '名义GDP÷实际GDP×100，衡量整体物价水平'},
+    {match: ' - Y^*}{Y', tip: '潜变量/未观测变量——Tobit/Heckman模型中的隐含连续变量'},
+    {match: 'i = r + \\pi^e', tip: '费雪方程——名义利率 = 实际利率+预期通胀'},
+    {match: 'r_{ex-post} = i - \\pi_{实际}', tip: '事后实际利率——名义利率减去实际发生的通胀'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330,xM=70,yM=80,nP=100;
+  function xc(v){return mx+(v/xM)*pw;}
+  function yc(v){return my+ph-(v/yM)*ph;}
+  var c;
+  function cf0(x){return 35+33/(1+Math.exp(-(x-6*c)*0.13));}
+  function cf1(x){return 45-27/(1+Math.exp(-(x-6*c)*0.13));}
+  function cf2(x){return 16+0.5*Math.sin(x/10);}
+  function cf3(x){return Math.max(0.5,4-5/(1+Math.exp(-(x-35)*0.1)));}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    c=parseFloat(slider.value);var pts,xx,yy,i;
+    
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf0(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c0').setAttribute('points',pts);
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf1(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c1').setAttribute('points',pts);
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf2(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c2').setAttribute('points',pts);
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf3(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c3').setAttribute('points',pts);
+    
+    var mkx0=xc(12);
+    document.getElementById('comp-1-mk0').setAttribute('x1',mkx0);
+    document.getElementById('comp-1-mk0').setAttribute('x2',mkx0);
+    document.getElementById('comp-1-mkl0').setAttribute('x',mkx0);
+    var mkx1=xc(65);
+    document.getElementById('comp-1-mk1').setAttribute('x1',mkx1);
+    document.getElementById('comp-1-mk1').setAttribute('x2',mkx1);
+    document.getElementById('comp-1-mkl1').setAttribute('x',mkx1);
+    var sx=xc(c);
+    document.getElementById('comp-1-vline').setAttribute('x1',sx);
+    document.getElementById('comp-1-vline').setAttribute('x2',sx);
+    
+    var v0=Math.max(0,Math.min(yM,cf0(c)));
+    document.getElementById('comp-1-dot0').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot0').setAttribute('cy',yc(v0));
+    document.getElementById('comp-1-rv0').textContent=v0.toFixed(1);
+    var v1=Math.max(0,Math.min(yM,cf1(c)));
+    document.getElementById('comp-1-dot1').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot1').setAttribute('cy',yc(v1));
+    document.getElementById('comp-1-rv1').textContent=v1.toFixed(1);
+    var v2=Math.max(0,Math.min(yM,cf2(c)));
+    document.getElementById('comp-1-dot2').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot2').setAttribute('cy',yc(v2));
+    document.getElementById('comp-1-rv2').textContent=v2.toFixed(1);
+    var v3=Math.max(0,Math.min(yM,cf3(c)));
+    document.getElementById('comp-1-dot3').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot3').setAttribute('cy',yc(v3));
+    document.getElementById('comp-1-rv3').textContent=v3.toFixed(1);
+    document.getElementById('comp-1-gdot').setAttribute('cx',sx);
+    document.getElementById('comp-1-gdot').setAttribute('cy',yc(v0));
+    document.getElementById('comp-1-sl').textContent='c = '+c.toFixed(0)+'';
+    document.getElementById('comp-1-sv').textContent='c = '+c.toFixed(0)+'';
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var gc=parseFloat(document.getElementById('comp-2-gc').value);
+    var gi=parseFloat(document.getElementById('comp-2-gi').value);
+    var gg=parseFloat(document.getElementById('comp-2-gg').value);
+    var gn=parseFloat(document.getElementById('comp-2-gn').value);
+
+    var gdp=0.55*gc+0.25*gi+0.15*gg+0.05*gn;
+    document.getElementById('comp-2-out0').textContent=gdp.toFixed(2)+'%';
+    document.getElementById('comp-2-out1').textContent=(0.55*gc).toFixed(2)+'%';
+    document.getElementById('comp-2-out2').textContent=(0.25*gi).toFixed(2)+'%';
+    document.getElementById('comp-2-out3').textContent=gdp>6?'过热':(gdp>2?'正常':'衰退');
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,gdp/8)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

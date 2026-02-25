@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>货币理论与通货膨胀机制 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 02</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">货币理论与通货膨胀机制</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解货币在经济中的作用及通胀的成因与后果</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">货币层次</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">理论模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">货币的本质与功能</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币的三大功能</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交易媒介</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 消除物物交换的"双重巧合"问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">无货币时的问题:</span> 需求不匹配导致交易困难</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价值储藏</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 跨期转移购买力</div><div class="text-xs text-slate-400"><span class="text-slate-500">无货币时的问题:</span> 易腐品无法积累财富</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">记账单位</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 统一的价值度量标准</div><div class="text-xs text-slate-400"><span class="text-slate-500">无货币时的问题:</span> N种商品需要N(N-1)/2个相对价格</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币的演化</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">商品货币 → 金属货币 → 纸币（金本位）→ 法定货币（信用本位）→ 数字货币？
+  贝壳      金银        银行券         央行发行              CBDC</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">货币层次</span>（中国定义）：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">层次</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">构成</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">流动性</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">统计口径</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">M0</td><td class="px-3 py-2 text-xs text-slate-400">流通中现金</td><td class="px-3 py-2 text-xs text-slate-400">最高</td><td class="px-3 py-2 text-xs text-slate-400">央行负债</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">M1</td><td class="px-3 py-2 text-xs text-slate-400">M0 + 企业活期存款 + 机关团体存款</td><td class="px-3 py-2 text-xs text-slate-400">高</td><td class="px-3 py-2 text-xs text-slate-400">狭义货币</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">M2</td><td class="px-3 py-2 text-xs text-slate-400">M1 + 储蓄存款 + 定期存款 + 其他存款</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">广义货币</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">社会融资规模</td><td class="px-3 py-2 text-xs text-slate-400">M2外延 + 直接融资</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">实体经济获得的资金总量</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">各国M2定义差异</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国：M2不含大额定期存款</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>欧元区：M3更常用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国：M2占GDP比例全球最高（约200%）</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">货币供给机制</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基础货币与货币乘数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[M = m \times B\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(M\)：货币供应量（如M2）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(B\)：基础货币（央行负债 = 流通中现金 + 准备金）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(m\)：货币乘数</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币乘数推导</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[m = \frac{1 + c}{c + r + e}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(c\)：现金漏损率（公众持有现金/存款）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(r\)：法定准备金率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(e\)：超额准备金率</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">简化形式</span>（假设\(c=0, e=0\)）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[m = \frac{1}{r}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">影响货币乘数的因素</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因素</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">变化方向</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">对乘数影响</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">原因</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">法定准备金率↑</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">↓</td><td class="px-3 py-2 text-xs text-slate-400">银行可贷资金减少</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">超额准备金率↑</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">↓</td><td class="px-3 py-2 text-xs text-slate-400">银行惜贷</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现金漏损率↑</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">↓</td><td class="px-3 py-2 text-xs text-slate-400">存款创造减少</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">利率↑</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">↑</td><td class="px-3 py-2 text-xs text-slate-400">超额准备金减少</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">央行调控工具</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">工具</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作用机制</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">使用频率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">中国特色工具</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">公开市场操作</td><td class="px-3 py-2 text-xs text-slate-400">买卖国债调节基础货币</td><td class="px-3 py-2 text-xs text-slate-400">日常</td><td class="px-3 py-2 text-xs text-slate-400">逆回购、MLF</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">准备金率</td><td class="px-3 py-2 text-xs text-slate-400">直接影响乘数</td><td class="px-3 py-2 text-xs text-slate-400">偶尔</td><td class="px-3 py-2 text-xs text-slate-400">定向降准</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">政策利率</td><td class="px-3 py-2 text-xs text-slate-400">影响资金成本</td><td class="px-3 py-2 text-xs text-slate-400">定期</td><td class="px-3 py-2 text-xs text-slate-400">LPR</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">再贷款/再贴现</td><td class="px-3 py-2 text-xs text-slate-400">向银行提供流动性</td><td class="px-3 py-2 text-xs text-slate-400">需要时</td><td class="px-3 py-2 text-xs text-slate-400">PSL、支农支小</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">窗口指导</td><td class="px-3 py-2 text-xs text-slate-400">行政引导</td><td class="px-3 py-2 text-xs text-slate-400">常态</td><td class="px-3 py-2 text-xs text-slate-400">中国特色</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">中国货币政策框架转型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">数量型（M2目标）→ 价格型（利率调控）
+     ↓                    ↓
+存贷款基准利率        LPR + 利率走廊
+     ↓                    ↓
+货币供应量目标        通胀目标（弹性）</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">货币需求理论</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">古典货币数量论</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MV = PY\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(M\)：货币供应量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(V\)：货币流通速度（短期稳定）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P\)：价格水平</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y\)：实际产出</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">剑桥方程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[M = kPY\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">\(k = 1/V\)，强调货币的资产需求。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">凯恩斯流动性偏好理论</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交易动机</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 收入水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">与利率关系:</span> 不敏感</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">预防动机</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 不确定性</div><div class="text-xs text-slate-400"><span class="text-slate-500">与利率关系:</span> 不敏感</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投机动机</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 利率水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">与利率关系:</span> 负相关（关键）</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币需求函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[L = L_1(Y) + L_2(r)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\partial L}{\partial Y} > 0, \quad \frac{\partial L}{\partial r} < 0\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">流动性陷阱</span>：当利率极低时，货币需求无限弹性，货币政策失效。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">弗里德曼货币需求函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{M^d}{P} = f(Y_p, r_b - r_m, r_e - r_m, \pi^e, w)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y_p\)：永久收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(r_b - r_m\)：债券与货币收益差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(r_e - r_m\)：股票与货币收益差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\pi^e\)：预期通胀率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(w\)：非人力财富占比</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">弗里德曼的货币主义结论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>货币需求稳定且可预测</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>货币供给影响名义变量，长期影响价格水平</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀归根结底是货币现象</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">通货膨胀的成因</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求拉动型通胀</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">总需求过度增长，经济过热。</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财政赤字货币化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 政府印钱支出</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 魏玛德国、委内瑞拉</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信贷扩张</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 银行过度放贷</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 2008年前美国</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">外汇流入</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 央行被动投放基础货币</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 2000年代中国</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费热潮</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 需求超过产能</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 2021年美国</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">成本推动型通胀</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">供给侧成本上升推高价格。</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工资上涨</div><div class="text-xs text-slate-400"><span class="text-slate-500">传导机制:</span> 劳动成本上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 1970s美国</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">原材料涨价</div><div class="text-xs text-slate-400"><span class="text-slate-500">传导机制:</span> 进口成本上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 石油危机</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">汇率贬值</div><div class="text-xs text-slate-400"><span class="text-slate-500">传导机制:</span> 进口品价格上涨</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 新兴市场</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">供应链中断</div><div class="text-xs text-slate-400"><span class="text-slate-500">传导机制:</span> 短缺抬价</div><div class="text-xs text-slate-400"><span class="text-slate-500">案例:</span> 2021-22疫情</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">结构性通胀</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>部门间生产率差异</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工资"攀比"效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>服务业通胀高于制造业（巴拉萨-萨缪尔森效应）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">通胀预期</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">自我实现的预言——预期通胀会导致实际通胀。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi = \pi^e + 供需缺口因素\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">预期形成机制</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">适应性预期</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\pi^e_t = \pi_{t-1}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 后视，调整缓慢</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">理性预期</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\pi^e_t = E[\pi_t</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> I_{t-1}]\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> 前瞻，利用所有信息</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">锚定预期</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\pi^e = \pi^{target}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 央行可信度高时</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">通胀的成本与收益</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">通胀成本</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">菜单成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 调整价格的成本（印刷、沟通）</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 资源浪费</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">皮鞋成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 减少现金持有、频繁取款</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 时间浪费</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税收扭曲</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 名义收益被征税，实际税负上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 资本形成受抑制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财富再分配</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 债权人损失，债务人受益</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 不公平</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">相对价格扭曲</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 价格信号失真</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 资源错配</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">不确定性</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 难以规划长期投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 增长受损</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">适度通胀的好处</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">调整实际工资</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 名义工资刚性下变相降薪</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 避免失业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">避免零利率下限</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 保留货币政策空间</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 政策灵活性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">减轻债务负担</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 通胀侵蚀实际债务</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 去杠杆工具</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">鼓励消费和投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 持币成本上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 刺激经济</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">为什么央行普遍选择2%通胀目标？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>足够低：不扭曲决策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>足够高：留有政策空间</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>容易沟通：简单明确</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>国际惯例：便于协调</span></div></div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：费雪方程式与货币数量论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交易方程式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MV = PY\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">增长率形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\Delta M}{M} + \frac{\Delta V}{V} = \frac{\Delta P}{P} + \frac{\Delta Y}{Y}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">长期近似</span>（假设V稳定）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi \approx g_M - g_Y\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">货币增速减去实际增长率等于通胀率。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币中性与超中性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>货币中性：货币供给变化只影响名义变量，不影响实际变量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>货币超中性：货币增长率变化也不影响实际变量</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：费雪效应</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[i = r + \pi^e\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">事前 vs 事后</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">事前实际利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(r = i - \pi^e\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">可观察性:</span> 不可直接观察</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">事后实际利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(r_{ex-post} = i - \pi_{实际}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">可观察性:</span> 可计算</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">完全费雪效应</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预期通胀上升1%，名义利率上升1%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实际利率不变</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短期：费雪效应不完全（名义利率调整不完全）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长期：费雪效应基本成立</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：泰勒规则</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[i_t = r^* + \pi_t + 0.5(\pi_t - \pi^*) + 0.5(y_t - y^*)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分解</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(r^*\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 自然实际利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> 约2%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\pi_t\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 当期通胀</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> 1（费雪效应）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\pi_t - \pi^*\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 通胀缺口</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> 0.5（泰勒建议）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(y_t - y^*\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 产出缺口</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> 0.5（泰勒建议）</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀高于目标：加息（且幅度大于通胀上升幅度）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产出低于潜在：降息</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">泰勒原则</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\partial i}{\partial \pi} > 1\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对通胀的反应系数大于1，否则实际利率下降，刺激需求，通胀失控。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：菲利普斯曲线</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">原始形式（1958）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\Delta W}{W} = -\alpha(u - u^*)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">工资增长与失业率负相关。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">预期增强形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi = \pi^e - \alpha(u - u^*) + \epsilon\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">新凯恩斯菲利普斯曲线</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi_t = \beta E_t[\pi_{t+1}] + \kappa \tilde{y}_t\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">通胀取决于预期通胀和产出缺口。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短期 vs 长期</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">短期</div><div class="text-xs text-slate-400"><span class="text-slate-500">曲线形状:</span> 向下倾斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 可以用通胀换取就业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长期</div><div class="text-xs text-slate-400"><span class="text-slate-500">曲线形状:</span> 垂直于自然率</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 通胀-失业无权衡</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">曲线移动</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀预期上升 → 曲线上移</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给冲击（如油价）→ 曲线上移</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>曲线平坦化：通胀对产出缺口敏感性下降（全球化效应？）</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">美</span>
+        <h3 class="text-white font-semibold text-sm">案例1：美联储2022年加息周期</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：2022年美国通胀飙升至9.1%（6月），为40年新高。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">原因分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财政刺激</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 约30%</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 需求拉动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">供应链中断</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 约25%</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 成本推动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">能源危机（俄乌）</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 约20%</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 供给冲击</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">劳动力短缺</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 约15%</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 工资推动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">租金上涨</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 约10%</div><div class="text-xs text-slate-400"><span class="text-slate-500">性质:</span> 结构性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">美联储应对</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">2022年3月：开始加息（0.25%）
+2022年5月-7月：激进加息（0.5%, 0.75%, 0.75%）
+2023年7月：利率峰值（5.25-5.50%）
+2024年：开始降息讨论</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策反思</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么美联储最初误判通胀为"暂时性"（transitory）？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给冲击通常是暂时的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>疫情前低通胀环境形成思维定式</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>模型基于锚定预期假设</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">延迟加息的后果</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通胀预期开始松动</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要更激进的加息来"追赶"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融市场剧烈波动</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">启示</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>央行信誉是通胀管理的核心资产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给冲击也可能触发通胀预期脱锚</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>"宁可过度反应，不可反应不足"</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">日</span>
+        <h3 class="text-white font-semibold text-sm">案例2：日本的长期通缩与突破</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：日本经历"失去的三十年"，长期通缩或低通胀。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">通缩螺旋机制</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">资产泡沫破裂 → 财富缩水 → 需求不足 → 价格下跌
+      ↓                                    ↓
+ 债务负担加重 ← 实际利率上升 ← 通缩预期形成 ←</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策尝试</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1990s</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策:</span> 传统降息</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 利率降至零</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2000s</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策:</span> 量化宽松（QE）</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 效果有限</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2013</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策:</span> 安倍经济学（QQE）</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 通胀短暂回升</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2016</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策:</span> 负利率 + YCC</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 稳定通胀预期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2022-23</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策:</span> 全球通胀传导</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 首次持续通胀</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">2024年日本通胀突破</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>输入性通胀（日元贬值、能源价格）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工资-价格良性循环开始形成</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>日本央行退出负利率（2024年3月）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>通缩预期一旦形成，极难打破</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>零利率下限严重约束货币政策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>财政政策配合可能更有效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>外部冲击可能帮助打破均衡</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例3：中国的货币政策框架转型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">从数量型到价格型调控</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中间目标</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统框架:</span> M2增速</div><div class="text-xs text-slate-400"><span class="text-slate-500">新框架:</span> 利率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政策利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统框架:</span> 存贷款基准利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">新框架:</span> OMO利率 + MLF利率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">传导机制</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统框架:</span> 信贷额度</div><div class="text-xs text-slate-400"><span class="text-slate-500">新框架:</span> LPR → 贷款利率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">操作方式</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统框架:</span> 数量调控为主</div><div class="text-xs text-slate-400"><span class="text-slate-500">新框架:</span> 价格调控为主</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">LPR改革（2019年8月）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">MLF利率 → 银行加点 → LPR → 贷款利率
+  ↓
+央行政策利率    市场化形成    实体经济融资成本</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">中国货币政策的特殊约束</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">汇率</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 美元加息周期中的贬值压力</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对:</span> 容忍一定贬值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">房地产</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 降息可能刺激房价</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对:</span> 结构性工具</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">银行息差</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 降息压缩净息差</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对:</span> 适度降准对冲</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">通胀预期</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 目前偏低</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对:</span> 适度宽松空间</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>转型是渐进过程，需要配套改革</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>利率传导机制仍需疏通</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>中国仍有常规政策空间（相对发达国家）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>结构性货币政策是中国特色</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么"钱印多了会通胀"？货币数量论的逻辑是什么？在什么条件下这一关系不成立？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：MV=PY、货币流通速度变化、流动性陷阱</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">通胀对债权人和债务人有什么不同影响？这种财富再分配是否公平？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：实际利率、通胀意外、名义债务</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">什么是"滞胀"？为什么它对政策制定者是噩梦？应该如何应对？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：供给冲击、菲利普斯曲线、政策两难</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如果预期通胀上升，你应该如何调整投资组合？哪些资产是通胀对冲工具？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：实物资产、TIPS、股票、黄金、房地产</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">央行独立性为什么对控制通胀重要？政治干预货币政策会带来什么后果？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：时间不一致性、通胀偏差、信誉</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">中国M2/GDP比例远高于其他国家，为什么没有引发高通胀？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：货币流通速度、房地产吸纳、储蓄率</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">数字货币（CBDC）会如何改变货币政策的传导机制？央行能否实施"直升机撒钱"？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：现金消失、负利率可行性、财政-货币边界</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">现代货币理论（MMT）认为政府可以无限印钱，你如何评价？什么情况下会失败？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：通胀约束、汇率、资源限制</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">2%的通胀目标是否还合适？有人主张提高到3-4%，有人主张降到0%，你怎么看？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：政策空间、通胀成本、零利率下限</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《货币金融学》</td><td class="px-3 py-2 text-xs text-slate-400">Mishkin</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">货币银行标准教材</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《货币理论与政策》</td><td class="px-3 py-2 text-xs text-slate-400">Walsh</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">研究生级别，理论严谨</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《利息与价格》</td><td class="px-3 py-2 text-xs text-slate-400">Woodford</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">新凯恩斯主义圣经</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《中央银行学》</td><td class="px-3 py-2 text-xs text-slate-400">Blinder</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">央行视角，实践导向</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典文献</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《美国货币史》</div><div class="text-xs text-slate-400"><span class="text-slate-500">作者:</span> Friedman & Schwartz</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 货币主义经典</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">通胀目标制</div><div class="text-xs text-slate-400"><span class="text-slate-500">作者:</span> Bernanke et al.</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 政策框架设计</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">大萧条研究</div><div class="text-xs text-slate-400"><span class="text-slate-500">作者:</span> Bernanke</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 金融加速器</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">理性预期革命</div><div class="text-xs text-slate-400"><span class="text-slate-500">作者:</span> Lucas</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 宏观经济学方法论</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">央行资源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美联储</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 货币政策声明、会议纪要</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> federalreserve.gov</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">ECB</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 欧元区货币政策</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> ecb.europa.eu</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国人民银行</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 货币政策执行报告</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> pbc.gov.cn</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BIS</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 国际清算银行研究</div><div class="text-xs text-slate-400"><span class="text-slate-500">网址:</span> bis.org</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>伯南克《金融的本质》- 2008年危机的亲历者视角</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金德尔伯格《疯狂、惊恐与崩溃》- 金融危机史</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>莱因哈特&罗格夫《这次不一样》- 八百年金融危机史</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          货币政策传导链
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段查看货币如何从央行流向实体经济</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">基础货币</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">央行操作</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">信用扩张</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">商业银行体系</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">利率传导</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">金融市场定价</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">物价响应</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">通胀/通缩结果</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">基础货币</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">央行操作</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>公开市场操作创造/回收流动性</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>法定准备金率调控货币乘数</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>再贴现率影响银行借贷意愿</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">信用扩张</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">商业银行体系</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>存款准备金制度下的货币乘数</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>贷款创造存款的信用创造机制</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>影子银行的信用中介补充作用</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">利率传导</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">金融市场定价</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>政策利率→银行间利率→贷款利率</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>期限利差反映加息/降息预期</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>费雪效应: 名义利率=实际利率+通胀预期</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">物价响应</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">通胀/通缩结果</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>货币数量论: MV=PY的长期约束</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>菲利普斯曲线: 通胀-失业短期权衡</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>通胀预期的自我实现与锚定效应</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          货币市场均衡模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整货币供给，观察利率变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">M</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">i</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">Md</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">Ms</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>货币供给 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>均衡利率: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>货币量: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="30" max="80" value="50" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          费雪方程与通胀实验室
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线测量不同货币增速下的通胀率</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-2-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-2-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-2-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-2-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">货币增速%</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">通胀率%</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-2-thresh"/>
+      <text id="comp-2-thresh-l" x="575" y="0" fill="#475569" font-size="8">2%目标</text>
+      
+      
+      <line id="comp-2-curve" x1="70" y1="10" x2="570" y2="340" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-2-cl" x="575" y="335" fill="#f87171" font-size="11" font-weight="bold">π</text>
+      <circle id="comp-2-pt" cx="-10" cy="-10" r="6" fill="#f87171" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-2-plbl" x="0" y="0" fill="#f87171" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-2-qlbl" x="0" y="0" fill="#f87171" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-2-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">通胀率</div>
+        <div class="font-mono text-lg font-bold" style="color:#f87171" id="comp-2-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">实际利率</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-2-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">货币中性</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-2-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 02</div>
+    <div class="mt-2 md:mt-0">下一章：就业市场与劳动力经济学 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'r_e - ', tip: '股权成本——股东要求的最低回报率'},
+    {match: '\\pi^e', tip: '预期通胀——人们预期未来物价会涨多少'},
+    {match: 'r = i - \\pi^e', tip: '实际利率——名义利率减去通胀，才是真实的借贷成本'},
+    {match: 'r_{ex-post} = i - \\pi_{实际}', tip: '事后实际利率——名义利率减去实际发生的通胀'},
+    {match: 'r^*', tip: '自然利率——经济均衡时的实际利率'},
+    {match: 'm = \\frac{1 + c}{c + r + e}', tip: '完整货币乘数——考虑了现金漏出和超额准备金'},
+    {match: 'm = \\frac{1}{r}', tip: '简单货币乘数——准备金率越低，银行能创造越多货币'},
+    {match: 'MV = PY', tip: '货币数量方程——流通中的钱×流转速度 = 物价×产出'},
+    {match: 'M = kPY', tip: '剑桥方程——人们想持有的货币 = 收入的固定比例'},
+    {match: 'L = L_1(Y) + L_2(r)', tip: '货币需求=交易需求+投机需求'},
+    {match: '\\frac{\\Delta M}{M} + \\frac{\\Delta V}{V}', tip: '货币增长率+流速变化 = 通胀率+经济增长率'},
+    {match: '\\pi \\approx g_M - g_Y', tip: '长期看，通胀≈货币增速-经济增速'},
+    {match: 'i = r + \\pi^e', tip: '费雪方程——名义利率 = 实际利率+预期通胀'},
+    {match: 'i_t = r^* + \\pi_t + 0.5(\\pi_t - \\pi^*)', tip: '泰勒规则——央行怎么定利率的经验法则'},
+    {match: '\\frac{\\partial i}{\\partial \\pi} > 1', tip: '泰勒原则——利率上调幅度必须大于通胀上升幅度'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\pi = \\pi^e - \\alpha(u - u^*)', tip: '菲利普斯曲线——失业率低于自然率时通胀上升'},
+    {match: '\\pi_t = \\beta E_t[\\pi_{t+1}]', tip: '新凯恩斯菲利普斯曲线——通胀取决于预期和产出缺口'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=20;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(20-5)/(0.15+0.001);
+    var eq_y=20-((20-5)/(0.15+0.001))*0.15;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 20-x*0.15;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 20-x*0.15;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return c*0.001+5;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return c*0.001+5;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='Ms = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='i*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='M*='+eq_x.toFixed(1);
+    var r1=eq_y;
+    var r2=eq_x;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=20,yMax=18;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return x-3;})(0);
+    var y1=(function(x){return x-3;})(xMax);
+    var cl=document.getElementById('comp-2-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+    var thY=yc(2);
+    document.getElementById('comp-2-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-2-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-2-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-2-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return x-3;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-2-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-2-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-2-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-2-readout').style.display='grid';
+    
+    document.getElementById('comp-2-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-2-m0s').textContent=y>5?'高通胀风险':(y>2?'温和通胀':'低通胀');
+    document.getElementById('comp-2-m1').textContent=(5-y).toFixed(2);
+    document.getElementById('comp-2-m1s').textContent=(5-y)>0?'正实际利率':'负实际利率';
+    document.getElementById('comp-2-m2').textContent=(x).toFixed(2);
+    document.getElementById('comp-2-m2s').textContent='MV=PY';
+    var infoEl=document.getElementById('comp-2-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='货币增速%='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='通胀率%='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

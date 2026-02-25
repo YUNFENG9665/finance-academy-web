@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有效市场假说与多因子模型 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Pricing</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实践案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">深度思考问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 02</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">有效市场假说与多因子模型</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解资产定价的核心理论框架与实证检验</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">EMH形式</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">因子模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">有效市场假说（EMH）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">理论框架</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">有效市场假说由Eugene Fama于1970年系统阐述，核心观点是在有效市场中，价格完全反映所有可用信息。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三种形式</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">形式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">信息集</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">投资策略影响</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">弱式有效</td><td class="px-3 py-2 text-xs text-slate-400">历史价格和成交量</td><td class="px-3 py-2 text-xs text-slate-400">技术分析无效</td><td class="px-3 py-2 text-xs text-slate-400">基本面分析可能有效</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">半强式有效</td><td class="px-3 py-2 text-xs text-slate-400">所有公开信息</td><td class="px-3 py-2 text-xs text-slate-400">基本面分析无效</td><td class="px-3 py-2 text-xs text-slate-400">仅内幕信息可获利</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">强式有效</td><td class="px-3 py-2 text-xs text-slate-400">所有信息（含内幕）</td><td class="px-3 py-2 text-xs text-slate-400">任何分析都无效</td><td class="px-3 py-2 text-xs text-slate-400">被动投资最优</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">EMH的理论基础</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">理性投资者</span>：投资者能正确评估证券价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">随机交易</span>：非理性行为相互抵消</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">套利力量</span>：理性套利者消除错误定价</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">联合假设问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>检验EMH必须同时假设一个"正确的"资产定价模型</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>发现异常收益可能是市场无效，也可能是定价模型错误</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">资本资产定价模型（CAPM）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">理论假设</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投资者假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体内容:</span> 风险规避、单期决策、均值-方差偏好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体内容:</span> 完美市场、无摩擦、所有资产可分割</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信息假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体内容:</span> 同质预期、信息对称</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">其他假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体内容:</span> 存在无风险资产、可无限制借贷</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E[R_i] = R_f + \beta_i(E[R_m] - R_f)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E[R_i]\)：资产i的期望收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(R_f\)：无风险收益率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E[R_m]\)：市场组合期望收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\beta_i\)：资产i的系统性风险系数</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贝塔的计算与解释</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\beta_i = \frac{Cov(R_i, R_m)}{Var(R_m)} = \rho_{i,m} \times \frac{\sigma_i}{\sigma_m}\]</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贝塔值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">风险特征</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">典型行业</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">投资含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">β > 1.5</td><td class="px-3 py-2 text-xs text-slate-400">高度进攻型</td><td class="px-3 py-2 text-xs text-slate-400">科技、券商</td><td class="px-3 py-2 text-xs text-slate-400">牛市超额收益</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">1 < β < 1.5</td><td class="px-3 py-2 text-xs text-slate-400">进攻型</td><td class="px-3 py-2 text-xs text-slate-400">消费品、金融</td><td class="px-3 py-2 text-xs text-slate-400">适度敏感</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">0.5 < β < 1</td><td class="px-3 py-2 text-xs text-slate-400">防御型</td><td class="px-3 py-2 text-xs text-slate-400">公用事业、医药</td><td class="px-3 py-2 text-xs text-slate-400">熊市相对抗跌</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">β < 0.5</td><td class="px-3 py-2 text-xs text-slate-400">高度防御型</td><td class="px-3 py-2 text-xs text-slate-400">黄金、国债</td><td class="px-3 py-2 text-xs text-slate-400">避险资产</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">市场异象与CAPM的挑战</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要市场异象</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">异象名称</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">发现时间</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">与CAPM矛盾</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">可能解释</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">规模效应</td><td class="px-3 py-2 text-xs text-slate-400">Banz(1981)</td><td class="px-3 py-2 text-xs text-slate-400">小市值股票获得更高收益</td><td class="px-3 py-2 text-xs text-slate-400">低β却有高收益</td><td class="px-3 py-2 text-xs text-slate-400">流动性风险、信息不对称</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">价值效应</td><td class="px-3 py-2 text-xs text-slate-400">Fama-French(1992)</td><td class="px-3 py-2 text-xs text-slate-400">高B/M股票收益高</td><td class="px-3 py-2 text-xs text-slate-400">非系统性风险溢价</td><td class="px-3 py-2 text-xs text-slate-400">财务困境风险</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">动量效应</td><td class="px-3 py-2 text-xs text-slate-400">Jegadeesh-Titman(1993)</td><td class="px-3 py-2 text-xs text-slate-400">过去赢家继续赢3-12个月</td><td class="px-3 py-2 text-xs text-slate-400">短期收益可预测</td><td class="px-3 py-2 text-xs text-slate-400">投资者反应不足</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">反转效应</td><td class="px-3 py-2 text-xs text-slate-400">De Bondt-Thaler(1985)</td><td class="px-3 py-2 text-xs text-slate-400">长期输家变赢家（3-5年）</td><td class="px-3 py-2 text-xs text-slate-400">长期可预测</td><td class="px-3 py-2 text-xs text-slate-400">过度反应修正</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">低波动异象</td><td class="px-3 py-2 text-xs text-slate-400">Ang et al.(2006)</td><td class="px-3 py-2 text-xs text-slate-400">低β股票收益不低于高β</td><td class="px-3 py-2 text-xs text-slate-400">直接违背CAPM</td><td class="px-3 py-2 text-xs text-slate-400">杠杆约束、彩票偏好</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利异象</td><td class="px-3 py-2 text-xs text-slate-400">Novy-Marx(2013)</td><td class="px-3 py-2 text-xs text-slate-400">高盈利公司收益更高</td><td class="px-3 py-2 text-xs text-slate-400">不在传统风险框架内</td><td class="px-3 py-2 text-xs text-slate-400">持续性误定价</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">投资异象</td><td class="px-3 py-2 text-xs text-slate-400">Cooper et al.(2008)</td><td class="px-3 py-2 text-xs text-slate-400">高投资公司收益低</td><td class="px-3 py-2 text-xs text-slate-400">与公司特征相关</td><td class="px-3 py-2 text-xs text-slate-400">过度投资、管理层自大</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">异象的三种解释范式</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">风险补偿派</span>：异象反映的是被遗漏的风险因子</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">行为金融派</span>：异象源于投资者的系统性认知偏差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">数据挖掘派</span>：异象是统计上的偶然发现</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">Fama-French多因子模型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三因子模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha_i + \beta_i^{MKT}(R_m - R_f) + \beta_i^{SMB} \cdot SMB + \beta_i^{HML} \cdot HML + \epsilon_i\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子构建方法</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因子</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">全称</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">构建方式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">经济含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">MKT</td><td class="px-3 py-2 text-xs text-slate-400">Market</td><td class="px-3 py-2 text-xs text-slate-400">\(R_m - R_f\)</td><td class="px-3 py-2 text-xs text-slate-400">市场风险溢价</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">SMB</td><td class="px-3 py-2 text-xs text-slate-400">Small Minus Big</td><td class="px-3 py-2 text-xs text-slate-400">小市值组合-大市值组合</td><td class="px-3 py-2 text-xs text-slate-400">规模风险溢价</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">HML</td><td class="px-3 py-2 text-xs text-slate-400">High Minus Low</td><td class="px-3 py-2 text-xs text-slate-400">高B/M组合-低B/M组合</td><td class="px-3 py-2 text-xs text-slate-400">价值风险溢价</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">五因子模型扩展</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha + \beta_{MKT}MKT + \beta_{SMB}SMB + \beta_{HML}HML + \beta_{RMW}RMW + \beta_{CMA}CMA + \epsilon\]</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">新增因子</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">全称</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">理论基础</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">RMW</td><td class="px-3 py-2 text-xs text-slate-400">Robust Minus Weak</td><td class="px-3 py-2 text-xs text-slate-400">高盈利-低盈利</td><td class="px-3 py-2 text-xs text-slate-400">盈利能力溢价</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CMA</td><td class="px-3 py-2 text-xs text-slate-400">Conservative Minus Aggressive</td><td class="px-3 py-2 text-xs text-slate-400">保守投资-激进投资</td><td class="px-3 py-2 text-xs text-slate-400">投资谨慎溢价</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">其他多因子模型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Carhart四因子模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha + \beta_{MKT}MKT + \beta_{SMB}SMB + \beta_{HML}HML + \beta_{MOM}MOM + \epsilon\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>MOM（Momentum）：过去12个月收益高的组合减去收益低的组合</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">AQR六因子模型</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在五因子基础上增加质量因子（QMJ）和动量因子。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">特征模型与因子模型的对比</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">核心逻辑</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子模型:</span> 协方差风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征模型:</span> 公司特征预测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">代表学者</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子模型:</span> Fama-French</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征模型:</span> Daniel-Titman</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">经济解释</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子模型:</span> 风险补偿</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征模型:</span> 错误定价</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实证表现</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子模型:</span> 因子暴露定价</div><div class="text-xs text-slate-400"><span class="text-slate-500">特征模型:</span> 特征直接定价</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">6</div>
+        <h3 class="text-white font-semibold">因子投资与Smart Beta</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子投资的理论基础</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可解释性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 因子有清晰的经济逻辑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">持久性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 因子溢价长期存在</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">普遍性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 在不同市场和时期有效</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">稳健性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 在不同定义下仍然有效</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可投资性</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 考虑交易成本后仍有超额收益</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要Smart Beta策略</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">策略类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">目标因子</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">构建方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">历史年化超额</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">价值策略</td><td class="px-3 py-2 text-xs text-slate-400">HML</td><td class="px-3 py-2 text-xs text-slate-400">买入低估值股票</td><td class="px-3 py-2 text-xs text-slate-400">3-5%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">动量策略</td><td class="px-3 py-2 text-xs text-slate-400">MOM</td><td class="px-3 py-2 text-xs text-slate-400">买入近期涨幅大的股票</td><td class="px-3 py-2 text-xs text-slate-400">5-8%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">低波动策略</td><td class="px-3 py-2 text-xs text-slate-400">Low Vol</td><td class="px-3 py-2 text-xs text-slate-400">买入低波动率股票</td><td class="px-3 py-2 text-xs text-slate-400">2-4%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">质量策略</td><td class="px-3 py-2 text-xs text-slate-400">QMJ</td><td class="px-3 py-2 text-xs text-slate-400">买入高盈利、低杠杆公司</td><td class="px-3 py-2 text-xs text-slate-400">3-5%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">规模策略</td><td class="px-3 py-2 text-xs text-slate-400">SMB</td><td class="px-3 py-2 text-xs text-slate-400">倾斜小盘股</td><td class="px-3 py-2 text-xs text-slate-400">2-3%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子拥挤与容量约束</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当过多资金追逐同一因子时，会出现：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子估值过高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>预期超额收益下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子崩溃风险增加</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：证券市场线（SML）</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E[R_i] = R_f + \beta_i \times (E[R_m] - R_f)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>所有资产都应位于SML上</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>阿尔法>0的资产被低估，应该买入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>阿尔法<0的资产被高估，应该卖出</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：夏普比率与信息比率</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[SR = \frac{E[R_p] - R_f}{\sigma_p}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[IR = \frac{\alpha}{\sigma(\epsilon)} = \frac{E[R_p - R_b]}{\sigma(R_p - R_b)}\]</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优秀水平</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">应用场景</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">夏普比率</td><td class="px-3 py-2 text-xs text-slate-400">单位总风险的超额收益</td><td class="px-3 py-2 text-xs text-slate-400">>1</td><td class="px-3 py-2 text-xs text-slate-400">绝对收益评估</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">信息比率</td><td class="px-3 py-2 text-xs text-slate-400">单位主动风险的超额收益</td><td class="px-3 py-2 text-xs text-slate-400">>0.5</td><td class="px-3 py-2 text-xs text-slate-400">相对收益评估</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：因子模型回归</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{it} - R_{ft} = \alpha_i + \sum_{k=1}^{K} \beta_{ik} F_{kt} + \epsilon_{it}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回归结果解读</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\alpha_i\)：无法被因子解释的异常收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\beta_{ik}\)：对因子k的敏感度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(R^2\)：因子模型的解释力度</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：因子协方差矩阵</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Cov(R_i, R_j) = \sum_{k=1}^{K} \beta_{ik}\beta_{jk}\sigma_k^2 + Cov(\epsilon_i, \epsilon_j)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">因子模型大幅简化了协方差矩阵的估计：从\(\frac{n(n-1)}{2}\)个参数减少到\(nK + K\)个参数。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">模型5：因子择时模型</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{it} - R_{ft} = \alpha_i + \beta_{i,t}F_t + \epsilon_{it}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\beta_{i,t}\)随时间变化：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\beta_{i,t} = \beta_i^0 + \beta_i^1 \cdot Z_{t-1}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">\(Z_{t-1}\)为择时信号（如估值、宏观指标）。</p>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实践案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例一：MSCI因子指数的构建与表现</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">MSCI是全球最大的指数提供商之一，其因子指数被广泛用作Smart Beta投资的基准。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">MSCI六大风格因子指数</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因子指数</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">构建方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">2000-2020年化超额</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">最大回撤</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Value</td><td class="px-3 py-2 text-xs text-slate-400">三个估值指标综合</td><td class="px-3 py-2 text-xs text-slate-400">1.2%</td><td class="px-3 py-2 text-xs text-slate-400">-38%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Momentum</td><td class="px-3 py-2 text-xs text-slate-400">12-1个月动量</td><td class="px-3 py-2 text-xs text-slate-400">4.5%</td><td class="px-3 py-2 text-xs text-slate-400">-42%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Quality</td><td class="px-3 py-2 text-xs text-slate-400">ROE、低杠杆、盈利稳定</td><td class="px-3 py-2 text-xs text-slate-400">2.8%</td><td class="px-3 py-2 text-xs text-slate-400">-20%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Low Volatility</td><td class="px-3 py-2 text-xs text-slate-400">最小方差优化</td><td class="px-3 py-2 text-xs text-slate-400">1.5%</td><td class="px-3 py-2 text-xs text-slate-400">-25%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Size</td><td class="px-3 py-2 text-xs text-slate-400">等权或市值倾斜</td><td class="px-3 py-2 text-xs text-slate-400">0.8%</td><td class="px-3 py-2 text-xs text-slate-400">-35%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Yield</td><td class="px-3 py-2 text-xs text-slate-400">股息率</td><td class="px-3 py-2 text-xs text-slate-400">1.8%</td><td class="px-3 py-2 text-xs text-slate-400">-30%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>动量因子长期表现最好但波动大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>质量因子风险调整后表现优异</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>价值因子在2010年代大幅跑输</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>各因子间低相关性支持多因子组合</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>单一因子投资面临长期低迷的风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多因子组合可以平滑收益曲线</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子择时难度极大，不建议普通投资者尝试</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">基</span>
+        <h3 class="text-white font-semibold text-sm">案例二：量化基金的因子归因分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某量化多空基金声称通过"独特的选股算法"获得超额收益，投资者希望了解其真实收益来源。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子回归结果</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">R_fund - R_f = 0.2% + 0.05×MKT + 0.8×SMB - 0.3×HML + 0.6×MOM + 0.4×QMJ
+                (t=0.8)  (t=0.5)   (t=6.2)   (t=-2.1)   (t=4.8)    (t=3.2)
+R² = 0.72</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">归因结论</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模因子（SMB）</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 月均1.6%</div><div class="text-xs text-slate-400"><span class="text-slate-500">显著性:</span> 高度显著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">动量因子（MOM）</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 月均0.9%</div><div class="text-xs text-slate-400"><span class="text-slate-500">显著性:</span> 高度显著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">质量因子（QMJ）</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 月均0.5%</div><div class="text-xs text-slate-400"><span class="text-slate-500">显著性:</span> 显著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价值因子（HML）</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 月均-0.3%</div><div class="text-xs text-slate-400"><span class="text-slate-500">显著性:</span> 显著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">阿尔法（α）</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 月均0.2%</div><div class="text-xs text-slate-400"><span class="text-slate-500">显著性:</span> 不显著</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键结论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>基金收益72%可被标准因子解释</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>真实阿尔法仅0.2%且不显著</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>主要收益来自规模和动量因子暴露</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>"独特算法"实际是因子投资的包装</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例三：价值因子的十年低迷与争论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">2010-2020年价值因子（HML）经历了史上最长的低迷期，累计跑输成长股超过100%，引发"价值投资已死"的争论。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价值因子十年表现（2010-2020）</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">时期</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">HML累计收益</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">最大回撤</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">相对成长股</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2010-2015</td><td class="px-3 py-2 text-xs text-slate-400">-8%</td><td class="px-3 py-2 text-xs text-slate-400">-15%</td><td class="px-3 py-2 text-xs text-slate-400">跑输32%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2015-2020</td><td class="px-3 py-2 text-xs text-slate-400">-35%</td><td class="px-3 py-2 text-xs text-slate-400">-45%</td><td class="px-3 py-2 text-xs text-slate-400">跑输68%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">整体</td><td class="px-3 py-2 text-xs text-slate-400">-43%</td><td class="px-3 py-2 text-xs text-slate-400">-52%</td><td class="px-3 py-2 text-xs text-slate-400">跑输100%+</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不同解释视角</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价值已死派</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 低利率环境永久改变估值逻辑</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据支持:</span> 长期债券收益率下降与成长股估值上升同步</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">周期论派</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 价值因子周期性低迷，终将回归</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据支持:</span> 历史上曾有多次长期低迷后反弹</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定义过时派</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 传统B/M指标无法捕捉现代经济的价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据支持:</span> 科技公司无形资产被低估</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">拥挤消退派</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 因子被发现后超额收益消失</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据支持:</span> 学术发表后因子表现普遍下降</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">2020-2022年的反转</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">疫情后通胀上升、利率反转，价值因子在2021-2022年大幅跑赢，支持了周期论的观点。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>任何因子都可能经历长期低迷</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>因子投资需要极强的纪律性和长期视野</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>理解因子背后的经济逻辑比追逐历史收益更重要</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">深度思考问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1：为什么CAPM中只有系统性风险（β）得到补偿，而非系统性风险不被定价？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在CAPM框架下，投资者可以通过分散化消除非系统性风险（个股特有风险）。由于这种风险可以"免费"消除：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>理性投资者不会为可消除的风险承担溢价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>均衡时，只有不可分散的系统性风险才需要补偿</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>系统性风险体现为与市场组合的协方差</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">因此，两只股票的预期收益差异完全由β决定，与总风险（σ）无关。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2：联合假设问题如何影响对EMH的检验？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">联合假设问题指的是：检验市场效率时，必须同时假设一个"正确的"资产定价模型。当发现异常收益时，存在两种可能：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>市场是无效的，存在套利机会</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>市场是有效的，但使用的定价模型有误</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这导致EMH在严格意义上是不可证伪的。例如，价值效应既可以解释为市场无效（投资者系统性低估价值股），也可以解释为价值股承担了某种未被CAPM捕捉的风险。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3：Fama-French三因子和五因子模型的经济解释是什么？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三因子模型解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>SMB：小公司面临更高的经营和流动性风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>HML：高B/M公司多处于财务困境，有更高的违约风险</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">五因子模型解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>RMW：高盈利公司被低估是因为投资者对盈利持续性不确定</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>CMA：保守投资的公司更稳健，激进投资可能是过度自信</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">然而，这些解释仍有争议，行为金融学派认为这些异象源于投资者的系统性认知偏差。</p>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用分析类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4：如何构建一个多因子组合？因子权重如何确定？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">构建步骤</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">因子选择</span>：选取有理论基础、实证稳健的因子（如MKT、SMB、HML、MOM、QMJ）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">信号计算</span>：对每只股票计算各因子暴露得分</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">组合构建</span>：基于综合得分排序构建多空或纯多头组合</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">权重确定方法</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">等权法</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 各因子权重相等</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 简单，但忽略因子差异</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">波动率倒数</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 按因子波动率反比</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 风险均衡，低波动因子权重大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险平价</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 各因子风险贡献相等</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 理论优美，实际需估计协方差</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">均值方差优化</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 基于预期收益和风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 对输入敏感，易过拟合</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">机器学习</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 数据驱动的动态权重</div><div class="text-xs text-slate-400"><span class="text-slate-500">优缺点:</span> 复杂，可能过拟合</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5：如何使用因子模型进行业绩归因？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回归方法</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_p - R_f = \alpha + \sum \beta_k F_k + \epsilon\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">归因步骤</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>选择合适的因子模型（如FF5）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>运行时间序列回归</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>计算各因子的收益贡献：\(\beta_k \times \bar{F_k}\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>剩余的α为真实超额收益</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解读要点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子暴露是免费的（可以通过被动投资获得）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>真正的技能体现在显著的正α</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>R²反映模型解释力，过低说明有遗漏因子</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6：因子投资与传统主动管理的本质区别是什么？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收益来源</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子投资:</span> 系统性因子暴露</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统主动管理:</span> 个股选择、择时</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可复制性</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子投资:</span> 高，规则透明</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统主动管理:</span> 低，依赖管理人技能</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">费用</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子投资:</span> 低（0.1-0.5%）</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统主动管理:</span> 高（1-2%）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">容量</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子投资:</span> 大，千亿美元级</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统主动管理:</span> 有限，技能边际递减</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险特征</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子投资:</span> 因子周期性风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统主动管理:</span> 管理人风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">适合投资者</div><div class="text-xs text-slate-400"><span class="text-slate-500">因子投资:</span> 长期、纪律性强</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统主动管理:</span> 愿意支付高费用博取α</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7：如果市场异象是真实的定价错误，为什么不被套利消除？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">套利限制（Limits to Arbitrage）解释了为什么错误定价可以持续存在：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">基本面风险</span>：套利者可能在价格回归前被迫平仓</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">噪音交易者风险</span>：错误定价可能在短期内恶化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">实施成本</span>：交易成本、借券费用、融资约束</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">模型风险</span>：难以确定"正确"价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">代理问题</span>：基金经理有业绩压力，难以承受短期亏损</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">经典案例：1998年LTCM危机中，尽管套利机会真实存在，但基金因杠杆和流动性问题在价格回归前破产。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8：因子溢价在学术发表后是否会消失？这对投资者意味着什么？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证证据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>McLean and Pontiff (2016) 研究发现：学术发表后，因子溢价平均下降约50%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但大多数因子在发表后仍保留显著正收益</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">两种观点</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">会消失</div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 套利资金涌入消除错误定价；因子拥挤推高估值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">不会消失</div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 风险补偿不会消失；行为偏差有生物学基础</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对投资者的启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>不要期望获得历史回测中的全部超额收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>考虑实际可投资性（交易成本、容量）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>关注因子的经济逻辑而非仅关注历史表现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>分散于多个因子，避免集中押注</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9：CAPM在实践中几乎不成立，为什么仍被广泛使用？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">尽管实证表现不佳，CAPM仍是金融实践的基石：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">理由</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">概念简洁</span>：提供了风险与收益关系的直觉框架</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">基准作用</span>：作为比较其他模型的起点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">监管认可</span>：许多法规和会计准则基于CAPM</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">资本成本估算</span>：尽管有偏，在实践中仍可用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">教育价值</span>：帮助理解金融学核心思想</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">使用建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>认识到CAPM的局限性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>在重要决策中使用多种方法交叉验证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>将β视为风险的一个维度而非唯一维度</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学术经典</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">文献</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Portfolio Selection</td><td class="px-3 py-2 text-xs text-slate-400">Markowitz</td><td class="px-3 py-2 text-xs text-slate-400">1952</td><td class="px-3 py-2 text-xs text-slate-400">均值-方差理论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Capital Asset Prices</td><td class="px-3 py-2 text-xs text-slate-400">Sharpe</td><td class="px-3 py-2 text-xs text-slate-400">1964</td><td class="px-3 py-2 text-xs text-slate-400">CAPM</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Efficient Capital Markets</td><td class="px-3 py-2 text-xs text-slate-400">Fama</td><td class="px-3 py-2 text-xs text-slate-400">1970</td><td class="px-3 py-2 text-xs text-slate-400">EMH三种形式</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">The Cross-Section of Expected Stock Returns</td><td class="px-3 py-2 text-xs text-slate-400">Fama-French</td><td class="px-3 py-2 text-xs text-slate-400">1992</td><td class="px-3 py-2 text-xs text-slate-400">三因子模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Returns to Buying Winners</td><td class="px-3 py-2 text-xs text-slate-400">Jegadeesh-Titman</td><td class="px-3 py-2 text-xs text-slate-400">1993</td><td class="px-3 py-2 text-xs text-slate-400">动量效应</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">A Five-Factor Asset Pricing Model</td><td class="px-3 py-2 text-xs text-slate-400">Fama-French</td><td class="px-3 py-2 text-xs text-slate-400">2015</td><td class="px-3 py-2 text-xs text-slate-400">五因子模型</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">教材推荐</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《投资学》(Bodie, Kane, Marcus)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 本科/MBA</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 全面系统，案例丰富</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《资产定价》(Cochrane)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 研究生</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 理论深入，统一框架</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《实证资产定价》(Bali, Engle, Murray)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 研究生/实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 实证方法详尽</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《预期收益》(Ilmanen)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 因子投资实践指南</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          从EMH到多因子的理论演进
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解资产定价理论如何不断修正和发展</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">EMH假说</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">三种形式</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#f87171" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#f87171" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#f87171" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">CAPM异象</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">市场异常</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">多因子模型</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">FF3·FF5</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">实证检验</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">Alpha·GRS</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">EMH假说</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">三种形式</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>弱式: 历史价格不能预测未来(技术分析无效)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>半强式: 公开信息已反映在价格中</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>强式: 所有信息(含内幕)已反映在价格中</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#f87171"></span><span class="text-white font-semibold text-sm">CAPM异象</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">市场异常</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>规模效应: 小盘股收益>大盘股</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>价值效应: 高B/M股收益>低B/M股</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>动量效应: 过去赢家继续赢</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">多因子模型</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">FF3·FF5</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>FF3: 市场+规模SMB+价值HML</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>Carhart四因子: +动量MOM</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>FF5: +盈利RMW+投资CMA</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">实证检验</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">Alpha·GRS</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>Alpha≠0→定价模型不完备</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>GRS检验: 联合检验所有Alpha=0</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>样本外预测: 因子是否持续有效</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          证券市场线(SML)实验室
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击查看不同Beta下的期望收益与定价</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Beta(β)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">E(R)%</text>
+      
+      
+      
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">SML</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">期望收益</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">Alpha</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">风险等级</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Fama-French三因子计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">分解资产收益来源</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">市场超额收益(%)</label>
+            <input type="number" id="comp-2-rm" value="6" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">SMB因子(%)</label>
+            <input type="number" id="comp-2-smb" value="2" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">HML因子(%)</label>
+            <input type="number" id="comp-2-hml" value="3" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">市场Beta</label>
+            <input type="number" id="comp-2-b1" value="1.1" min="0" step="0.1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">模型解释力</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">总超额收益</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">市场贡献</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">风格贡献</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">Alpha</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ R_i - R_f = \alpha + \beta_1(R_m-R_f) + \beta_2 SMB + \beta_3 HML \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 资产定价 Chapter 02</div>
+    <div class="mt-2 md:mt-0">下一章：固定收益证券与衍生品定价 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'R_f', tip: '无风险利率——通常指国债收益率，是所有投资的起点'},
+    {match: 'E[R_m]', tip: '市场期望收益率——所有投资者的平均要求回报'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: 'R^2', tip: 'R方——模型能解释多少比例的数据变动，越接近1越好'},
+    {match: '\\frac{n(n-1)}{2}', tip: '协方差矩阵中独立元素的数量——多资产组合的估计难度'},
+    {match: 'nK + K', tip: '因子模型参数量——n个资产K个因子只需nK+K个参数'},
+    {match: 'Cov(R_i', tip: 'β值的计算：股票收益与市场收益的协方差÷市场收益的方差'},
+    {match: 'i^{SMB} \\', tip: '规模因子——小盘股比大盘股多赚的部分'},
+    {match: 'a_{HML}HM', tip: '价值因子——高账面市值比比低的多赚的部分'},
+    {match: 'a_{MOM}MO', tip: '动量因子——过去涨得好的股票继续涨的趋势'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: 'IR = \\frac{\\alpha}{\\sigma', tip: '信息比率——超额收益÷跟踪误差'},
+    {match: '\\epsilon', tip: '误差项——模型无法解释的部分'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=2.5,yMax=20;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 3+x*(10-3);})(0);
+    var y1=(function(x){return 3+x*(10-3);})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 3+x*(10-3);})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='CAPM预测';
+    document.getElementById('comp-1-m1').textContent=(0).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='SML上α=0';
+    document.getElementById('comp-1-m2').textContent=(x).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent=x>1.5?'高风险':(x>0.8?'中等':'低风险');
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='Beta(β)='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='E(R)%='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var rm=parseFloat(document.getElementById('comp-2-rm').value);
+    var smb=parseFloat(document.getElementById('comp-2-smb').value);
+    var hml=parseFloat(document.getElementById('comp-2-hml').value);
+    var b1=parseFloat(document.getElementById('comp-2-b1').value);
+
+    var b2=0.3; var b3=0.5; var alpha=0.5;
+    var ret=alpha+b1*rm+b2*smb+b3*hml;
+    document.getElementById('comp-2-out0').textContent=ret.toFixed(2)+'%';
+    document.getElementById('comp-2-out1').textContent=(b1*rm).toFixed(2)+'%';
+    document.getElementById('comp-2-out2').textContent=(b2*smb+b3*hml).toFixed(2)+'%';
+    document.getElementById('comp-2-out3').textContent=alpha.toFixed(2)+'%';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,ret/12)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

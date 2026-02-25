@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>市场效率与福利经济学 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Micro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">金融市场效率</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 03</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">市场效率与福利经济学</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">评价市场表现的规范性框架，理解&quot;好&quot;与&quot;坏&quot;的经济学标准</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">效率条件</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">福利定理</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">帕累托效率：经济学的&quot;好&quot;</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">什么样的资源配置是"好"的？这是一个极其困难的问题，因为"好"涉及价值判断。经济学家的解决方案是<span class="text-white font-semibold">帕累托效率</span>——一个最低限度的、几乎无争议的效率标准。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">帕累托效率的定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果无法在不使任何人变差的情况下使至少一个人变好，则该配置是帕累托有效的。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">换句话说，所有"帕累托改进"的机会都已用尽——没有"白捡的午餐"了。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">帕累托效率的三个层次</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">效率类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">数学条件</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">经济含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">实现机制</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">交换效率</td><td class="px-3 py-2 text-xs text-slate-400">\(MRS^A_{XY} = MRS^B_{XY}\)</td><td class="px-3 py-2 text-xs text-slate-400">消费者之间无法通过交换改善双方福利</td><td class="px-3 py-2 text-xs text-slate-400">商品市场竞争</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">生产效率</td><td class="px-3 py-2 text-xs text-slate-400">\(MRTS^X_{LK} = MRTS^Y_{LK}\)</td><td class="px-3 py-2 text-xs text-slate-400">生产者之间无法通过要素再配置增加产出</td><td class="px-3 py-2 text-xs text-slate-400">要素市场竞争</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">产品组合效率</td><td class="px-3 py-2 text-xs text-slate-400">\(MRS = MRT\)</td><td class="px-3 py-2 text-xs text-slate-400">生产的东西正好是消费者想要的</td><td class="px-3 py-2 text-xs text-slate-400">价格信号传递</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交换效率的深入理解</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在埃奇沃思盒图中，交换效率意味着所有消费者的无差异曲线相切。这个切点的几何含义是：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>两个消费者对两种商品的主观评价（边际替代率）完全一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>任何进一步的交换都会使至少一人变差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>所有切点的轨迹形成"契约曲线"</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生产效率的深入理解</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">生产效率要求在给定要素总量下，不可能通过重新配置要素来增加任何一种产品的产出而不减少其他产品的产出。具体条件包括：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>所有生产者面对相同的要素价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每个生产者都在等产量曲线的最低成本点生产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不存在X效率损失（管理懈怠）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">产品组合效率的深入理解</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">产品组合效率是最高层次的效率，它要求：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产可能性边界（PPF）上的点被选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选择的点恰好是消费者最偏好的产品组合</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社会不会生产消费者不想要的东西</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">帕累托效率的形式化定义</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设经济中有n个消费者，m种商品，一个配置可以表示为：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[x = (x_1, x_2, ..., x_n)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(x_i = (x_i^1, x_i^2, ..., x_i^m)\) 是消费者i的消费束。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">帕累托占优</span>：配置 \(x\) 帕累托占优于配置 \(y\)，当且仅当：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对所有 \(i\)：\(u_i(x_i) \geq u_i(y_i)\)（所有人不变差）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>至少存在一个 \(j\)：\(u_j(x_j) > u_j(y_j)\)（至少一人变好）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">帕累托效率</span>：配置 \(x\) 是帕累托有效的，当且仅当不存在另一个可行配置帕累托占优于 \(x\)。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">帕累托效率的哲学地位</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">为什么帕累托效率被广泛接受？因为它几乎不涉及价值判断——如果能让某人更好而不伤害任何人，谁会反对呢？这就是帕累托效率的"无争议性"。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">帕累托原则的伦理基础</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">个人主义</span>：社会福利只取决于个人福利</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">主观主义</span>：个人是自己福利的最佳判断者</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">非家长制</span>：不应该以"为了你好"为由限制个人选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">一致同意</span>：只有在所有人同意时才能做出改变</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">帕累托原则与自由主义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">阿马蒂亚·森（1970）在其著名论文中指出了"帕累托自由主义的不可能性"：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最小自由主义：某些事情应该由个人自己决定</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>帕累托原则：如果所有人都偏好A胜于B，社会应该选择A</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>这两个看似温和的原则可能相互冲突！</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">森的例子（简化版）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>甲喜欢读某本争议性书籍，乙讨厌这本书</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>乙认为：如果有人必须读，应该是自己（为了批判它）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>甲认为：宁可不读也不让乙读（不想让乙受折磨）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：双方"一致同意"让乙读，但这侵犯了乙的自由</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">帕累托效率的局限</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不考虑分配公平</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一人拥有一切、其他人一无所有，可能是帕累托有效的（因为无法在不损害这个人的情况下改善他人）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">起点依赖</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">从不同初始配置出发，可以达到不同的帕累托有效配置。初始禀赋的分配决定了最终能达到哪个帕累托有效点。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">太弱的标准</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">无法比较不同的帕累托有效配置。例如，"富人拥有90%财富"和"财富平均分配"可能都是帕累托有效的，帕累托标准无法判断哪个更好。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对现状的偏袒</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">帕累托改进要求没有人变差，这实际上赋予了所有人对现状的"否决权"。这可能使得有益的社会改革难以进行。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实践中的困难</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何准确测量每个人的福利变化？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策效果具有不确定性，事前的帕累托改进可能事后不是</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代际问题：未来的人无法参与当前的决策</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">福利经济学第一定理：市场的辩护</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">定理内容</span>：在一定条件下，竞争市场均衡是帕累托有效的。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这个定理是对市场经济最强有力的理论辩护——亚当·斯密的"看不见的手"不只是比喻，而是可以严格证明的数学定理！</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">定理的直觉理解</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">每个消费者最大化效用 → 所有消费者的MRS相等（= 价格比）→ 交换效率
+每个生产者最大化利润 → 所有生产者的MRTS相等（= 要素价格比）→ 生产效率
+生产者利润最大化 + 消费者效用最大化 → MRS = MRT → 产品组合效率</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价格的神奇作用</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">价格系统的美妙之处在于，它用最少的信息传递机制实现了最大程度的协调：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每个人只需要知道价格和自己的偏好/技术</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不需要中央计划者收集所有信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>价格自动汇总了所有分散的信息</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">定理的严格证明（简化版）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">证明思路</span>：用反证法</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设竞争均衡配置 \((x^*, y^*)\) 不是帕累托有效的，则存在另一个可行配置 \((x', y')\) 帕累托占优于它。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第一步</span>：如果消费者 \(i\) 严格偏好 \(x'_i\) 胜于 \(x^*_i\)，则必有：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[p \cdot x'_i > p \cdot x^*_i = p \cdot \omega_i + \text{利润份额}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">（否则消费者在均衡时就会选择 \(x'_i\)）</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第二步</span>：如果消费者 \(i\) 认为 \(x'_i\) 与 \(x^*_i\) 无差异，则必有：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[p \cdot x'_i \geq p \cdot x^*_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第三步</span>：加总所有消费者，由于至少有一人严格偏好 \((x', y')\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sum_i p \cdot x'_i > \sum_i p \cdot x^*_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第四步</span>：生产方面，利润最大化意味着：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[p \cdot y^* \geq p \cdot y' \text{ 对所有可行的生产计划 } y'\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第五步</span>：市场出清条件导出矛盾：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sum_i x'_i = \sum_i \omega_i + y' \Rightarrow \sum_i p \cdot x'_i = \sum_i p \cdot \omega_i + p \cdot y'\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">但由第三步和第四步：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sum_i p \cdot x'_i > \sum_i p \cdot x^*_i = \sum_i p \cdot \omega_i + p \cdot y^* \geq \sum_i p \cdot \omega_i + p \cdot y'\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">矛盾！因此，竞争均衡必然是帕累托有效的。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">定理成立的条件（极其重要！）</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">条件</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">违反时的后果</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">完全竞争</td><td class="px-3 py-2 text-xs text-slate-400">所有人都是价格接受者</td><td class="px-3 py-2 text-xs text-slate-400">市场势力导致低效</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">完全信息</td><td class="px-3 py-2 text-xs text-slate-400">所有人知道所有相关信息</td><td class="px-3 py-2 text-xs text-slate-400">逆向选择、道德风险</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">无外部性</td><td class="px-3 py-2 text-xs text-slate-400">所有效果都通过市场价格传递</td><td class="px-3 py-2 text-xs text-slate-400">私人最优≠社会最优</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">无公共品</td><td class="px-3 py-2 text-xs text-slate-400">所有商品都可以排他和竞争</td><td class="px-3 py-2 text-xs text-slate-400">搭便车、供给不足</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">完备市场</td><td class="px-3 py-2 text-xs text-slate-400">所有商品都有市场</td><td class="px-3 py-2 text-xs text-slate-400">缺失市场、风险分担不足</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">无交易成本</td><td class="px-3 py-2 text-xs text-slate-400">交易不花费资源</td><td class="px-3 py-2 text-xs text-slate-400">市场不存在或低效</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">凸偏好和凸技术</td><td class="px-3 py-2 text-xs text-slate-400">无规模报酬递增</td><td class="px-3 py-2 text-xs text-slate-400">均衡可能不存在</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">有限种商品</td><td class="px-3 py-2 text-xs text-slate-400">商品种类是有限的</td><td class="px-3 py-2 text-xs text-slate-400">技术性条件</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">定理的意义</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">正面解读</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>为市场经济提供理论正当性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>解释了为什么计划经济最终失败</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>说明了分散决策的信息优势</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反面解读</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>条件告诉我们市场何时会失灵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>为政府干预提供理论依据</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>提醒我们现实离理想有多远</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">福利经济学第二定理：市场与公平可以兼顾</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">定理内容</span>：任何帕累托有效配置都可以通过适当的初始禀赋再分配，由竞争市场实现。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">定理的直觉理解</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设我们想要实现某个特定的帕累托有效配置（比如更平等的分配），第二定理告诉我们：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>计算出支持这个配置的均衡价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>按照这些价格重新分配初始禀赋</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>然后让市场自由运作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>市场均衡就会达到我们想要的配置</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">定理的证明要点</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">关键条件</span>：偏好和生产集必须是凸的</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">凸性的经济含义：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消费者偏好：多样化消费优于极端消费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产技术：规模报酬不递增</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">证明思路</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">利用分离超平面定理——如果帕累托有效配置在"可改进区域"的边界上，则存在一个价格向量（超平面）将可行集与改进集分开。这个价格向量就是支持均衡的价格。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数学表述</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设 \(x^*\) 是帕累托有效配置，定义：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[B_i = \{x_i : u_i(x_i) > u_i(x^*_i)\}\]（消费者i的改进集）  由于偏好是凸的，\(B_i\) 是凸集。定义 \(B = \sum_i B_i\)，这也是凸集。  由于 \(x^*\) 是帕累托有效的，\(B \cap Y = \emptyset\)（改进集与可行集不相交）。  根据分离超平面定理，存在价格向量 \(p\) 使得： \[p \cdot z \geq p \cdot y \text{ 对所有 } z \in B, y \in Y\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这个 \(p\) 就是支持 \(x^*\) 作为竞争均衡的价格。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">政策含义（极其深远）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">效率和公平可以分开处理！</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">第一步</span>：用税收/转移支付调整初始分配（实现公平）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">第二步</span>：让市场自由运作（实现效率）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">结论</span>：不需要用价格管制、配额等扭曲性政策追求公平</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">具体含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最低工资不如负所得税</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>房租管制不如住房补贴</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>农产品保护价不如直接补贴农民</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">为什么现实中很少采用这种方案？</h4>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">一次性再分配在政治上几乎不可能</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要剥夺某些人的财产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>会遭到强烈的政治抵制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产权的神圣性深入人心</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">信息不对称使精准再分配困难</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>谁该补贴多少？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何区分"真穷"和"装穷"？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收入和财富难以准确观测</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">再分配本身可能扭曲激励</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>一次性税收可能变成预期中的重复税收</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>影响劳动供给和储蓄决策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>引发资本外逃</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">政治经济学障碍</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>既得利益者会游说反对</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收益分散、成本集中的改革难以通过</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短期政治周期vs长期经济效益</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">市场失灵：当&quot;看不见的手&quot;失效</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">当福利定理的条件不满足时，市场均衡不再是帕累托有效的——这就是<span class="text-white font-semibold">市场失灵</span>。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">四大类市场失灵及其机制</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">失灵类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心问题</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">效率后果</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策工具</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">典型案例</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">外部性</td><td class="px-3 py-2 text-xs text-slate-400">私人成本≠社会成本</td><td class="px-3 py-2 text-xs text-slate-400">生产过多（负）或过少（正）</td><td class="px-3 py-2 text-xs text-slate-400">庇古税、补贴、产权</td><td class="px-3 py-2 text-xs text-slate-400">环境污染、教育</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">公共品</td><td class="px-3 py-2 text-xs text-slate-400">非排他+非竞争</td><td class="px-3 py-2 text-xs text-slate-400">搭便车导致供给不足</td><td class="px-3 py-2 text-xs text-slate-400">政府提供</td><td class="px-3 py-2 text-xs text-slate-400">国防、基础研究</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">信息不对称</td><td class="px-3 py-2 text-xs text-slate-400">一方知道更多</td><td class="px-3 py-2 text-xs text-slate-400">逆向选择、道德风险</td><td class="px-3 py-2 text-xs text-slate-400">强制披露、激励设计</td><td class="px-3 py-2 text-xs text-slate-400">保险、二手车</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">市场势力</td><td class="px-3 py-2 text-xs text-slate-400">价格制定者</td><td class="px-3 py-2 text-xs text-slate-400">产量低、价格高</td><td class="px-3 py-2 text-xs text-slate-400">反垄断、规制</td><td class="px-3 py-2 text-xs text-slate-400">自然垄断</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">外部性的深入分析</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">负外部性</span>：私人边际成本 < 社会边际成本</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例子：工厂污染、交通拥堵、吸烟</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>后果：市场产量 > 社会最优产量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>福利损失：外部成本未被内化</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">正外部性</span>：私人边际收益 < 社会边际收益</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例子：教育、研发、疫苗接种、城市绿化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>后果：市场产量 < 社会最优产量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>福利损失：社会收益未被私人获取</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">外部性的分类</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">方向</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 正外部性/负外部性</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 花园美化/噪音污染</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">对象</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 消费外部性/生产外部性</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 二手烟/工厂排放</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">范围</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 局部外部性/全球外部性</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 邻居噪音/碳排放</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 即时外部性/跨期外部性</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 交通拥堵/核废料</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">网络外部性</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一种特殊的正外部性，使用者越多，每个使用者的价值越高。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>电话网络：用户越多，能联系的人越多</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社交平台：用户越多，内容和互动越丰富</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>操作系统：用户越多，软件开发者越愿意开发应用</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">网络外部性的后果：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能导致"赢家通吃"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能锁定劣质标准（如QWERTY键盘）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要政策关注互操作性和标准制定</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">公共品的深入分析</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">公共品的定义特征</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">非排他性</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 无法阻止不付费者使用</div><div class="text-xs text-slate-400"><span class="text-slate-500">私人品对比:</span> 可以排他</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">非竞争性</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 一人消费不减少他人消费</div><div class="text-xs text-slate-400"><span class="text-slate-500">私人品对比:</span> 消费具有竞争性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">公共品的光谱</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">纯私人品 ←───────────────────────────────→ 纯公共品
+ 苹果    俱乐部品    共有资源    公共品
+         (健身房)    (渔场)     (国防)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">公共品的自愿供给困境</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设有N个人，每人决定是否贡献1元到公共品：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每1元贡献产生的公共品价值为 \(v > 1\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但因为公共品是非排他的，每人只获得 \(v/N < 1\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理性的个人选择不贡献（搭便车）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>均衡结果：无人贡献，公共品不被提供</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">搭便车问题的实验证据</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">公共品博弈实验发现：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>初始阶段，贡献率约40-60%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>随着重复博弈，贡献率逐渐下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最终趋近于理论预测的零贡献</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">但也发现：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>沟通可以提高合作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>惩罚机制可以维持贡献</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社会规范和声誉很重要</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">信息不对称的深入分析</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">逆向选择（事前信息不对称）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">定义：交易前，一方拥有另一方不知道的信息。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">机制：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">信息优势方知道自己的类型（高质量/低质量）
+信息劣势方只能根据平均质量定价
+高质量者退出市场（价格太低）
+市场上只剩低质量者
+最终可能市场崩溃</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解决方案：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">信号传递</span>：高质量方主动发送成本高昂的信号（如教育文凭）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">筛选</span>：信息劣势方设计菜单让对方自我揭示（如保险免赔额）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">重复博弈与声誉</span>：长期关系减少逆向选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">强制信息披露</span>：法律要求披露相关信息</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">道德风险（事后信息不对称）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">定义：交易后，一方的行为无法被另一方完全观测。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">机制：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">保险公司无法观测投保人的谨慎程度
+投保后，投保人降低谨慎程度
+事故概率上升
+保险公司亏损或提高保费</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解决方案：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">激励相容合同</span>：让代理人利益与委托人一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">监督机制</span>：增加观测行为的能力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">风险分担</span>：通过免赔额让投保人承担部分风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">绩效工资</span>：根据可观测结果支付报酬</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">委托代理问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当委托人（如股东）需要依靠代理人（如经理）行动时：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>目标不一致：经理可能追求私利而非股东利益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信息不对称：股东无法完全观测经理的努力程度</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解决方案：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股权激励</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>独立董事</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>激励性薪酬合同</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>公司治理机制</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">市场势力的深入分析</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场势力的来源</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">来源</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">机制</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">例子</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">规模经济</td><td class="px-3 py-2 text-xs text-slate-400">大企业成本更低</td><td class="px-3 py-2 text-xs text-slate-400">汽车制造</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">范围经济</td><td class="px-3 py-2 text-xs text-slate-400">多产品共享资源</td><td class="px-3 py-2 text-xs text-slate-400">科技巨头</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">网络效应</td><td class="px-3 py-2 text-xs text-slate-400">用户越多价值越高</td><td class="px-3 py-2 text-xs text-slate-400">社交平台</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">专利保护</td><td class="px-3 py-2 text-xs text-slate-400">法律保护创新</td><td class="px-3 py-2 text-xs text-slate-400">制药行业</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">品牌忠诚</td><td class="px-3 py-2 text-xs text-slate-400">消费者偏好</td><td class="px-3 py-2 text-xs text-slate-400">奢侈品</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">政府授权</td><td class="px-3 py-2 text-xs text-slate-400">特许经营</td><td class="px-3 py-2 text-xs text-slate-400">公用事业</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">控制关键资源</td><td class="px-3 py-2 text-xs text-slate-400">垄断投入品</td><td class="px-3 py-2 text-xs text-slate-400">钻石（历史上的De Beers）</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">垄断的福利损失</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">完全竞争：P = MC，消费者剩余最大化
+垄断均衡：P &gt; MC，产量低于竞争水平
+福利损失 = 无谓损失（Harberger三角形）
+         + 可能的寻租成本
+         + X效率损失（缺乏竞争压力）</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">自然垄断的特殊问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">定义：在相关产量范围内，平均成本一直下降。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">困境：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>让一家企业生产是效率的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但垄断定价会导致福利损失</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>边际成本定价会导致亏损</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">政策选择：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>国有化经营</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>特许经营权拍卖</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>费率管制（回报率管制、价格上限）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>竞争性分拆（如果可能）</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">外部性与科斯定理</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">外部性</span>是最重要的市场失灵形式。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">庇古解决方案</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">庇古税</span>：对负外部性活动征税，税率等于边际外部成本。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">优点：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使私人成本等于社会成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>保持价格机制的效率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产生税收收入</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">缺点：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要准确知道外部成本（信息要求高）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政治上难以实施</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能被利益集团扭曲</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">庇古补贴</span>：对正外部性活动补贴，补贴率等于边际外部收益。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">科斯定理（1960年，诺贝尔经济学奖）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果产权明确且交易成本为零，则无论产权如何初始分配，市场谈判都能达到效率配置。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">科斯定理的革命性洞见</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外部性问题的根源是<span class="text-white font-semibold">产权不清</span>，而非市场本身的缺陷</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政府干预不一定优于私人谈判</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关键是降低交易成本、明确产权</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">科斯定理的数值例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">工厂排放污染影响下游渔民：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工厂利润（不治理）：100万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>治理污染成本：30万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>渔民损失（不治理）：50万</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">情形A：产权归工厂</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>渔民最多愿意支付50万让工厂治理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工厂治理成本30万 < 50万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：渔民支付30-50万之间的补偿，工厂治理污染</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">情形B：产权归渔民</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工厂最多愿意支付30万（治理成本）买排污权</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>渔民损失50万 > 30万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：工厂支付30万治理污染</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">无论产权如何分配，效率结果相同：污染被治理。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">差异只在于分配：谁支付治理成本。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">科斯定理的局限</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交易成本问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>谈判成本：找到交易对手、讨价还价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监督成本：确保对方履行承诺</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>执行成本：违约时的救济</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">产权界定困难</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>空气属于谁？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>安静的权利vs播放音乐的权利？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>未来世代的权利如何体现？</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">集体行动问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当涉及人数众多时：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每个人都想搭便车</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>谈判成本急剧上升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>集体决策困难</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收入效应</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">严格来说，科斯定理假设无收入效应。当交易涉及金额较大时，产权的初始分配可能影响最终结果。</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">社会选择理论与福利函数</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">帕累托效率无法比较不同的帕累托有效配置。如何在多个帕累托有效配置中做出选择？这就需要<span class="text-white font-semibold">社会福利函数</span>。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">社会福利函数的类型</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">功利主义（边沁）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[W = \sum_{i=1}^{n} u_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">最大化效用总和，不考虑分配。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>优点：简单、与帕累托标准一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>缺点：可能导致极端不平等</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">罗尔斯主义</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[W = \min_i \{u_i\}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">最大化最不利者的福利。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>来源：无知之幕后的理性选择</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>优点：关注最弱势群体</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>缺点：可能牺牲太多效率</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">纳什福利函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[W = \prod_{i=1}^{n} u_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">或等价地：\(W = \sum_{i=1}^{n} \log u_i\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">平衡效率与公平。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">等弹性社会福利函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[W = \frac{1}{1-\rho} \sum_{i=1}^{n} u_i^{1-\rho}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(\rho\) 是不平等厌恶参数：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\rho = 0\)：功利主义</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\rho \to \infty\)：罗尔斯主义</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">阿罗不可能定理</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">肯尼斯·阿罗（1951）证明了一个令人沮丧的结果：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不存在一个社会选择规则能同时满足以下合理条件</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">完备性与传递性</span>：社会偏好是完整且一致的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">一致同意</span>：如果所有人都偏好A胜于B，社会应该选择A</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">独立于无关选项</span>：A与B的社会排序不受C的影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">非独裁</span>：没有一个人的偏好自动成为社会偏好</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">阿罗定理的含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>民主决策必然面临困境</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多数投票可能产生循环（孔多塞悖论）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>任何投票规则都有缺陷</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">孔多塞悖论的例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">三个选民，三个选项A、B、C：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选民1：A > B > C</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选民2：B > C > A</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选民3：C > A > B</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">多数投票结果：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>A vs B：A获胜（选民1和3支持）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>B vs C：B获胜（选民1和2支持）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>C vs A：C获胜（选民2和3支持）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">循环！A > B > C > A，无法确定社会偏好。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">卡尔多-希克斯效率</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">定义</span>：如果改变的受益者可以假想地补偿受损者，且仍有剩余收益，则该改变是卡尔多-希克斯有效的。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">与帕累托效率的区别：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>帕累托：实际上没有人变差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>卡尔多-希克斯：假想中可以补偿使没有人变差</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应用</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">成本-收益分析通常使用卡尔多-希克斯标准：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>计算政策的总收益和总成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果总收益>总成本，政策是"有效的"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不要求实际进行补偿</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">争议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>假想补偿vs实际补偿</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>分配效应被忽视</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能违反直觉（穷人补贴富人的政策可能"有效"）</span></div></div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：帕累托效率的数学表达</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">交换效率</span>（埃奇沃思盒）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MRS^A_{XY} = \frac{MU^A_X}{MU^A_Y} = \frac{MU^B_X}{MU^B_Y} = MRS^B_{XY} = \frac{P_X}{P_Y}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">两个消费者对X和Y的边际替代率相等，且等于价格比。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">几何表示</span>：在埃奇沃思盒中，帕累托有效配置位于契约曲线上——两个消费者无差异曲线的切点轨迹。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生产效率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MRTS^X_{LK} = \frac{MP^X_L}{MP^X_K} = \frac{MP^Y_L}{MP^Y_K} = MRTS^Y_{LK} = \frac{w}{r}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">两种产品生产中劳动和资本的边际技术替代率相等，且等于要素价格比。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">几何表示</span>：在生产的埃奇沃思盒中，效率点位于生产契约曲线上——两种产品等产量曲线的切点轨迹。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">产品组合效率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MRS_{XY} = MRT_{XY} = \frac{MC_X}{MC_Y}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">消费者的边际替代率等于生产可能性边界的斜率（边际转换率）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">完整效率条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{MU_X}{MU_Y} = \frac{P_X}{P_Y} = \frac{MC_X}{MC_Y}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这个等式链确保了从消费到生产的全面效率。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：外部性与最优产量</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">负外部性分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人边际成本：\(PMC\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外部边际成本：\(EMC\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社会边际成本：\(SMC = PMC + EMC\)</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">市场均衡：\(PMC = P\) → 产量 \(Q_m\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">社会最优：\(SMC = P\) → 产量 \(Q^*\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">结论：\(Q_m > Q^*\)（市场过度生产）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">无谓损失计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[DWL = \frac{1}{2} \times EMC(Q_m) \times (Q_m - Q^*)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">庇古税</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[t^* = EMC(Q^*)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">最优税率等于最优产量处的外部边际成本。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">正外部性分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人边际收益：\(PMB\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外部边际收益：\(EMB\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社会边际收益：\(SMB = PMB + EMB\)</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">市场均衡：\(PMB = MC\) → 产量 \(Q_m\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">社会最优：\(SMB = MC\) → 产量 \(Q^*\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">结论：\(Q_m < Q^*\)（市场供给不足）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">庇古补贴</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[s^* = EMB(Q^*)\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：公共品的最优供给</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">萨缪尔森条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sum_{i=1}^{n} MRS_i = MRT\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">公共品的最优供给条件是：所有消费者的边际替代率之<span class="text-white font-semibold">和</span>等于边际转换率。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">推导</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设两种商品：私人品X和公共品G</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">社会计划者的问题：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max_{x_1, ..., x_n, G} u_1(x_1, G) \text{ s.t. } u_i(x_i, G) \geq \bar{u}_i, \quad \sum x_i + c(G) \leq Y\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一阶条件给出：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\sum_{i=1}^{n} \frac{\partial u_i / \partial G}{\partial u_i / \partial x_i} = c'(G)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">即 \(\sum MRS_{i,GX} = MC_G = MRT\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">与私人品的对比</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">私人品</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优条件:</span> \(MRS = MRT\) 对每个人</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 消费具有竞争性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公共品</div><div class="text-xs text-slate-400"><span class="text-slate-500">最优条件:</span> \(\sum MRS = MRT\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 消费无竞争性，所有人同时享用</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：无谓损失计算</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">市场扭曲（如垄断、税收）导致的效率损失：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[DWL = \frac{1}{2} \times \Delta P \times \Delta Q = \frac{1}{2} \times t \times (Q_0 - Q_1)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于小的扭曲，无谓损失与扭曲的<span class="text-white font-semibold">平方</span>成正比（Harberger三角形）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">无谓损失的弹性表达式</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于从价税t：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[DWL = \frac{1}{2} \times t^2 \times P \times Q \times \frac{|\epsilon_d| \cdot |\epsilon_s|}{|\epsilon_d| + |\epsilon_s|}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(\epsilon_d\) 和 \(\epsilon_s\) 分别是需求和供给弹性。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无谓损失与税率的平方成正比</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>低税率、宽税基优于高税率、窄税基</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>弹性越大，无谓损失越大</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">模型5：林达尔均衡</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">私人提供公共品的尝试</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设每人支付公共品成本的比例 \(\theta_i\)，则个人i的问题是：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max_{G} u_i(y_i - \theta_i \cdot c(G), G)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一阶条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MRS_i = \theta_i \cdot MC_G\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">林达尔均衡</span>：找到一组 \(\{\theta_i\}\) 使得：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>每个人选择的最优G相同</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>\(\sum \theta_i = 1\)</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每个人都有激励低报自己对公共品的评价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要知道每个人的真实偏好——信息问题</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">碳</span>
+        <h3 class="text-white font-semibold text-sm">案例1：碳排放权交易（Cap-and-Trade）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：气候变化是人类面临的最大外部性问题——碳排放的成本由全球承担，但排放者不付费。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统方案的问题</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">命令控制：规定每个工厂的排放上限
+  → 忽略减排成本差异
+  → 减排成本低的工厂减得少，成本高的工厂减得多
+  → 社会总成本高</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场方案（碳交易）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">总量控制：政府设定总排放上限
+配额分配：分配或拍卖排放权
+允许交易：企业可以买卖排放权
+结果：
+  - 减排成本低的企业多减排，出售配额获利
+  - 减排成本高的企业少减排，购买配额
+  - 总减排目标达成，同时社会成本最小化</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">科斯定理的应用</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">通过创造"排放权"这一产权，让市场交易内化外部性。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">全球碳市场实践</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">市场</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">启动时间</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">覆盖范围</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">欧盟ETS</td><td class="px-3 py-2 text-xs text-slate-400">2005年</td><td class="px-3 py-2 text-xs text-slate-400">电力、工业</td><td class="px-3 py-2 text-xs text-slate-400">最成熟的碳市场</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">美国加州</td><td class="px-3 py-2 text-xs text-slate-400">2013年</td><td class="px-3 py-2 text-xs text-slate-400">多行业</td><td class="px-3 py-2 text-xs text-slate-400">与魁北克联通</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">中国全国碳市场</td><td class="px-3 py-2 text-xs text-slate-400">2021年</td><td class="px-3 py-2 text-xs text-slate-400">电力行业</td><td class="px-3 py-2 text-xs text-slate-400">全球最大规模</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">韩国</td><td class="px-3 py-2 text-xs text-slate-400">2015年</td><td class="px-3 py-2 text-xs text-slate-400">多行业</td><td class="px-3 py-2 text-xs text-slate-400">东亚首个</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">深层思考</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>为什么欧盟碳价长期低迷后近年暴涨？（配额超发→稀缺性恢复）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>碳税和碳交易哪个更好？（提示：考虑不确定性——价格不确定vs数量不确定）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国碳市场2021年启动，面临什么挑战？（数据质量、覆盖范围、金融化程度）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">柠</span>
+        <h3 class="text-white font-semibold text-sm">案例2：柠檬市场与二手车质量</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：Akerlof的"柠檬市场"论文（1970），后获诺贝尔经济学奖。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">问题的本质</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">卖家知道车况（好车or柠檬）
+买家不知道车况，只知道市场上好车和柠檬的比例
+结果：买家只愿意支付&quot;平均质量&quot;的价格</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">逆向选择的恶性循环</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">买家出价 = 平均质量的价格
+  → 好车车主觉得亏（他的车值更多），退出市场
+  → 市场上好车比例下降
+  → 买家进一步降低出价
+  → 更多好车退出
+  → 最终市场上只剩&quot;柠檬&quot;（甚至完全崩溃）</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数值例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>好车价值10万（对买家），卖家愿意接受的最低价9万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>柠檬价值4万（对买家），卖家愿意接受的最低价3万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>买家认为好车占比50%</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">买家出价：\(0.5 \times 10 + 0.5 \times 4 = 7\)万</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">结果：好车车主（底价9万）不卖，只有柠檬成交。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场的自发解决方案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">品牌声誉</div><div class="text-xs text-slate-400"><span class="text-slate-500">原理:</span> 长期博弈建立信任</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 二手车连锁店（如CarMax）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">第三方认证</div><div class="text-xs text-slate-400"><span class="text-slate-500">原理:</span> 独立机构验证质量</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 车况检测报告</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">质保承诺</div><div class="text-xs text-slate-400"><span class="text-slate-500">原理:</span> 卖家承担风险=信号</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 延长保修期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信息披露平台</div><div class="text-xs text-slate-400"><span class="text-slate-500">原理:</span> 降低信息不对称</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> Carfax车历报告</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">思考</span>：互联网如何改变信息不对称问题？（淘宝评价、大众点评）</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">灯</span>
+        <h3 class="text-white font-semibold text-sm">案例3：灯塔与公共品的私人供给</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">传统观点</span>（萨缪尔森）：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">灯塔是公共品的典型例子，必须政府提供。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>非排他：船只经过，无法阻止其看到灯塔</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>非竞争：多一艘船看灯塔，不影响其他船</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">科斯的历史考证</span>（1974）：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">英国历史上的灯塔主要是私人提供的！</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人灯塔通过港口收取"灯塔费"获得回报</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>制度创新部分解决了搭便车问题</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>公共品不一定需要政府提供</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>创造性的制度安排可以克服市场失灵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>科斯强调"制度细节很重要"——具体的历史和制度条件决定什么方案有效</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">金</span>
+        <h3 class="text-white font-semibold text-sm">案例4：2008年金融危机与市场失灵</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融市场的外部性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">系统性风险</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>单个机构倒闭可能引发连锁反应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人不考虑系统性影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过度承担风险</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">信息传染</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>一家银行出问题→所有银行被怀疑</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>挤兑的自我实现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>恐慌蔓延</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">信息不对称在危机中的角色</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">次级贷款打包成MBS → 进一步打包成CDO
+  → 评级机构与发行方利益冲突
+  → 投资者不了解底层资产
+  → 风险被隐藏
+  → 泡沫破裂时措手不及</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>宏观审慎监管的必要性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>系统重要性机构的特殊监管</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信息披露要求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>评级机构改革</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">疫</span>
+        <h3 class="text-white font-semibold text-sm">案例5：疫苗接种与正外部性</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">疫苗接种的外部性</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">个人接种疫苗：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人收益：降低自己感染风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外部收益：降低传染给他人的风险（群体免疫）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场供给不足</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>私人只考虑自己的收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外部收益未被内化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>接种率低于社会最优</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">群体免疫阈值</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[H = 1 - \frac{1}{R_0}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(R_0\) 是基本传染数（一个感染者平均传染的人数）。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于 \(R_0 = 3\) 的疾病，需要67%的人接种才能实现群体免疫。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策工具</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>政府补贴（免费接种）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>强制接种（某些职业、入学要求）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>信息宣传（提高认知）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">COVID-19疫苗的案例</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>全球协调问题：发达国家vs发展中国家</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>疫苗民族主义</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>知识产权豁免的争议</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">数</span>
+        <h3 class="text-white font-semibold text-sm">案例6：数字平台与市场势力</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数字平台的特殊性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">双边/多边市场</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>平台连接多方用户</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>一方用户越多，另一方越有价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>间接网络效应</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">数据网络效应</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>用户越多，数据越多</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>算法越准确</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>服务越好，吸引更多用户</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">高固定成本、低边际成本</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>软件开发成本高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>服务额外用户成本极低</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自然垄断特征</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反垄断新挑战</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">传统反垄断关注价格：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>平台对消费者免费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>用数据"付费"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>传统工具失效</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">新问题：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何定义市场？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何衡量市场势力？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>扼杀式收购（收购潜在竞争者）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自我优待（平台既是裁判又是运动员）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">各国监管实践</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">欧盟</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要行动:</span> GDPR、数字市场法案（DMA）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要行动:</span> 针对科技巨头的反垄断诉讼</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要行动:</span> 平台经济领域反垄断指南</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">金融市场效率的应用</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">金融市场是否满足福利定理条件？</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">福利定理的条件检验</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">完全竞争</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融市场情况:</span> 大型交易所接近，OTC市场差异</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估:</span> 部分满足</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">完全信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融市场情况:</span> 内幕信息、信息不对称普遍</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估:</span> 不满足</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无外部性</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融市场情况:</span> 系统性风险、传染效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估:</span> 不满足</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">完备市场</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融市场情况:</span> 缺乏某些风险的对冲工具</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估:</span> 不满足</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无交易成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">金融市场情况:</span> 存在交易费用、买卖价差</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估:</span> 部分满足</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">结论</span>：金融市场存在多种市场失灵，为监管提供理论基础。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">有效市场假说与帕累托效率</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">有效市场假说（EMH）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>弱式有效：价格反映历史信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>半强式有效：价格反映所有公开信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>强式有效：价格反映所有信息（包括内幕信息）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">EMH与帕累托效率的区别</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">EMH</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注点:</span> 信息效率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 价格是否准确反映信息</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">帕累托效率</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注点:</span> 配置效率</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 资源是否无浪费地配置</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关系</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信息效率是配置效率的必要条件（但非充分条件）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>价格反映信息→资源流向最高价值用途→帕累托效率</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">金融市场的主要失灵</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 信息不对称</span></p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">逆向选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">在金融市场的表现:</span> 低质量企业更愿意发行股票</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 信息披露、信用评级</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">道德风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">在金融市场的表现:</span> 经理人可能损害股东利益</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 公司治理、激励机制</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. 系统性风险（外部性）</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">单个金融机构的风险决策不考虑对系统的影响：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过度杠杆</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>期限错配</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关联交易</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. 市场势力</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资银行的寡头结构</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>交易所的自然垄断</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信息垄断（数据供应商）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">4. 行为偏差</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">投资者的非理性行为：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过度自信</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>羊群效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>损失厌恶</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这些偏差可能导致：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资产泡沫</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过度波动</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场失灵</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">金融监管的经济学基础</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">为什么需要金融监管？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">保护投资者</span>（解决信息不对称）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>强制信息披露</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>内幕交易禁止</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>适当性要求</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">维护金融稳定</span>（解决外部性）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资本充足率要求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>流动性要求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>宏观审慎监管</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">促进竞争</span>（解决市场势力）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>反垄断</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场准入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>互操作性</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">监管悖论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>太少监管→市场失灵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>太多监管→抑制创新、寻租空间</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题（用于深度思考和 NotebookLM 生成对话）</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">帕累托效率是否等于"最好"的状态？请举一个例子说明帕累托有效但明显不公平的配置。这说明了帕累托效率作为标准的什么局限？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">福利经济学第一定理为什么被称为"看不见的手"的数学证明？它需要哪些严格条件才能成立？这些条件在现实中能满足吗？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">科斯定理说"只要产权明确，市场就能解决外部性"，但为什么现实中我们还需要政府的环境政策？交易成本在这里起什么关键作用？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">请解释阿罗不可能定理的含义。为什么它被认为是对民主决策的挑战？有什么方法可以"绕过"这个定理？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">什么是卡尔多-希克斯效率？它与帕累托效率有什么区别？为什么成本-收益分析使用卡尔多-希克斯标准而不是帕累托标准？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">比较碳税和碳排放权交易两种减排政策：（1）在什么条件下两者效果完全相同？（2）面对减排成本的不确定性时，哪个政策更好？（3）从政治可行性角度，哪个更容易通过？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">为什么保险市场存在"逆向选择"？强制保险（如中国的交强险）如何解决这个问题？这对医疗保险制度设计（如是否全民医保）有什么启示？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">互联网平台（如淘宝、美团、Uber）如何解决买卖双方的信息不对称问题？请分析评价体系、平台担保、算法推荐这三种机制各自的作用和局限。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">网络效应为什么会导致市场集中？数字平台的反垄断应该采取什么策略？传统的反垄断工具是否适用于数字经济？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span><span class="text-white font-semibold">市场失灵是否必然意味着政府应该干预？请讨论"政府失灵"的可能性（信息问题、激励扭曲、寻租行为），以及如何在市场失灵和政府失灵之间做权衡。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">11.</span><span><span class="text-white font-semibold">福利经济学第二定理说"先再分配，后市场"可以实现效率与公平兼顾。为什么现实中这个方案几乎从未被采用？请从政治经济学角度分析障碍。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">12.</span><span><span class="text-white font-semibold">有人认为"市场是人类发明的最伟大的制度"，也有人认为"市场导致不平等和剥削"。从本章学到的内容出发，如何评价这两种观点？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">跨学科联系类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">13.</span><span><span class="text-white font-semibold">金融市场是否满足福利定理的条件？具体地，金融市场存在哪些类型的"市场失灵"（信息不对称、外部性、市场势力）？这些失灵为金融监管提供了什么理论基础？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">14.</span><span><span class="text-white font-semibold">2008年金融危机可以用哪些市场失灵来解释？危机后的监管改革（如《多德-弗兰克法案》、巴塞尔III）针对的是哪些失灵？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">15.</span><span><span class="text-white font-semibold">气候变化被称为"人类历史上最大的市场失灵"。请用外部性理论分析气候问题，并评价各种解决方案（碳税、碳交易、命令控制、国际协议）的优缺点。</span></span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s6" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">章节</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">曼昆《经济学原理》</td><td class="px-3 py-2 text-xs text-slate-400">第10-11章</td><td class="px-3 py-2 text-xs text-slate-400">★★☆☆☆</td><td class="px-3 py-2 text-xs text-slate-400">直观易懂，案例丰富</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">范里安《微观经济学：现代观点》</td><td class="px-3 py-2 text-xs text-slate-400">第31-36章</td><td class="px-3 py-2 text-xs text-slate-400">★★★☆☆</td><td class="px-3 py-2 text-xs text-slate-400">数学严谨，研究生标准</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">MWG《微观经济理论》</td><td class="px-3 py-2 text-xs text-slate-400">第16章</td><td class="px-3 py-2 text-xs text-slate-400">★★★★★</td><td class="px-3 py-2 text-xs text-slate-400">一般均衡的完整证明</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">斯蒂格利茨《公共经济学》</td><td class="px-3 py-2 text-xs text-slate-400">第3-5章</td><td class="px-3 py-2 text-xs text-slate-400">★★★☆☆</td><td class="px-3 py-2 text-xs text-slate-400">市场失灵的深入分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Jehle & Reny《高级微观经济理论》</td><td class="px-3 py-2 text-xs text-slate-400">第5章</td><td class="px-3 py-2 text-xs text-slate-400">★★★★☆</td><td class="px-3 py-2 text-xs text-slate-400">福利定理的严格证明</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Akerlof, G. (1970). "The Market for Lemons"</span> - 信息经济学的奠基之作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Coase, R. (1960). "The Problem of Social Cost"</span> - 科斯定理的原始论文</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Arrow, K. (1963). "Uncertainty and the Welfare Economics of Medical Care"</span> - 医疗市场的信息问题，开创性分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Arrow, K. (1951). "Social Choice and Individual Values"</span> - 阿罗不可能定理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Samuelson, P. (1954). "The Pure Theory of Public Expenditure"</span> - 公共品理论的经典</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Stiglitz, J. (1989). "Markets, Market Failures, and Development"</span> - 发展中国家的市场失灵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Sen, A. (1970). "The Impossibility of a Paretian Liberal"</span> - 帕累托自由主义悖论</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>张五常《经济解释》卷三 - 科斯思想的中文诠释</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《助推》(Thaler & Sunstein) - 行为经济学视角下的市场失灵与政策设计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《魔鬼经济学》系列 - 用经济学思维分析日常现象</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《21世纪资本论》(Piketty) - 不平等与福利分配</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《枪炮、病菌与钢铁》(Diamond) - 制度与发展</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">在线资源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MIT OpenCourseWare</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接描述:</span> 14.01/14.03</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 微观经济学/公共政策</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Coursera</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接描述:</span> 各大学经济学课程</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 系统学习</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">NBER Working Papers</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接描述:</span> 最新研究</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 前沿论文</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">VoxEU</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接描述:</span> 政策讨论</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 经济学家博客</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学习方法建议</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第一阶段：概念理解</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>阅读曼昆教材，建立直觉</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>做课后练习题，检验理解</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>用自己的话解释核心概念</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第二阶段：数学深化</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>学习范里安教材，掌握数学表达</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>推导关键公式和定理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>做数学习题</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第三阶段：应用拓展</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>阅读经典论文</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>分析现实案例</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>参与讨论和辩论</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第四阶段：批判思考</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>了解各种批评和局限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>探索行为经济学等新发展</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>形成自己的观点</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="s9" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">自我评估问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">简答题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>用自己的话解释什么是帕累托效率，并举一个例子。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>为什么说福利经济学第一定理是"看不见的手"的数学证明？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>科斯定理的核心洞见是什么？它的局限是什么？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>解释逆向选择和道德风险的区别，各举一个例子。</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">计算题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>假设一个行业有外部边际成本 \(EMC = 0.5Q\)，市场需求为 \(P = 100 - Q\)，私人边际成本为 \(PMC = 10 + Q\)。</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) 计算市场均衡产量和社会最优产量</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) 计算无谓损失</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(c) 计算最优庇古税率</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>假设两个消费者对公共品G的边际替代率分别为 \(MRS_1 = 10 - G\) 和 \(MRS_2 = 8 - 0.5G\)，公共品的边际成本为 \(MC = 6\)。计算公共品的最优供给量。</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>分析新冠疫苗接种的外部性，并评价政府的各种干预措施（免费接种、强制接种、宣传教育）。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>分析数字平台（如微信、淘宝）为什么容易形成垄断，以及应该如何监管。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>假设你是一个发展中国家的经济顾问，该国正在考虑建立碳排放权交易市场。请分析可能面临的挑战，并提出建议。</span></div></div>
+    </div>
+  </details>
+</section>
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          市场效率评估框架
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解从完美市场到福利分析的逻辑</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">完美市场</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">帕累托最优</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#f87171" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#f87171" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#f87171" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">效率损失</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">无谓损失DWL</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">福利分配</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">公平vs效率</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">政策干预</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">纠正·补偿</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">完美市场</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">帕累托最优</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>第一福利定理: 竞争均衡→帕累托最优</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>完全信息+无外部性+无垄断</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>总剩余=消费者剩余+生产者剩余最大化</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#f87171"></span><span class="text-white font-semibold text-sm">效率损失</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">无谓损失DWL</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>价格管制→供需失衡→DWL产生</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>税收楔子→交易量减少→效率损失</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>垄断定价→产量不足→社会福利降低</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">福利分配</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">公平vs效率</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>第二福利定理: 可通过再分配达到任意帕累托最优</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>消费者剩余vs生产者剩余的转移</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>公平与效率的根本权衡</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">政策干预</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">纠正·补偿</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>庇古税/补贴纠正外部性</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>反垄断法维护竞争秩序</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>转移支付在效率损失最小下改善分配</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          价格管制效果模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块设定价格上限，观察短缺与福利变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Q</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">P</text>
+      <polygon id="comp-1-cs" points="" fill="rgba(16,185,129,0.08)"/>
+      <polygon id="comp-1-ps" points="" fill="rgba(245,158,11,0.08)"/>
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">D</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">S</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>价格上限 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>短缺量: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>DWL: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="15" max="50" value="35" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          社会总剩余计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">计算消费者剩余、生产者剩余和社会总剩余</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">需求截距 (P=a-bQ 中的 a)</label>
+            <input type="number" id="comp-2-a" value="50" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">需求斜率 b</label>
+            <input type="number" id="comp-2-b" value="0.4" min="0.1" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">供给截距 (P=d+eQ 中的 d)</label>
+            <input type="number" id="comp-2-d" value="10" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">供给斜率 e</label>
+            <input type="number" id="comp-2-e" value="0.3" min="0.1" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">帕累托效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">消费者剩余CS</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">生产者剩余PS</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">社会总剩余TS</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">均衡值</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ TS = CS + PS = \int_0^{Q^*}[P_d(Q) - P_s(Q)]\,dQ \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 微观经济学 Chapter 03</div>
+    <div class="mt-2 md:mt-0">下一章：公共部门与政府干预经济学 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'MRS^A_{XY} = MRS^B_{XY}', tip: '交换效率——所有消费者的边际替代率相等'},
+    {match: 'MRTS^X_{LK} = MRTS^Y_{LK}', tip: '生产效率——所有行业的技术替代率相等'},
+    {match: 'MRS = MRT', tip: '帕累托最优条件——消费者替代率=生产替代率'},
+    {match: 'W = \\sum_{i=1}^{n} \\log u_i', tip: '纳什社会福利函数——对数效用之和'},
+    {match: '\\rho', tip: '相关系数——两个变量之间线性关系的强弱，-1到1'},
+    {match: 'Q_m', tip: '垄断产量——通常低于竞争产量，造成效率损失'},
+    {match: 'Q^*', tip: '均衡数量——均衡价格下的市场交易量'},
+    {match: 'SMB = ', tip: '规模因子——小盘股比大盘股多赚的部分'},
+    {match: '\\sum MRS_{i,GX} = MC_G', tip: '萨缪尔森条件——公共品最优供给：所有人MRS之和=边际成本'},
+    {match: '\\epsilon', tip: '误差项——模型无法解释的部分'},
+    {match: 'P = 100 - Q', tip: '需求曲线——总市场容量100，每多卖一单位价格降1'},
+    {match: '\\omega', tip: 'GARCH常数项/投资组合权重'},
+    {match: '\\prod', tip: '所有数相乘再开n次方，复利计算用这个更准确'},
+    {match: 'MRS_{XY} = MRT_{XY}', tip: '总体帕累托效率——消费替代率=生产转换率'},
+    {match: '\\frac{MU_X}{MU_Y} = \\frac{P_X}{P_Y}', tip: '消费者最优——边际效用之比等于价格之比'},
+    {match: 'DWL = ', tip: '无谓损失——市场扭曲导致白白浪费掉的社会福利'},
+    {match: '\\sum_{i=1}^{n} MRS_i = MRT', tip: '帕累托最优——所有人的替代率等于生产替代率'},
+    {match: 'DWL = \\frac{1}{2}', tip: '无谓损失=½×税率²×弹性，税率翻倍损失翻四倍'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=60;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=Math.min((50-10)/(0.4+0.3), (c-10)/0.3);
+    var eq_y=Math.min(50-((50-10)/(0.4+0.3))*0.4, c);
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 50-x*0.4;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 50-x*0.4;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 10+x*0.3;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 10+x*0.3;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+      var c1y0 = 50;
+      var c2y0 = 10;
+      document.getElementById('comp-1-cs').setAttribute('points',
+        xc(0)+','+yc(c1y0)+' '+px+','+py+' '+xc(0)+','+py);
+      document.getElementById('comp-1-ps').setAttribute('points',
+        xc(0)+','+yc(c2y0)+' '+px+','+py+' '+xc(0)+','+py);
+    document.getElementById('comp-1-sl').textContent='Pmax = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='P*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='Q*='+eq_x.toFixed(1);
+    var r1=Math.max(0,(50-c)/0.4-(c-10)/0.3);
+    var r2=Math.max(0,0.5*(50-((50-10)/(0.4+0.3))*0.4-c)*((50-10)/(0.4+0.3)-eq_x));
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var a=parseFloat(document.getElementById('comp-2-a').value);
+    var b=parseFloat(document.getElementById('comp-2-b').value);
+    var d=parseFloat(document.getElementById('comp-2-d').value);
+    var e=parseFloat(document.getElementById('comp-2-e').value);
+
+    var q=(a-d)/(b+e); var p=a-b*q;
+    var cs=0.5*(a-p)*q; var ps=0.5*(p-d)*q; var ts=cs+ps;
+    document.getElementById('comp-2-out0').textContent=cs.toFixed(0);
+    document.getElementById('comp-2-out1').textContent=ps.toFixed(0);
+    document.getElementById('comp-2-out2').textContent=ts.toFixed(0);
+    document.getElementById('comp-2-out3').textContent='P*='+p.toFixed(1)+' Q*='+q.toFixed(1);
+    // Ring
+    var score=Math.max(0,Math.min(1,1));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

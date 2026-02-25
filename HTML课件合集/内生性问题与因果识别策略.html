@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内生性问题与因果识别策略 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Econometrics</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">方法比较与选择</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 03</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">内生性问题与因果识别策略</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">处理因果推断中的核心挑战，是实证研究的关键能力</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">识别策略</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">因果方法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">内生性问题</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当\(E[\epsilon|X] \neq 0\)时，解释变量\(X\)与误差项\(\epsilon\)相关，称\(X\)为内生变量。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">内生性的后果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OLS估计量有偏（Biased）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OLS估计量不一致（Inconsistent）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无法得出因果结论</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">内生性的来源</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">来源</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">数学表达</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">金融例子</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">遗漏变量</td><td class="px-3 py-2 text-xs text-slate-400">未观测因素同时影响X和Y</td><td class="px-3 py-2 text-xs text-slate-400">\(Y = \beta X + \gamma Z + \epsilon\)，Z被遗漏</td><td class="px-3 py-2 text-xs text-slate-400">CEO能力影响薪酬和业绩</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">测量误差</td><td class="px-3 py-2 text-xs text-slate-400">变量测量不准确</td><td class="px-3 py-2 text-xs text-slate-400">\(X^* = X + u\)，观测到\(X^*\)</td><td class="px-3 py-2 text-xs text-slate-400">财务数据的会计操纵</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">同时性/双向因果</td><td class="px-3 py-2 text-xs text-slate-400">X影响Y，Y也影响X</td><td class="px-3 py-2 text-xs text-slate-400">\(Y = \beta X + \epsilon\)，\(X = \gamma Y + \eta\)</td><td class="px-3 py-2 text-xs text-slate-400">股价与交易量</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">样本选择</td><td class="px-3 py-2 text-xs text-slate-400">样本非随机</td><td class="px-3 py-2 text-xs text-slate-400">\(Y = \beta X + \epsilon\)仅在\(S=1\)时观测</td><td class="px-3 py-2 text-xs text-slate-400">只研究上市公司</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">遗漏变量偏差公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\text{plim}(\hat{\beta}_{OLS}) = \beta + \gamma \cdot \frac{Cov(X, Z)}{Var(X)}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">偏差方向取决于：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>遗漏变量对Y的影响方向（\(\gamma\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>遗漏变量与X的相关性方向</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">工具变量法（IV）</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">有效工具变量的条件</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">条件</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">名称</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">数学表达</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">解释</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">IV1</td><td class="px-3 py-2 text-xs text-slate-400">相关性（Relevance）</td><td class="px-3 py-2 text-xs text-slate-400">\(Cov(Z, X) \neq 0\)</td><td class="px-3 py-2 text-xs text-slate-400">工具与内生变量相关</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">IV2</td><td class="px-3 py-2 text-xs text-slate-400">外生性（Exogeneity）</td><td class="px-3 py-2 text-xs text-slate-400">\(Cov(Z, \epsilon) = 0\)</td><td class="px-3 py-2 text-xs text-slate-400">工具与误差项不相关</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">IV3</td><td class="px-3 py-2 text-xs text-slate-400">排除性约束</td><td class="px-3 py-2 text-xs text-slate-400">Z只通过X影响Y</td><td class="px-3 py-2 text-xs text-slate-400">工具不直接进入方程</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">两阶段最小二乘法（2SLS）</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">第一阶段</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[X_i = \pi_0 + \pi_1 Z_i + v_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">获得拟合值\(\hat{X}_i\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">第二阶段</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_i = \beta_0 + \beta_1 \hat{X}_i + \epsilon_i\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">IV估计量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\beta}_{IV} = \frac{Cov(Z, Y)}{Cov(Z, X)} = \frac{\sum(Z_i - \bar{Z})(Y_i - \bar{Y})}{\sum(Z_i - \bar{Z})(X_i - \bar{X})}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">矩阵形式</span>（恰好识别时）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\boldsymbol{\beta}}_{IV} = (\mathbf{Z}'\mathbf{X})^{-1}\mathbf{Z}'\mathbf{Y}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">过度识别时的GMM估计</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\boldsymbol{\beta}}_{GMM} = (\mathbf{X}'\mathbf{Z}\mathbf{W}\mathbf{Z}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Z}\mathbf{W}\mathbf{Z}'\mathbf{Y}\]</div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">IV诊断检验</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">弱工具变量检验</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">第一阶段F统计量：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[F = \frac{(R^2_{full} - R^2_{restricted})/q}{(1-R^2_{full})/(n-k-1)}\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">F > 10</div><div class="text-xs text-slate-400"><span class="text-slate-500">判断:</span> 工具较强</div><div class="text-xs text-slate-400"><span class="text-slate-500">问题:</span> 可接受</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">F < 10</div><div class="text-xs text-slate-400"><span class="text-slate-500">判断:</span> 弱工具</div><div class="text-xs text-slate-400"><span class="text-slate-500">问题:</span> 偏差、检验失效</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">F ≈ 0</div><div class="text-xs text-slate-400"><span class="text-slate-500">判断:</span> 不相关</div><div class="text-xs text-slate-400"><span class="text-slate-500">问题:</span> 无法识别</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Stock-Yogo临界值</span>：考虑最大相对偏差的临界值</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">过度识别检验（Sargan/Hansen J检验）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[J = n \cdot \hat{\boldsymbol{\epsilon}}'\mathbf{Z}(\mathbf{Z}'\mathbf{Z})^{-1}\mathbf{Z}'\hat{\boldsymbol{\epsilon}} / \hat{\sigma}^2 \sim \chi^2_{m-k}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(m\)为工具数，\(k\)为内生变量数。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(H_0\)：所有工具都是外生的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>拒绝\(H_0\)：至少有一个工具无效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>注意：不拒绝不意味工具一定有效</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">双重差分法（DID）</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本设定</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_{it} = \alpha + \beta_1 Treat_i + \beta_2 Post_t + \beta_3 (Treat_i \times Post_t) + \epsilon_{it}\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\beta_1\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 处理组与对照组的基期差异</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\beta_2\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 时间趋势（共同冲击）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\beta_3\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> <span class="text-white font-semibold">DID估计量</span>：处理效应</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">DID估计量的等价表达</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\beta}_{DID} = (\bar{Y}_{T,post} - \bar{Y}_{T,pre}) - (\bar{Y}_{C,post} - \bar{Y}_{C,pre})\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">多期DID（事件研究设计）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_{it} = \alpha_i + \gamma_t + \sum_{k \neq -1} \beta_k \cdot D_{it}^k + \epsilon_{it}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(D_{it}^k = 1\)表示个体\(i\)在时期\(t\)处于相对事件时间\(k\)。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平行趋势假设</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">核心识别假设：<span class="text-white font-semibold">在没有处理的情况下，处理组和对照组的结果变量会有相同的时间趋势</span>。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">检验方法：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>事前趋势检验（Pre-trend test）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>安慰剂检验（Placebo test）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>图形展示动态效应</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">断点回归（RDD）</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本思想</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">利用政策门槛或规则的不连续性，在门槛附近近似随机分配。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Sharp RDD</span>（确定性断点）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D_i = \mathbf{1}(X_i \geq c)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Fuzzy RDD</span>（模糊断点）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P(D_i = 1 | X_i) \text{ 在 } c \text{ 处跳跃}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">估计方法</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参数方法</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_i = \alpha + \beta D_i + f(X_i - c) + D_i \cdot g(X_i - c) + \epsilon_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">局部线性回归</span>（推荐）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\tau}_{RDD} = \lim_{x \downarrow c} E[Y|X=x] - \lim_{x \uparrow c} E[Y|X=x]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">使用核函数加权，带宽选择很关键。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">RDD的有效性检验</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">密度检验</div><div class="text-xs text-slate-400"><span class="text-slate-500">目的:</span> 检验操纵（Manipulation）</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> McCrary检验</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">协变量平衡</div><div class="text-xs text-slate-400"><span class="text-slate-500">目的:</span> 断点处协变量连续</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 以协变量为Y运行RDD</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">安慰剂检验</div><div class="text-xs text-slate-400"><span class="text-slate-500">目的:</span> 假门槛无效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 在其他点估计</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">带宽敏感性</div><div class="text-xs text-slate-400"><span class="text-slate-500">目的:</span> 结果对带宽稳健</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 多种带宽</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">匹配方法</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">倾向得分匹配（PSM）</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">倾向得分定义</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[e(X) = P(D = 1 | X) = E[D | X]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">倾向得分定理</span>（Rosenbaum & Rubin, 1983）：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果\((Y_0, Y_1) \perp D | X\)，则\((Y_0, Y_1) \perp D | e(X)\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">PSM步骤</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">估计倾向得分</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{e}(X_i) = \hat{P}(D_i = 1 | X_i)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">通常使用Logit模型</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">匹配</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最近邻匹配（1:1, 1:k）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>卡尺匹配（Caliper）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>核匹配（Kernel）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">估计ATT</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{ATT} = \frac{1}{N_T}\sum_{i: D_i=1}[Y_i - \hat{Y}_i^{(0)}]\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">逆概率加权（IPW）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{ATT}_{IPW} = \frac{1}{N_T}\sum_{i=1}^{n}\frac{D_i \cdot Y_i}{e(X_i)} - \frac{1}{N_T}\sum_{i=1}^{n}\frac{(1-D_i) \cdot Y_i \cdot e(X_i)}{(1-e(X_i))}\]</div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">固定效应与面板数据</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">个体固定效应模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_{it} = \alpha_i + \mathbf{X}_{it}'\boldsymbol{\beta} + \epsilon_{it}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">控制所有不随时间变化的个体特征。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">时间固定效应</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_{it} = \gamma_t + \mathbf{X}_{it}'\boldsymbol{\beta} + \epsilon_{it}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">控制所有影响所有个体的时间因素。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">双向固定效应</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_{it} = \alpha_i + \gamma_t + \mathbf{X}_{it}'\boldsymbol{\beta} + \epsilon_{it}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">组内估计（Within Estimator）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\tilde{Y}_{it} = \tilde{\mathbf{X}}_{it}'\boldsymbol{\beta} + \tilde{\epsilon}_{it}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\tilde{Y}_{it} = Y_{it} - \bar{Y}_i\)</p>
+  </div>
+</section>
+
+
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">方法比较与选择</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">各方法的适用条件</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心识别假设</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">估计效应</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">局限性</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">IV/2SLS</td><td class="px-3 py-2 text-xs text-slate-400">工具外生性</td><td class="px-3 py-2 text-xs text-slate-400">LATE</td><td class="px-3 py-2 text-xs text-slate-400">有合适工具</td><td class="px-3 py-2 text-xs text-slate-400">弱工具、难验证</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">DID</td><td class="px-3 py-2 text-xs text-slate-400">平行趋势</td><td class="px-3 py-2 text-xs text-slate-400">ATT</td><td class="px-3 py-2 text-xs text-slate-400">政策变化</td><td class="px-3 py-2 text-xs text-slate-400">趋势假设难验证</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">RDD</td><td class="px-3 py-2 text-xs text-slate-400">局部随机化</td><td class="px-3 py-2 text-xs text-slate-400">LATE</td><td class="px-3 py-2 text-xs text-slate-400">存在门槛</td><td class="px-3 py-2 text-xs text-slate-400">仅局部有效</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">PSM</td><td class="px-3 py-2 text-xs text-slate-400">CIA（无混淆）</td><td class="px-3 py-2 text-xs text-slate-400">ATT</td><td class="px-3 py-2 text-xs text-slate-400">观测数据充分</td><td class="px-3 py-2 text-xs text-slate-400">无法处理未观测混淆</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FE</td><td class="px-3 py-2 text-xs text-slate-400">遗漏变量时不变</td><td class="px-3 py-2 text-xs text-slate-400">平均效应</td><td class="px-3 py-2 text-xs text-slate-400">面板数据</td><td class="px-3 py-2 text-xs text-slate-400">无法估计时不变效应</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">因果效应类型</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">效应</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">英文全称</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">对应方法</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">ATE</td><td class="px-3 py-2 text-xs text-slate-400">Average Treatment Effect</td><td class="px-3 py-2 text-xs text-slate-400">\(E[Y_1 - Y_0]\)</td><td class="px-3 py-2 text-xs text-slate-400">随机实验</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">ATT</td><td class="px-3 py-2 text-xs text-slate-400">Average Treatment Effect on Treated</td><td class="px-3 py-2 text-xs text-slate-400">\(E[Y_1 - Y_0</td><td class="px-3 py-2 text-xs text-slate-400">D=1]\)</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">LATE</td><td class="px-3 py-2 text-xs text-slate-400">Local Average Treatment Effect</td><td class="px-3 py-2 text-xs text-slate-400">响应者的平均效应</td><td class="px-3 py-2 text-xs text-slate-400">IV, RDD</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CATE</td><td class="px-3 py-2 text-xs text-slate-400">Conditional ATE</td><td class="px-3 py-2 text-xs text-slate-400">\(E[Y_1 - Y_0</td><td class="px-3 py-2 text-xs text-slate-400">X]\)</td></tr></tbody></table></div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例一：教育回报的IV估计</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">教育年限对收入的因果效应是多少？（能力偏差问题）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">内生性问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>个人能力同时影响教育选择和收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OLS可能高估教育回报</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工具变量选择</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Angrist & Krueger (1991)使用<span class="text-white font-semibold">出生季度</span>作为工具：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>相关性：义务教育法使得不同季度出生者受教育年限不同</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外生性：出生季度与个人能力无关</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">第一阶段回归</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Education_i = \pi_0 + \pi_1 Q1_i + \pi_2 Q2_i + \pi_3 Q3_i + Controls + v_i\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">第一阶段结果</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Q1（1月-3月）</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> -0.126</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> -4.52***</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Q2（4月-6月）</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> -0.089</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> -3.21***</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Q3（7月-9月）</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> -0.045</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> -1.62</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">第一阶段F</div><div class="text-xs text-slate-400"><span class="text-slate-500">系数:</span> 12.3</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> -</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">2SLS估计结果</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">OLS</div><div class="text-xs text-slate-400"><span class="text-slate-500">教育回报率:</span> 7.2%</div><div class="text-xs text-slate-400"><span class="text-slate-500">标准误:</span> (0.3%)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2SLS</div><div class="text-xs text-slate-400"><span class="text-slate-500">教育回报率:</span> 8.9%</div><div class="text-xs text-slate-400"><span class="text-slate-500">标准误:</span> (1.2%)</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>IV估计略高于OLS（与理论预期相反）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>可能存在测量误差使OLS向下偏差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>LATE可能与ATE不同</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">就</span>
+        <h3 class="text-white font-semibold text-sm">案例二：最低工资对就业的DID分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Card & Krueger (1994)分析新泽西州提高最低工资对快餐店就业的影响。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">自然实验设定</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>处理组：新泽西州（1992年4月提高最低工资）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对照组：宾夕法尼亚州东部（无政策变化）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>时间：政策前后各一次调查</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">DID模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Employment_{it} = \alpha + \beta_1 NJ_i + \beta_2 After_t + \beta_3 (NJ \times After)_{it} + \epsilon_{it}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">结果</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap"></th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策前</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策后</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">差异</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">新泽西(NJ)</td><td class="px-3 py-2 text-xs text-slate-400">20.44</td><td class="px-3 py-2 text-xs text-slate-400">21.03</td><td class="px-3 py-2 text-xs text-slate-400">+0.59</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">宾州(PA)</td><td class="px-3 py-2 text-xs text-slate-400">23.33</td><td class="px-3 py-2 text-xs text-slate-400">21.17</td><td class="px-3 py-2 text-xs text-slate-400">-2.16</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">差中差</span></td><td class="px-3 py-2 text-xs text-slate-400">-</td><td class="px-3 py-2 text-xs text-slate-400">-</td><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">+2.75</span></td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">DID估计</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">系数</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">估计值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">标准误</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">\(\beta_3\)</td><td class="px-3 py-2 text-xs text-slate-400">2.75**</td><td class="px-3 py-2 text-xs text-slate-400">(1.36)</td><td class="px-3 py-2 text-xs text-slate-400">最低工资提高增加就业</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳健性检验</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>平行趋势：检验政策前两组趋势相似</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>安慰剂检验：高工资店铺无显著效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>替代对照组：使用NJ高工资店作为对照</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">争议与启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果挑战传统经济学预测</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>方法论上开创DID在劳动经济学的应用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>后续研究使用更大样本有不同结论</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">I</span>
+        <h3 class="text-white font-semibold text-sm">案例三：IPO定价效率的RDD分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">监管审核门槛是否影响IPO定价效率？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">制度背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">中国证监会对IPO发行市盈率有隐性指导线（如23倍PE），超过需要额外审核。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">RDD设计</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>运行变量：申报市盈率与门槛的距离</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>门槛：23倍PE</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>处理：超过门槛需要延迟审核</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Underpricing_i = \alpha + \tau D_i + \beta_1(PE_i - 23) + \beta_2 D_i(PE_i - 23) + \epsilon_i\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(D_i = \mathbf{1}(PE_i \geq 23)\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">RDD估计结果</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">带宽</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">LATE估计</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">标准误</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">观测数</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">±3 PE</td><td class="px-3 py-2 text-xs text-slate-400">8.5%***</td><td class="px-3 py-2 text-xs text-slate-400">(2.1%)</td><td class="px-3 py-2 text-xs text-slate-400">156</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">±5 PE</td><td class="px-3 py-2 text-xs text-slate-400">7.2%***</td><td class="px-3 py-2 text-xs text-slate-400">(1.8%)</td><td class="px-3 py-2 text-xs text-slate-400">234</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">±7 PE</td><td class="px-3 py-2 text-xs text-slate-400">6.8%***</td><td class="px-3 py-2 text-xs text-slate-400">(1.5%)</td><td class="px-3 py-2 text-xs text-slate-400">312</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">有效性检验</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">检验</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">统计量</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">p值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">结论</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">McCrary密度检验</td><td class="px-3 py-2 text-xs text-slate-400">0.89</td><td class="px-3 py-2 text-xs text-slate-400">0.37</td><td class="px-3 py-2 text-xs text-slate-400">无操纵</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">公司规模连续性</td><td class="px-3 py-2 text-xs text-slate-400">0.02</td><td class="px-3 py-2 text-xs text-slate-400">0.89</td><td class="px-3 py-2 text-xs text-slate-400">协变量平衡</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">行业分布连续性</td><td class="px-3 py-2 text-xs text-slate-400">χ²=3.2</td><td class="px-3 py-2 text-xs text-slate-400">0.36</td><td class="px-3 py-2 text-xs text-slate-400">无选择</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>超过门槛的IPO首日抑价率显著更高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>监管延迟导致定价信息过时</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>效应在门槛附近局部成立</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1: 什么是局部平均处理效应（LATE）？它与ATE有什么区别？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">LATE定义</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[LATE = E[Y_1 - Y_0 | Complier]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">即工具变量只能识别<span class="text-white font-semibold">响应者（Compliers）</span>的平均处理效应。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">人群分类</span>（根据Z对D的影响）：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">Z=0时D</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">Z=1时D</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Compliers</td><td class="px-3 py-2 text-xs text-slate-400">响应工具</td><td class="px-3 py-2 text-xs text-slate-400">0</td><td class="px-3 py-2 text-xs text-slate-400">1</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Always-takers</td><td class="px-3 py-2 text-xs text-slate-400">总是接受处理</td><td class="px-3 py-2 text-xs text-slate-400">1</td><td class="px-3 py-2 text-xs text-slate-400">1</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Never-takers</td><td class="px-3 py-2 text-xs text-slate-400">从不接受处理</td><td class="px-3 py-2 text-xs text-slate-400">0</td><td class="px-3 py-2 text-xs text-slate-400">0</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Defiers</td><td class="px-3 py-2 text-xs text-slate-400">逆向响应</td><td class="px-3 py-2 text-xs text-slate-400">1</td><td class="px-3 py-2 text-xs text-slate-400">0</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">LATE vs ATE</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>LATE仅对Compliers有效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果Compliers不具代表性，LATE ≠ ATE</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策含义：IV结果可能不适用于一般人群</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2: 如何判断工具变量的有效性？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 工具变量有效性的两个条件检验：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">相关性（可检验）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>第一阶段F统计量 > 10</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>Stock-Yogo弱工具临界值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>Anderson-Rubin检验（对弱工具稳健）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">外生性（不可直接检验）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>经济直觉和理论论证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>过度识别检验（Sargan/Hansen J）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>注意：不拒绝仅说明工具相互一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>所有工具可能同向违反外生性</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>安慰剂检验</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>敏感性分析（如Conley bounds）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实践建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外生性最终依赖经济学论证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>报告多种工具的结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>讨论潜在的违反情况</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3: DID的平行趋势假设为什么重要？如何检验？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">为什么重要</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">平行趋势是DID因果识别的核心。如果没有政策，处理组和对照组应该有相同的趋势。违反这一假设意味着：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>DID估计混入了趋势差异</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无法区分政策效应和自然差异</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">检验方法</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">事前趋势图</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>画出处理前两组的结果变量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>观察是否平行</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">事件研究设计</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_{it} = \alpha_i + \gamma_t + \sum_{k=-K}^{-2}\beta_k D_{it}^k + \sum_{k=0}^{L}\beta_k D_{it}^k + \epsilon_{it}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">检验\(\beta_{-K}, ..., \beta_{-2}\)是否联合为零</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">安慰剂检验</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>假设政策提前发生</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不应有显著效应</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">注意</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>事前趋势平行不保证反事实趋势平行</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>趋势平行是充分非必要条件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑使用合成控制或其他方法作为补充</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4: 如何在金融研究中寻找有效的工具变量？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 金融研究中常见的IV策略：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 地理/距离工具</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：到投资银行总部的距离影响融资成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>逻辑：距离影响信息获取，但与公司特征无关</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. 监管变化</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：SOX法案影响审计质量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>逻辑：法规变化是外生冲击</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. 同行效应</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：同行业公司平均值作为工具</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>注意：需要排除同行直接影响</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">4. 天气/自然灾害</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：降雨影响投资者情绪</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>逻辑：天气对人类决策有随机影响</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">5. 历史变量</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：历史路径依赖的制度特征</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>逻辑：历史因素与当前未观测因素无关</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">寻找IV的原则</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论先行：有清晰的经济学逻辑</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>检验相关性：第一阶段要强</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>论证外生性：详细讨论排除性约束</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>稳健性：多种工具对比</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5: 什么时候应该使用固定效应而不是其他因果推断方法？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">适用FE的情况</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>面板数据可用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>主要内生性来源是时不变的未观测异质性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>关注的自变量有足够的组内变异</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>不需要估计时不变变量的效应</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">FE的局限</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>无法处理时变的遗漏变量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>无法估计时不变解释变量的系数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>消除了大量变异，可能降低效率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>与测量误差结合会放大偏差</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">与其他方法的比较</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">IV</div><div class="text-xs text-slate-400"><span class="text-slate-500">处理的内生性:</span> 时变内生性</div><div class="text-xs text-slate-400"><span class="text-slate-500">FE能否替代:</span> 不能</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">DID</div><div class="text-xs text-slate-400"><span class="text-slate-500">处理的内生性:</span> 时不变选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">FE能否替代:</span> 类似效果</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">RDD</div><div class="text-xs text-slate-400"><span class="text-slate-500">处理的内生性:</span> 门槛处选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">FE能否替代:</span> 不能</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">PSM</div><div class="text-xs text-slate-400"><span class="text-slate-500">处理的内生性:</span> 观测混淆</div><div class="text-xs text-slate-400"><span class="text-slate-500">FE能否替代:</span> 有限替代</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6: 如何选择合适的匹配方法？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">方法比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用情况</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">PSM（最近邻）</td><td class="px-3 py-2 text-xs text-slate-400">直观、简单</td><td class="px-3 py-2 text-xs text-slate-400">可能匹配质量差</td><td class="px-3 py-2 text-xs text-slate-400">协变量少</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">PSM（核匹配）</td><td class="px-3 py-2 text-xs text-slate-400">利用更多信息</td><td class="px-3 py-2 text-xs text-slate-400">计算复杂</td><td class="px-3 py-2 text-xs text-slate-400">中等样本</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CEM</td><td class="px-3 py-2 text-xs text-slate-400">精确平衡</td><td class="px-3 py-2 text-xs text-slate-400">可能损失样本</td><td class="px-3 py-2 text-xs text-slate-400">离散变量多</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">IPW</td><td class="px-3 py-2 text-xs text-slate-400">保留全样本</td><td class="px-3 py-2 text-xs text-slate-400">极端权重敏感</td><td class="px-3 py-2 text-xs text-slate-400">大样本</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">AIPW</td><td class="px-3 py-2 text-xs text-slate-400">双重稳健</td><td class="px-3 py-2 text-xs text-slate-400">计算复杂</td><td class="px-3 py-2 text-xs text-slate-400">模型不确定</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">选择建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>检查倾向得分分布重叠</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>匹配后检验协变量平衡</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>报告多种匹配方法结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>考虑敏感性分析</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判性问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7: 为什么"可信革命"强调研究设计而非复杂的计量方法？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">可信革命的核心观点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>因果识别来自研究设计，不是统计技术</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>外生变异的来源比估计方法更重要</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>简单方法+好设计 > 复杂方法+差设计</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对研究实践的影响</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">控制变量越多越好</div><div class="text-xs text-slate-400"><span class="text-slate-500">新范式:</span> 理论指导变量选择</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">添加多种固定效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">新范式:</span> 明确识别策略</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">报告多种模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">新范式:</span> 报告核心设计检验</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">强调显著性</div><div class="text-xs text-slate-400"><span class="text-slate-500">新范式:</span> 强调可信度</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">批判与反思</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自然实验可能外部效度有限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过度追求因果可能忽略有价值的相关研究</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不是所有重要问题都有干净的识别</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8: IV估计的LATE解释带来什么实际问题？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">外推困难</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>LATE只对Compliers有效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政策推广时目标人群可能不同</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">工具选择影响结论</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不同工具识别不同的Compliers</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能得到不同的LATE</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">政策建议的局限</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>LATE可能不代表政策的平均效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>成本效益分析需要谨慎</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决思路</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>理解Compliers是谁</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>使用多个工具检验稳健性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>报告异质性处理效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>结合其他方法综合判断</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9: 因果推断方法在金融研究中面临哪些特殊挑战？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融研究的特殊性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">市场效率与预期</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理性预期使政策效应提前反映</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>难以用传统DID识别</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">一般均衡效应</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>处理组行为影响对照组</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>违反SUTVA假设</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">内生样本选择</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>上市、退市、并购都是内生决策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>幸存者偏差普遍</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">高频数据的挑战</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>传统方法假设静态效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融市场反应迅速</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">外部有效性问题</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自然实验样本可能特殊</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场制度差异大</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应对策略</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>明确识别假设和适用条件</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用多种方法交叉验证</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关注经济机制而非仅仅统计显著性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>讨论外部有效性和局限</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">"Mostly Harmless Econometrics"</span> - Angrist & Pischke</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因果推断方法论经典</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>直觉解释+技术细节</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">"Causal Inference: The Mixtape"</span> - Cunningham</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现代因果推断入门</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>免费在线版本</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">"Counterfactuals and Causal Inference"</span> - Morgan & Winship</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>社会科学因果推断</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>框架系统完整</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">金融实证</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">"Empirical Corporate Finance"</span> - Roberts & Whited (Handbook章节)</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>公司金融中的内生性问题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>方法论综述</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">各顶刊方法论文章</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>RFS "Endogeneity in Empirical Corporate Finance"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>JFE编辑部关于因果推断的指南</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">软件实现</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">Stata</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>ivregress：2SLS</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>didregress：DID</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>rdrobust：RDD</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">R</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>AER包：IV估计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>did包：多期DID</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>rdrobust包：RDD</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">Python</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>linearmodels：IV/Panel</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>CausalInference包</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          因果识别策略图谱
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解从相关到因果的方法论升级</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#f87171" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#f87171" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#f87171" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">内生性诊断</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">偏误来源</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">工具变量</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">IV·2SLS</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">自然实验</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">DID·RDD</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">匹配方法</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">PSM·IPTW</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#f87171"></span><span class="text-white font-semibold text-sm">内生性诊断</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">偏误来源</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>遗漏变量: 未观测因素同时影响X和Y</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>反向因果: Y反过来影响X</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#f87171" class="mt-0.5 text-[10px]">&#9654;</span><span>测量误差: X的噪声导致衰减偏误</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">工具变量</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">IV·2SLS</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>好的IV: 与X相关(相关性)且与ε无关(外生性)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>两阶段最小二乘: 先预测X̂，再用X̂回归Y</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>弱工具变量: F统计量<10→IV估计不可靠</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">自然实验</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">DID·RDD</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>DID: δ=(Ȳ_T,后-Ȳ_T,前)-(Ȳ_C,后-Ȳ_C,前)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>RDD: 在断点附近比较处理效应</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>平行趋势假设: DID有效的关键前提</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">匹配方法</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">PSM·IPTW</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>倾向得分: P(D=1|X)的估计</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>PSM: 找到特征相似的对照观测</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>双重稳健: 结合回归+加权提高估计可靠性</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          工具变量估计原理
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整内生性程度，观察OLS偏误</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">X</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">Y</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#f87171" font-size="11" font-weight="bold">OLS(有偏)</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#34d399" font-size="11" font-weight="bold">IV(一致)</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>内生性程度 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>OLS偏误: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>真实β: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="0" max="10" value="5" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          DID双重差分计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">估计政策效果</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">处理组-前</label>
+            <input type="number" id="comp-2-t1" value="50" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">处理组-后</label>
+            <input type="number" id="comp-2-t2" value="65" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">对照组-前</label>
+            <input type="number" id="comp-2-c1" value="45" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">对照组-后</label>
+            <input type="number" id="comp-2-c2" value="50" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">因果识别</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">DID估计量δ</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">处理组变化</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">对照组变化</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">政策效果</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ \hat{\delta} = (\bar{Y}_{T,post} - \bar{Y}_{T,pre}) - (\bar{Y}_{C,post} - \bar{Y}_{C,pre}) \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 计量经济学 Chapter 03</div>
+    <div class="mt-2 md:mt-0">下一章：资产定价实证方法与因子模型 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\epsilon', tip: '误差项——模型无法解释的部分'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'S=1', tip: '选择方程——样本是否被观测到的指标变量'},
+    {match: 'Cov(Z, X) \\neq 0', tip: '工具变量相关性——工具必须与内生变量相关'},
+    {match: 'Cov(Z, \\epsilon) = 0', tip: '工具变量外生性——工具与误差不相关'},
+    {match: 'H_0', tip: '原假设(零假设)——需要检验是否成立的假设'},
+    {match: '\\frac{Cov', tip: 'Beta = 协方差÷方差，衡量个股相对于大盘的波动幅度'},
+    {match: '\\bar{X}', tip: '所有数加起来除以个数，就是平均数'},
+    {match: '}_{IV} =', tip: '工具变量——解决内生性问题的关键武器'},
+    {match: 'c{(R^2_{f', tip: 'R方——模型能解释多少比例的数据变动，越接近1越好'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\hat{\\beta}', tip: '回归系数的估计值——X每变化1单位，Y平均变化多少'},
+    {match: 'Y_{it} = \\alpha_i + \\gamma_t', tip: '双向固定效应——同时控制个体和时间因素'},
+    {match: '}_{RDD} =', tip: '断点回归——利用政策门槛附近的跳跃来识别因果效应'},
+    {match: 'e(X) = P(D = 1', tip: '倾向得分——个体被分到处理组的概率'},
+    {match: 'at{ATT} =', tip: '处理组的平均处理效应——政策对受影响群体的平均影响'},
+    {match: 'fter_t + ', tip: 't时刻的收益率——金融时间序列的基本观测'},
+    {match: 'LATE = ', tip: '局部平均处理效应——对服从者的平均影响'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=60;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=50;
+    var eq_y=10+0.5*50;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 10+0.5*x+c*0.3*x*0.01;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 10+0.5*x+c*0.3*x*0.01;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 10+0.5*x;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 10+0.5*x;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='ρ = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='Y*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='X*='+eq_x.toFixed(1);
+    var r1=(0.5+c*0.3*0.01-0.5)*100;
+    var r2=0.5;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var t1=parseFloat(document.getElementById('comp-2-t1').value);
+    var t2=parseFloat(document.getElementById('comp-2-t2').value);
+    var c1=parseFloat(document.getElementById('comp-2-c1').value);
+    var c2=parseFloat(document.getElementById('comp-2-c2').value);
+
+    var did=(t2-t1)-(c2-c1);
+    var tchange=t2-t1; var cchange=c2-c1;
+    document.getElementById('comp-2-out0').textContent=did.toFixed(1);
+    document.getElementById('comp-2-out1').textContent=tchange.toFixed(1);
+    document.getElementById('comp-2-out2').textContent=cchange.toFixed(1);
+    document.getElementById('comp-2-out3').textContent=did>0?'正向效果':(did<0?'负向效果':'无效果');
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,Math.abs(did)/20)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

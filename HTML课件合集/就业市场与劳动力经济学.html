@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>就业市场与劳动力经济学 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 03</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">就业市场与劳动力经济学</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">宏观视角分析就业、失业与劳动市场动态</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">5</div><div class="text-xs text-slate-500 mt-1">失业类型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">分析模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">劳动市场的宏观图景</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心指标体系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[失业率(u) = \frac{失业人口}{劳动力} \times 100\%\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[劳动参与率(LFPR) = \frac{劳动力}{工作年龄人口} \times 100\%\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[就业率(ER) = \frac{就业人口}{工作年龄人口} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三者关系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[就业率 = 劳动参与率 \times (1 - 失业率)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">劳动力流动动态</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">           找到工作
+    ┌───────────────→
+失业 ←───────────────→ 就业
+    │   失去工作        │
+退出│                   │退出
+劳动│                   │劳动
+力  ↓                   ↓力
+    └──→ 非劳动力 ←────┘
+         (退休、学生、照料家庭)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">中国 vs 美国劳动市场比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">中国（2023）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">美国（2023）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">差异原因</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">城镇调查失业率</td><td class="px-3 py-2 text-xs text-slate-400">~5.2%</td><td class="px-3 py-2 text-xs text-slate-400">~3.7%</td><td class="px-3 py-2 text-xs text-slate-400">统计口径不同</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">劳动参与率</td><td class="px-3 py-2 text-xs text-slate-400">~65%</td><td class="px-3 py-2 text-xs text-slate-400">~62%</td><td class="px-3 py-2 text-xs text-slate-400">退休制度、女性参与</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">青年失业率</td><td class="px-3 py-2 text-xs text-slate-400">~15%+</td><td class="px-3 py-2 text-xs text-slate-400">~8%</td><td class="px-3 py-2 text-xs text-slate-400">结构性问题</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">失业的类型与成因</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">失业分类详解</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">成因</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策应对</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">持续时间</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">摩擦性失业</td><td class="px-3 py-2 text-xs text-slate-400">工作搜寻、信息不对称</td><td class="px-3 py-2 text-xs text-slate-400">正常且必要</td><td class="px-3 py-2 text-xs text-slate-400">改善就业信息服务</td><td class="px-3 py-2 text-xs text-slate-400">1-3个月</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">结构性失业</td><td class="px-3 py-2 text-xs text-slate-400">技能/地域不匹配</td><td class="px-3 py-2 text-xs text-slate-400">长期、难解决</td><td class="px-3 py-2 text-xs text-slate-400">职业培训、迁移补贴</td><td class="px-3 py-2 text-xs text-slate-400">数月至数年</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">周期性失业</td><td class="px-3 py-2 text-xs text-slate-400">经济衰退、需求不足</td><td class="px-3 py-2 text-xs text-slate-400">随周期波动</td><td class="px-3 py-2 text-xs text-slate-400">宏观刺激政策</td><td class="px-3 py-2 text-xs text-slate-400">随周期</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">季节性失业</td><td class="px-3 py-2 text-xs text-slate-400">行业季节性特征</td><td class="px-3 py-2 text-xs text-slate-400">可预测、规律性</td><td class="px-3 py-2 text-xs text-slate-400">季节调整统计</td><td class="px-3 py-2 text-xs text-slate-400">固定季节</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">技术性失业</td><td class="px-3 py-2 text-xs text-slate-400">自动化替代人工</td><td class="px-3 py-2 text-xs text-slate-400">新兴、加速中</td><td class="px-3 py-2 text-xs text-slate-400">再培训、社会保障</td><td class="px-3 py-2 text-xs text-slate-400">长期</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">自然失业率（NAIRU）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[u^* = 摩擦性失业率 + 结构性失业率\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">自然失业率的决定因素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">失业保险慷慨度↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> u*↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 搜寻激励下降</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">就业保护严格度↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> u*↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 企业不敢雇人</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工会力量↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> u*↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 工资向上刚性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">最低工资↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> u*↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 低技能工人失业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">劳动市场信息改善</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> u*↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 匹配效率提高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人力资本投资↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> u*↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 减少技能不匹配</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">各国自然失业率比较</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">NAIRU估计:</span> ~4%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 灵活市场</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">德国</div><div class="text-xs text-slate-400"><span class="text-slate-500">NAIRU估计:</span> ~5%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 工会强但培训好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">法国</div><div class="text-xs text-slate-400"><span class="text-slate-500">NAIRU估计:</span> ~8%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 保护强、刚性大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">日本</div><div class="text-xs text-slate-400"><span class="text-slate-500">NAIRU估计:</span> ~2.5%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 终身雇佣传统</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">工资决定理论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">竞争性劳动市场</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[w = MPL = \frac{\partial F(K,L)}{\partial L}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">工资等于劳动边际产品（边际生产力理论）</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实际工资与劳动需求</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[w/P = MPL\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">实际工资由劳动的边际产品决定。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效率工资理论</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">企业自愿支付高于市场出清水平的工资。</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">减少流失</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 离职成本高</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 降低招聘培训成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">提高努力</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 怠工被解雇的机会成本高</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 提高生产率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">吸引优秀人才</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 高工资信号</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 改善劳动力质量</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">减少逆向选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 低能力者不申请</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 自我筛选</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公平感知</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 感到被公平对待</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 提高忠诚度和努力</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效率工资的宏观含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工资刚性的微观基础</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>解释非自愿失业的存在</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>劳动市场不能自动出清</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工资刚性的其他来源</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长期合同</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 名义工资锁定</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 短期调整困难</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">效率工资</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 企业主动支付高工资</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 持续失业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">最低工资法</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 法定下限</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 低技能工人失业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工会议价</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 集体谈判</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 工资高于出清水平</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">社会规范</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 降薪被视为不公</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 心理成本</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">搜寻与匹配理论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贝弗里奇曲线</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">失业率(u)与职位空缺率(v)的负相关关系。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">职位空缺率(v)
+    │
+    │    ╲
+    │     ╲  曲线右移=匹配效率下降
+    │      ╲
+    │       ╲
+    └────────────→ 失业率(u)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">匹配函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[M = m(U, V) = AU^\alpha V^{1-\alpha}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(M\)：成功匹配数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(U\)：失业人数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(V\)：职位空缺数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(A\)：匹配效率参数</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">劳动市场紧张度</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\theta = \frac{V}{U}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\theta\)高：工人有利（卖方市场）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\theta\)低：企业有利（买方市场）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">DMP模型</span>（2010年诺贝尔奖：Diamond, Mortensen, Pissarides）：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心思想</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>工资由纳什议价决定</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>劳动市场摩擦内生化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>解释失业和空缺并存的谜题</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工资方程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[w = (1-\beta)z + \beta(y + c\theta)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\beta\)：工人议价力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(z\)：保留工资（失业收益）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(y\)：生产率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(c\)：招聘成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\theta\)：市场紧张度</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>失业保险↑ → z↑ → w↑ → 失业↑</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>招聘补贴 → c↓ → 空缺↑ → 匹配↑</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">劳动市场政策</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">被动政策</span>（收入支持）：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">内容</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">失业保险</td><td class="px-3 py-2 text-xs text-slate-400">失业期间收入替代</td><td class="px-3 py-2 text-xs text-slate-400">平滑消费、鼓励搜寻</td><td class="px-3 py-2 text-xs text-slate-400">可能降低搜寻强度</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">遣散费规定</td><td class="px-3 py-2 text-xs text-slate-400">解雇时支付补偿</td><td class="px-3 py-2 text-xs text-slate-400">保障工人收入</td><td class="px-3 py-2 text-xs text-slate-400">企业不敢雇人</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">提前退休</td><td class="px-3 py-2 text-xs text-slate-400">鼓励提前退出劳动力</td><td class="px-3 py-2 text-xs text-slate-400">减少失业统计</td><td class="px-3 py-2 text-xs text-slate-400">浪费人力资源</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">主动政策</span>（促进就业）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">就业服务</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 职业介绍、咨询</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 成本低、效果中等</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">职业培训</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 技能提升</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 效果取决于设计</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公共就业项目</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 政府创造就业</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 短期有效、长期存疑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">创业补贴</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 鼓励自主创业</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 效果差异大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工资补贴</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 补贴企业雇用特定群体</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 靶向效果好</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策权衡核心</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">失业保险的两难</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">保障水平高 → 消费平滑好 + 搜寻时间长（质量高）
+     ↓                         ↓
+生活有保障                 搜寻激励下降
+     ↓                         ↓
+   福利↑                    失业↑</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">就业保护的两难</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">保护强 → 在职员工稳定 + 企业不敢雇新人
+   ↓              ↓            ↓
+ 稳定性↑      内部人受益    外部人受损
+   ↓              ↓            ↓
+效率损失？    工资刚性       青年失业↑</pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：奥肯定律</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{Y - Y^*}{Y^*} = -\beta(u - u^*)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">替代形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Delta u = -\frac{1}{\beta}(g_Y - g_{Y^*})\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">典型估计</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">β值:</span> ~2</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 失业率每↑1%，GDP缺口↓2%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国</div><div class="text-xs text-slate-400"><span class="text-slate-500">β值:</span> ~3-4</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 就业弹性更低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">欧洲</div><div class="text-xs text-slate-400"><span class="text-slate-500">β值:</span> ~2.5</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 介于两者之间</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">为什么β不等于1？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>劳动囤积：企业衰退时保留员工</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工时调整：先减少加班，后裁员</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>劳动参与率：景气时更多人找工作</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：工资菲利普斯曲线</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\Delta W}{W} = -\alpha(u - u^*) + \pi^e\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>失业率低于自然率 → 工资加速上涨</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工资增长 = 预期通胀 + 劳动市场紧张度</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">价格菲利普斯曲线</span>（假设加成定价）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi = \pi^e - \alpha(u - u^*) + 供给冲击\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短期 vs 长期</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">短期</div><div class="text-xs text-slate-400"><span class="text-slate-500">曲线形状:</span> 向下倾斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">u与π关系:</span> 权衡存在</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长期</div><div class="text-xs text-slate-400"><span class="text-slate-500">曲线形状:</span> 垂直于u*</div><div class="text-xs text-slate-400"><span class="text-slate-500">u与π关系:</span> 无权衡</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：贝弗里奇曲线分析</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[u = f(v), \quad f'(v) < 0\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">曲线移动的含义</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">沿曲线移动</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 周期性变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 需求管理有效</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">曲线右移</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 匹配效率下降</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 结构改革需要</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">曲线左移</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 匹配效率提高</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 劳动市场改善</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">2020-2022年贝弗里奇曲线右移</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>疫情后技能不匹配加剧</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>远程工作改变地理配置</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工人偏好变化（"大辞职"）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：劳动供给决策</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max U(C, L) \quad s.t. \quad C = w(T-L) + V\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(C\)：消费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(L\)：休闲</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(T\)：总时间</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(w\)：工资率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(V\)：非劳动收入</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最优条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{U_L}{U_C} = w\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">休闲的边际替代率等于工资（休闲的机会成本）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工资变化的效应</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">替代效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> w↑ → 劳动供给↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 休闲更贵</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> w↑ → 劳动供给↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 更富有，买更多休闲</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">净效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> 不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 取决于偏好</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>男性：劳动供给曲线接近垂直（净效应≈0）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>已婚女性：劳动供给弹性较大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高收入者：可能向后弯曲</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">美</span>
+        <h3 class="text-white font-semibold text-sm">案例1：美国&quot;大辞职&quot;现象（2021-2022）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：疫情后美国出现大规模主动离职潮。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据表现</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">疫情前（2019）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">峰值（2022）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">变化</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">月辞职率</td><td class="px-3 py-2 text-xs text-slate-400">2.3%</td><td class="px-3 py-2 text-xs text-slate-400">3.0%</td><td class="px-3 py-2 text-xs text-slate-400">+30%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">辞职人数</td><td class="px-3 py-2 text-xs text-slate-400">350万/月</td><td class="px-3 py-2 text-xs text-slate-400">450万+/月</td><td class="px-3 py-2 text-xs text-slate-400">+100万</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">职位空缺</td><td class="px-3 py-2 text-xs text-slate-400">700万</td><td class="px-3 py-2 text-xs text-slate-400">1200万</td><td class="px-3 py-2 text-xs text-slate-400">+70%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">原因分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工作观念变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 重新评估生活优先级</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 部分持续</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">远程工作机会</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 地理限制打破</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 长期变化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财政刺激支票</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 财务缓冲支持搜寻</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 暂时性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">托幼压力</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 女性被迫退出</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 结构性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">健康担忧</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 避免面对面工作</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 暂时性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贝弗里奇曲线视角</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">疫情前后比较：
+- 同样的失业率下，职位空缺率更高
+- 曲线明显右移
+- 表明匹配效率下降</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>传统失业指标可能低估劳动市场紧张程度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>需要关注劳动参与率变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>结构性因素需要结构性政策</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">德</span>
+        <h3 class="text-white font-semibold text-sm">案例2：德国短时工作制度（Kurzarbeit）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：疫情期间的就业保障措施，德国经验被广泛借鉴。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">制度设计</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">适用条件</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 经济原因导致工时减少</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">补偿比例</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 政府补贴减少工时部分工资的60-67%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">期限</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 正常12个月，危机时可延长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">企业义务</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 维持雇佣关系</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">疫情期间效果</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">失业率峰值</div><div class="text-xs text-slate-400"><span class="text-slate-500">德国:</span> 6.4%</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国:</span> 14.7%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">参与短时工作人数</div><div class="text-xs text-slate-400"><span class="text-slate-500">德国:</span> 600万</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国:</span> N/A</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">就业恢复速度</div><div class="text-xs text-slate-400"><span class="text-slate-500">德国:</span> 快</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国:</span> 慢</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">机制优势</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>保持雇佣关系 → 避免解雇-再招聘成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>保留人力资本 → 企业特定技能不流失</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>快速复苏 → 需求恢复后立即满产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>社会稳定 → 避免大规模失业的社会冲击</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">局限性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能保护"僵尸"企业</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>阻碍劳动力再配置</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>财政成本高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不适用于结构性调整</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例3：中国青年失业问题</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：中国16-24岁青年失业率持续高企。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据演变</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2019年</div><div class="text-xs text-slate-400"><span class="text-slate-500">青年失业率:</span> ~13%</div><div class="text-xs text-slate-400"><span class="text-slate-500">背景:</span> 正常水平</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2022年</div><div class="text-xs text-slate-400"><span class="text-slate-500">青年失业率:</span> ~18%</div><div class="text-xs text-slate-400"><span class="text-slate-500">背景:</span> 疫情影响</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2023年6月</div><div class="text-xs text-slate-400"><span class="text-slate-500">青年失业率:</span> 21.3%</div><div class="text-xs text-slate-400"><span class="text-slate-500">背景:</span> 创历史新高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2023年12月</div><div class="text-xs text-slate-400"><span class="text-slate-500">青年失业率:</span> 14.9%*</div><div class="text-xs text-slate-400"><span class="text-slate-500">背景:</span> 统计口径调整后</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">*排除在校学生后的新统计口径</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">原因分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">经济放缓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 总需求不足</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 周期性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">产业结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 房地产、互联网收缩</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 结构性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">教育错配</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 高学历与岗位需求不匹配</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 结构性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">期望差距</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> "慢就业"、"躺平"</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 社会文化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">户籍限制</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 大城市就业门槛</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 制度性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策应对</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">扩大招生</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 研究生、专升本扩招</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 推迟问题而非解决</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">基层就业</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 鼓励去农村、中西部</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 吸引力有限</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">灵活就业</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 平台经济认可</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 缺乏保障</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">见习补贴</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 企业见习补贴</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果评估:</span> 效果待观察</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">深层思考</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>青年失业是需求问题还是供给问题？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>教育投资回报率下降意味着什么？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>"躺平"是个人选择还是理性反应？</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么即使经济繁荣也存在失业？什么是"自然失业率"，它由什么决定？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：摩擦性失业、搜寻过程、信息不对称</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">效率工资理论如何解释工资刚性和非自愿失业？为什么企业不愿降薪而选择裁员？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：员工士气、逆向选择、生产率</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">贝弗里奇曲线移动意味着什么？如何区分周期性失业和结构性失业？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：匹配效率、技能不匹配、政策含义</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">失业保险应该更慷慨还是更严格？如何设计既保障收入又不削弱工作激励的制度？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：替代率、等待期、渐进式退出</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">最低工资提高一定会增加失业吗？实证研究（如Card & Krueger）说了什么？为什么结论有争议？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：买方势力、价格传导、测量问题</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何解释中国青年失业率高企？是需求不足还是结构性问题？应该如何应对？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：教育错配、期望差距、产业结构</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">AI和自动化会导致"技术性失业"吗？历史上的卢德运动给我们什么启示？这次是否不同？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：补偿效应、技能互补、转型速度</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">如何看待"躺平""灵活就业"等现象？是个人选择还是社会问题？传统就业统计是否过时？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：工作定义、福利度量、政策适应</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">终身雇佣制度（如日本传统模式）是否过时？灵活劳动市场和就业保护如何平衡？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：效率与公平、人力资本投资激励、社会契约</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《均衡失业理论》</td><td class="px-3 py-2 text-xs text-slate-400">Pissarides</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">搜寻匹配理论经典，诺奖作品</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《失业：宏观经济学表现与劳动市场》</td><td class="px-3 py-2 text-xs text-slate-400">Layard, Nickell & Jackman</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">全面的失业分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《劳动经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Borjas</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">标准中级教材</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《人力资本》</td><td class="px-3 py-2 text-xs text-slate-400">Becker</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">人力资本理论奠基</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">诺贝尔奖相关工作</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Diamond, Mortensen, Pissarides</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2010</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 搜寻匹配理论</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Card, Angrist, Imbens</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2021</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 最低工资实证研究、因果识别</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Becker</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 1992</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 人力资本理论</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">重要论文</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Mortensen & Pissarides (1994) "Job Creation and Job Destruction"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Card & Krueger (1994) "Minimum Wages and Employment"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Blanchard & Diamond (1989) "The Beveridge Curve"</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据来源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BLS（美国）</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖:</span> 就业、工资、职位空缺</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 详细分解</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">国家统计局（中国）</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖:</span> 城镇调查失业率</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 月度数据</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">OECD</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖:</span> 国际比较</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 标准化口径</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">ILO</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖:</span> 全球</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 发展中国家</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          就业分析全流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解劳动力市场的运作机制</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">劳动供给</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">人口·参与率</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">需求匹配</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">企业·技能</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">失业分析</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">类型·成因</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">政策干预</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">财政·货币·产业</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">劳动供给</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">人口·参与率</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>劳动参与率决定有效劳动力总量</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>工作-闲暇替代效应与收入效应</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>人口结构变化对长期供给的影响</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">需求匹配</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">企业·技能</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>边际产出价值决定劳动需求</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>技能错配导致结构性失业</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>搜寻-匹配模型解释摩擦性失业</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">失业分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">类型·成因</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>周期性失业: 与经济景气同步波动</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>自然失业率: 摩擦性+结构性</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>奥肯定律: GDP缺口与失业率关系</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">政策干预</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">财政·货币·产业</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>扩张性政策降低周期性失业</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>职业培训缓解结构性失业</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>失业保险的保障与道德风险权衡</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          劳动力市场均衡模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整最低工资，观察就业变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">L</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">W</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">Ld</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">Ls</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>最低工资 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>就业量: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>工资: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="5" max="25" value="10" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          失业率计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">输入劳动力数据，计算各类失业指标</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">就业人数(万)</label>
+            <input type="number" id="comp-2-emp" value="9000" min="0" step="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">失业人数(万)</label>
+            <input type="number" id="comp-2-unemp" value="500" min="0" step="50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">适龄人口(万)</label>
+            <input type="number" id="comp-2-pop" value="14000" min="0" step="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">就业健康度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">失业率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">劳参率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">就业率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">就业状态</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ u = \frac{U}{L+U} \times 100\% \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 03</div>
+    <div class="mt-2 md:mt-0">下一章：消费理论与投资决策分析 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'u^* = 摩擦性失业', tip: '自然失业率——即使经济景气也存在的失业'},
+    {match: 'w = MPL', tip: '劳动力市场均衡——工资等于劳动边际产出'},
+    {match: 'w/P = MPL', tip: '实际工资等于劳动边际产出'},
+    {match: 'M = m(U, V)', tip: '匹配函数——失业人数和空缺共同决定匹配数'},
+    {match: '\\theta = \\frac{V}{U}', tip: '劳动市场紧张度——职位空缺÷失业人数'},
+    {match: '\\frac{Y - Y^*}{Y^*}', tip: '产出缺口——实际GDP偏离潜在GDP多少'},
+    {match: 'g_{Y^*})', tip: '潜变量/未观测变量——Tobit/Heckman模型中的隐含连续变量'},
+    {match: '\\pi^e', tip: '预期通胀——人们预期未来物价会涨多少'},
+    {match: '\\pi = \\pi^e - \\alpha(u - u^*)', tip: '菲利普斯曲线——失业率低于自然率时通胀上升'},
+    {match: '\\frac{U_L}{U_C} = w', tip: '劳动供给最优——休闲的边际价值等于工资'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=30;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(28-5)/(0.25+0.2);
+    var eq_y=28-((28-5)/(0.25+0.2))*0.25;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 28-x*0.25;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 28-x*0.25;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 5+x*0.2;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 5+x*0.2;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='Wmin = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='W*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='L*='+eq_x.toFixed(1);
+    var r1=eq_x;
+    var r2=eq_y;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var emp=parseFloat(document.getElementById('comp-2-emp').value);
+    var unemp=parseFloat(document.getElementById('comp-2-unemp').value);
+    var pop=parseFloat(document.getElementById('comp-2-pop').value);
+
+    var rate=unemp/(emp+unemp)*100;
+    var lfpr=(emp+unemp)/pop*100;
+    var empr=emp/pop*100;
+    document.getElementById('comp-2-out0').textContent=rate.toFixed(1)+'%';
+    document.getElementById('comp-2-out1').textContent=lfpr.toFixed(1)+'%';
+    document.getElementById('comp-2-out2').textContent=empr.toFixed(1)+'%';
+    document.getElementById('comp-2-out3').textContent=rate<4?'充分就业':(rate<8?'温和失业':'严重失业');
+    // Ring
+    var score=Math.max(0,Math.min(1,1-unemp/(emp+unemp)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

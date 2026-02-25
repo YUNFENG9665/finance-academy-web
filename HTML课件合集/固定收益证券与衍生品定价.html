@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>固定收益证券与衍生品定价 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Pricing</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实践案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">深度思考问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 03</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">固定收益证券与衍生品定价</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解债券和衍生品的定价原理与风险管理</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">债券类型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">定价模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">债券定价基础</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">债券现金流结构</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">零息债券</div><div class="text-xs text-slate-400"><span class="text-slate-500">现金流特征:</span> 仅到期一次还本</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表品种:</span> 国库券、贴现债</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">附息债券</div><div class="text-xs text-slate-400"><span class="text-slate-500">现金流特征:</span> 定期付息+到期还本</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表品种:</span> 国债、企业债</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">永续债券</div><div class="text-xs text-slate-400"><span class="text-slate-500">现金流特征:</span> 无限期付息</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表品种:</span> 优先股、部分银行债</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">浮动利率债</div><div class="text-xs text-slate-400"><span class="text-slate-500">现金流特征:</span> 利息随基准利率调整</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表品种:</span> FRN、浮息企业债</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">债券定价公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = \sum_{t=1}^{T} \frac{C}{(1+y)^t} + \frac{F}{(1+y)^T}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P\)：债券价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(C\)：票息金额</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(F\)：面值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(y\)：到期收益率（YTM）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(T\)：剩余期限</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">零息债券定价</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = \frac{F}{(1+y)^T}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">永续债券定价</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = \frac{C}{y}\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">到期收益率（YTM）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定义与计算</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">到期收益率是使债券价格等于未来现金流现值的内部收益率。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">YTM的假设条件</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">持有到期</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 投资者持有债券至到期</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 可能提前卖出</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">再投资假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 票息按YTM再投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 实际再投资率不同</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信用假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 发行人不违约</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 存在违约风险</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收益率与价格的关系</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收益率上升 → 债券价格下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收益率下降 → 债券价格上升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>这种反向关系是利率风险的根源</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">利率风险度量</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">久期（Duration）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D = -\frac{1}{P}\frac{dP}{dy} = \frac{\sum_{t=1}^{T} t \cdot PV(CF_t)}{P}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">麦考利久期</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D_{Mac} = \frac{\sum_{t=1}^{T} t \cdot \frac{CF_t}{(1+y)^t}}{P}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">修正久期</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D_{mod} = \frac{D_{Mac}}{1+y}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">久期的解释</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时间维度</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 现金流的加权平均到期时间</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">敏感度维度</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 价格对收益率变化的敏感度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">对冲维度</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 免疫利率风险所需的持有期</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">凸性（Convexity）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = \frac{1}{P}\frac{d^2P}{dy^2} = \frac{1}{P}\sum_{t=1}^{T} t(t+1) \cdot \frac{CF_t}{(1+y)^{t+2}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价格变化的泰勒展开</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\Delta P}{P} \approx -D_{mod} \cdot \Delta y + \frac{1}{2}C \cdot (\Delta y)^2\]</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高久期</div><div class="text-xs text-slate-400"><span class="text-slate-500">利率上升影响:</span> 价格大幅下跌</div><div class="text-xs text-slate-400"><span class="text-slate-500">利率下降影响:</span> 价格大幅上涨</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高凸性</div><div class="text-xs text-slate-400"><span class="text-slate-500">利率上升影响:</span> 下跌幅度减小</div><div class="text-xs text-slate-400"><span class="text-slate-500">利率下降影响:</span> 上涨幅度增大</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">利率期限结构</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收益率曲线形态</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">正常向上</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 长期利率高于短期</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 经济扩张预期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平坦</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 各期限利率接近</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 经济周期转折</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">倒挂</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 短期利率高于长期</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 衰退预警信号</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">驼峰形</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 中期利率最高</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济含义:</span> 政策紧缩过渡期</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">期限结构理论</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">理论</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心观点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公式表达</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">政策含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">预期假说</td><td class="px-3 py-2 text-xs text-slate-400">长期利率=预期短期利率的平均</td><td class="px-3 py-2 text-xs text-slate-400">\((1+r_n)^n = E[(1+r_1)(1+f_{1,2})...(1+f_{n-1,n})]\)</td><td class="px-3 py-2 text-xs text-slate-400">收益率曲线反映利率预期</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">流动性偏好</td><td class="px-3 py-2 text-xs text-slate-400">投资者偏好短期债券，长期需溢价</td><td class="px-3 py-2 text-xs text-slate-400">\(r_n = E[\bar{r_1}] + LP_n\)</td><td class="px-3 py-2 text-xs text-slate-400">向上倾斜是常态</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">市场分割</td><td class="px-3 py-2 text-xs text-slate-400">不同期限市场独立定价</td><td class="px-3 py-2 text-xs text-slate-400">各期限供需决定利率</td><td class="px-3 py-2 text-xs text-slate-400">政策可针对特定期限</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">优先栖息地</td><td class="px-3 py-2 text-xs text-slate-400">投资者有偏好期限，但可被溢价吸引</td><td class="px-3 py-2 text-xs text-slate-400">综合以上理论</td><td class="px-3 py-2 text-xs text-slate-400">最具解释力</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">远期利率计算</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[f_{t,t+1} = \frac{(1+r_{t+1})^{t+1}}{(1+r_t)^t} - 1\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">期权定价基础</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">期权基本要素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">权利</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权（Call）:</span> 买入标的资产</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权（Put）:</span> 卖出标的资产</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">到期收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权（Call）:</span> \(\max(S_T - K, 0)\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权（Put）:</span> \(\max(K - S_T, 0)\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时间价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权（Call）:</span> 波动率上升有利</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权（Put）:</span> 波动率上升有利</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">期权价值构成</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[期权价格 = 内在价值 + 时间价值\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实值（ITM）</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> \(S > K\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> \(S < K\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平值（ATM）</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> \(S = K\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> \(S = K\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">虚值（OTM）</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> \(S < K\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> \(S > K\)</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">看涨-看跌平价关系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C - P = S - Ke^{-rT}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这是无套利定价的基础。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">6</div>
+        <h3 class="text-white font-semibold">Black-Scholes模型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型假设</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">股价服从几何布朗运动</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> \(dS = \mu S dt + \sigma S dW\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 存在跳跃、厚尾</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无风险利率恒定</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> \(r\)为常数</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 利率波动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无交易成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 无摩擦市场</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 存在交易成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可连续交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 可随时调整头寸</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 离散交易</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无股利</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 标的不支付股利</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 需调整模型</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">欧式期权</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 只能到期行权</div><div class="text-xs text-slate-400"><span class="text-slate-500">现实偏离:</span> 美式期权可提前行权</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Black-Scholes公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = S \cdot N(d_1) - Ke^{-rT} \cdot N(d_2)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = Ke^{-rT} \cdot N(-d_2) - S \cdot N(-d_1)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[d_1 = \frac{\ln(S/K) + (r + \sigma^2/2)T}{\sigma\sqrt{T}}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[d_2 = d_1 - \sigma\sqrt{T}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">各参数的影响</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">标的价格↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> ↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> ↓</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">行权价↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> ↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> ↑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">到期时间↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> ↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> ↑（通常）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">波动率↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> ↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> ↑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无风险利率↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看涨期权:</span> ↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">看跌期权:</span> ↓</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">7</div>
+        <h3 class="text-white font-semibold">期权希腊字母</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要希腊字母</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">希腊字母</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">公式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">经济含义</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Delta (\(\Delta\))</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{\partial C}{\partial S}\)</td><td class="px-3 py-2 text-xs text-slate-400">\(N(d_1)\)（看涨）</td><td class="px-3 py-2 text-xs text-slate-400">标的价格敏感度</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Gamma (\(\Gamma\))</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{\partial^2 C}{\partial S^2}\)</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{N'(d_1)}{S\sigma\sqrt{T}}\)</td><td class="px-3 py-2 text-xs text-slate-400">Delta的变化率</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Theta (\(\Theta\))</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{\partial C}{\partial t}\)</td><td class="px-3 py-2 text-xs text-slate-400">时间衰减</td><td class="px-3 py-2 text-xs text-slate-400">时间价值损耗</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Vega (\(\nu\))</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{\partial C}{\partial \sigma}\)</td><td class="px-3 py-2 text-xs text-slate-400">\(S\sqrt{T}N'(d_1)\)</td><td class="px-3 py-2 text-xs text-slate-400">波动率敏感度</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Rho (\(\rho\))</td><td class="px-3 py-2 text-xs text-slate-400">\(\frac{\partial C}{\partial r}\)</td><td class="px-3 py-2 text-xs text-slate-400">\(KTe^{-rT}N(d_2)\)</td><td class="px-3 py-2 text-xs text-slate-400">利率敏感度</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Delta的特性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>看涨期权：\(0 \leq \Delta \leq 1\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>看跌期权：\(-1 \leq \Delta \leq 0\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>ATM期权：\(\Delta \approx \pm 0.5\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Delta可解释为行权概率的近似</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：债券定价模型</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = \sum_{t=1}^{T} \frac{C \cdot F}{(1+y/m)^{mt}} + \frac{F}{(1+y/m)^{mT}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(m\)为每年付息次数。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：久期免疫策略</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D_{资产} = D_{负债}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">通过匹配久期，使资产和负债对利率变化有相同敏感度。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">改进的免疫条件</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>\(D_A = D_L\)（久期匹配）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>\(C_A \geq C_L\)（凸性约束）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>\(PV_A \geq PV_L\)（现值约束）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：二叉树期权定价</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = \frac{pC_u + (1-p)C_d}{1+r}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">风险中性概率：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[p = \frac{(1+r) - d}{u - d}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(u\)和\(d\)分别为上涨和下跌因子。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：隐含波动率</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">隐含波动率是使BS模型价格等于市场价格的波动率：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C_{BS}(\sigma_{impl}) = C_{market}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">波动率微笑</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OTM和ITM期权隐含波动率高于ATM</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>反映市场对极端事件的担忧</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">模型5：利率互换定价</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[V_{swap} = B_{fixed} - B_{floating}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于新签订的互换：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[V_{swap} = 0\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Rightarrow 固定利率 = \frac{1 - P(0,T_n)}{\sum_{i=1}^{n} P(0,T_i) \cdot \Delta t}\]</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实践案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">金</span>
+        <h3 class="text-white font-semibold text-sm">案例一：养老金的久期匹配策略</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某养老基金有100亿元的长期负债，平均久期为15年。基金需要通过债券投资管理利率风险。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资产负债分析</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">项目</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">金额</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">久期</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">利率敏感度</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">负债</td><td class="px-3 py-2 text-xs text-slate-400">100亿</td><td class="px-3 py-2 text-xs text-slate-400">15年</td><td class="px-3 py-2 text-xs text-slate-400">-15亿/1%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现有资产</td><td class="px-3 py-2 text-xs text-slate-400">100亿</td><td class="px-3 py-2 text-xs text-slate-400">8年</td><td class="px-3 py-2 text-xs text-slate-400">-8亿/1%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">久期缺口</td><td class="px-3 py-2 text-xs text-slate-400">-</td><td class="px-3 py-2 text-xs text-slate-400">7年</td><td class="px-3 py-2 text-xs text-slate-400">7亿/1%</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">问题</span>：若利率下降1%，负债增加15亿，资产仅增加8亿，产生7亿缺口。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决方案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">延长久期</div><div class="text-xs text-slate-400"><span class="text-slate-500">操作:</span> 买入30年期国债</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 提高资产久期</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">利率互换</div><div class="text-xs text-slate-400"><span class="text-slate-500">操作:</span> 收固定、付浮动</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 增加利率敏感度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">国债期货</div><div class="text-xs text-slate-400"><span class="text-slate-500">操作:</span> 买入长期国债期货</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 杠杆化延长久期</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最终配置</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>60%配置长期国债（久期20年）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>30%配置中期债券（久期7年）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>10%配置短期债券（久期2年）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>组合久期 = 0.6×20 + 0.3×7 + 0.1×2 = 14.3年</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>久期匹配是养老金和保险公司的核心策略</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>完美匹配困难，需要动态调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>凸性差异可能带来再平衡收益</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">期</span>
+        <h3 class="text-white font-semibold text-sm">案例二：期权对冲的动态调整</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某券商卖出了1000万份某股票的平值看涨期权，标的价格50元，期权价格3元。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">初始风险敞口</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Delta</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 0.52</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险敞口:</span> -520万股敞口</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Gamma</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 0.03</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险敞口:</span> 高度非线性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Vega</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 0.25</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险敞口:</span> 波动率上升损失</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Theta</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> -0.02</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险敞口:</span> 每天获得时间价值</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Delta对冲策略</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">买入520万股标的股票，形成Delta中性。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">一周后市场变化</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">场景</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">标的价格</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">新Delta</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">需要调整</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">上涨</td><td class="px-3 py-2 text-xs text-slate-400">55元</td><td class="px-3 py-2 text-xs text-slate-400">0.68</td><td class="px-3 py-2 text-xs text-slate-400">买入160万股</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">下跌</td><td class="px-3 py-2 text-xs text-slate-400">45元</td><td class="px-3 py-2 text-xs text-slate-400">0.35</td><td class="px-3 py-2 text-xs text-slate-400">卖出170万股</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">横盘</td><td class="px-3 py-2 text-xs text-slate-400">50元</td><td class="px-3 py-2 text-xs text-slate-400">0.50</td><td class="px-3 py-2 text-xs text-slate-400">小幅卖出</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对冲成本分析</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">成本来源</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">横盘</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">单边行情</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">大幅波动</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">交易成本</td><td class="px-3 py-2 text-xs text-slate-400">低</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Gamma损失</td><td class="px-3 py-2 text-xs text-slate-400">无</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">时间收益</td><td class="px-3 py-2 text-xs text-slate-400">获得</td><td class="px-3 py-2 text-xs text-slate-400">获得</td><td class="px-3 py-2 text-xs text-slate-400">可能不足</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键结论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>Gamma负敞口在波动市场中亏损</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>需要根据预期波动率决定对冲频率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>对冲成本需要在期权定价中考虑</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例三：收益率曲线倒挂与经济预测</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">2019年8月，美国10年期国债收益率跌破2年期国债收益率，出现"倒挂"。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">历史数据分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1978年</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济衰退:</span> 1980年</div><div class="text-xs text-slate-400"><span class="text-slate-500">间隔时间:</span> 18个月</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1989年</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济衰退:</span> 1990年</div><div class="text-xs text-slate-400"><span class="text-slate-500">间隔时间:</span> 12个月</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2000年</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济衰退:</span> 2001年</div><div class="text-xs text-slate-400"><span class="text-slate-500">间隔时间:</span> 10个月</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2006年</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济衰退:</span> 2008年</div><div class="text-xs text-slate-400"><span class="text-slate-500">间隔时间:</span> 24个月</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2019年</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济衰退:</span> 2020年</div><div class="text-xs text-slate-400"><span class="text-slate-500">间隔时间:</span> 7个月</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">理论解释</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">预期假说</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 市场预期未来短期利率下降，即预期央行降息</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">流动性偏好</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 投资者追捧长期债券避险，压低长期利率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实体需求</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 企业投资需求下降，长期融资需求减少</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资策略调整</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">债券投资者</div><div class="text-xs text-slate-400"><span class="text-slate-500">策略调整:</span> 拉长久期，锁定当前长期利率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">股票投资者</div><div class="text-xs text-slate-400"><span class="text-slate-500">策略调整:</span> 降低风险敞口，增加防御性板块</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">企业</div><div class="text-xs text-slate-400"><span class="text-slate-500">策略调整:</span> 提前锁定长期融资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">银行</div><div class="text-xs text-slate-400"><span class="text-slate-500">策略调整:</span> 净息差收窄，盈利承压</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>收益率曲线包含重要的经济信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>倒挂是衰退的领先指标但非确定信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>投资决策需要综合多种信息来源</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">深度思考问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1：为什么久期是衡量债券利率风险的核心指标？它的局限性是什么？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">久期的核心地位</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>综合了债券的期限、票息、收益率等多个因素</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>直接反映价格对利率变化的敏感度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>便于比较不同债券的利率风险</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">局限性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">非线性问题</span>：久期假设价格与收益率是线性关系，实际是凸函数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">平行移动假设</span>：假设收益率曲线平行移动，实际会扭曲</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">单一因子</span>：仅考虑利率水平风险，忽略曲线形态风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">不适用于含权债券</span>：如可赎回债券、可转债需要用有效久期</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">解决方案</span>：结合凸性、关键利率久期（Key Rate Duration）等指标。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2：Black-Scholes模型的核心洞见是什么？为什么它如此重要？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心洞见</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">动态对冲</span>：期权可以通过连续调整标的头寸来复制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">风险中性定价</span>：在无套利条件下，可以使用风险中性概率定价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">波动率是关键</span>：期权价值取决于波动率，而非预期收益</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">重要性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>首次给出封闭形式的期权定价公式</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>建立了衍生品定价的理论框架</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>推动了整个衍生品市场的发展</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>影响了风险管理的实践</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">然而需注意</span>：模型假设过于理想化，实际应用需要修正。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3：看涨-看跌平价关系为什么是无套利定价的基石？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">平价关系</span>：\(C - P = S - Ke^{-rT}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经济含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>左边：买入看涨期权 + 卖出看跌期权</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>右边：持有标的 + 借入行权价现值</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这两个组合在到期时有完全相同的收益，因此今天的价值必须相等。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">无套利意义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>如果等式不成立，存在套利机会</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>套利者的行为会推动价格回归平衡</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>这是检验期权市场效率的基本工具</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应用</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通过标的和无风险资产合成期权</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>检查期权报价是否合理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>设计套利策略</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用分析类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4：如何设计一个债券投资组合的免疫策略？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">免疫策略步骤</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">确定负债特征</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>负债金额和时间分布</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>计算负债久期</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">构建资产组合</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选择债券使\(D_A = D_L\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>确保\(PV_A \geq PV_L\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>优化凸性：\(C_A \geq C_L\)</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">定期再平衡</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>随时间推移久期下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>收益率变化改变久期</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要定期调整</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实际考量</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">交易成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 限制再平衡频率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信用风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 需要信用利差管理</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">流动性</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 部分债券难以交易</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收益率曲线非平行移动</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 需要关键利率久期匹配</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5：期权的Greeks如何指导风险管理？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">各Greek的风险管理意义</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Delta</div><div class="text-xs text-slate-400"><span class="text-slate-500">管理方法:</span> 标的对冲</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型策略:</span> 买卖标的股票</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Gamma</div><div class="text-xs text-slate-400"><span class="text-slate-500">管理方法:</span> 期权对冲</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型策略:</span> 买卖相同标的期权</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Theta</div><div class="text-xs text-slate-400"><span class="text-slate-500">管理方法:</span> 接受或通过Gamma对冲</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型策略:</span> 卖出期权获取时间价值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Vega</div><div class="text-xs text-slate-400"><span class="text-slate-500">管理方法:</span> 波动率产品对冲</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型策略:</span> VIX期货、方差互换</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Rho</div><div class="text-xs text-slate-400"><span class="text-slate-500">管理方法:</span> 利率产品对冲</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型策略:</span> 利率期货、互换</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">综合风险管理框架</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>首先进行Delta对冲（一阶风险）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>评估Gamma敞口，决定对冲频率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>监控Vega敞口，特别是在财报季</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>Theta作为持有期权的成本或收益</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6：如何理解和交易波动率微笑？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">波动率微笑现象</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>ATM期权的隐含波动率最低</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OTM和ITM期权隐含波动率较高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股票市场常呈"偏斜"（Put更贵）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">原因解释</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">尾部风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 投资者担心崩盘，愿意为OTM Put支付溢价</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">跳跃风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> BS假设不含跳跃，实际存在跳跃</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">供需失衡</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 机构买Put保险，供需推高价格</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">杠杆效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 股价下跌时波动率上升</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交易策略</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">做多波动率偏斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">观点:</span> 认为尾部风险被低估</div><div class="text-xs text-slate-400"><span class="text-slate-500">操作:</span> 买OTM Put卖ATM</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">做空波动率偏斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">观点:</span> 认为尾部风险被高估</div><div class="text-xs text-slate-400"><span class="text-slate-500">操作:</span> 卖OTM Put买ATM</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">方差互换</div><div class="text-xs text-slate-400"><span class="text-slate-500">观点:</span> 交易实现波动率vs隐含波动率</div><div class="text-xs text-slate-400"><span class="text-slate-500">操作:</span> 支付固定波动率获取实现波动率</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7：为什么BS模型在实际应用中仍然有效，尽管其假设几乎都不成立？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">假设的违背</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股价存在跳跃和厚尾</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>波动率不是常数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>存在交易成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不能连续交易</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">仍然有效的原因</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">框架价值</span>：提供了思考期权定价的系统框架</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">隐含波动率</span>：将模型误差"吸收"进波动率参数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">对冲有效</span>：Delta对冲在实践中基本有效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">相对定价</span>：用于比较不同期权，而非绝对定价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">改进模型</span>：作为更复杂模型的基准和起点</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实践建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>用BS公式加隐含波动率，而非历史波动率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关注波动率微笑/偏斜</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对于长期或深度虚值期权要谨慎</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8：利率期限结构理论中，预期假说和流动性偏好假说能否被实证区分？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证困难</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">联合假设</span>：检验需要假设理性预期</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">风险溢价时变</span>：流动性溢价可能随时间变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">数据限制</span>：需要足够长的历史数据</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证发现</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">远期利率预测未来即期利率效果差</div><div class="text-xs text-slate-400"><span class="text-slate-500">对理论的支持:</span> 反对纯预期假说</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收益率曲线通常向上倾斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">对理论的支持:</span> 支持流动性偏好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">曲线形状有预测经济的能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">对理论的支持:</span> 支持预期假说的成分</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">期限溢价时变</div><div class="text-xs text-slate-400"><span class="text-slate-500">对理论的支持:</span> 需要动态模型</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">现代观点</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">预期和风险溢价都是期限结构的组成部分，需要使用仿射期限结构模型等工具来分离。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9：信用利差包含哪些成分？如何分解？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">信用利差的分解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[信用利差 = 预期损失 + 风险溢价 + 流动性溢价 + 税收差异\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">预期损失</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 违约概率×损失率</div><div class="text-xs text-slate-400"><span class="text-slate-500">估计方法:</span> CDS隐含或历史违约率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险溢价</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 对信用风险的补偿</div><div class="text-xs text-slate-400"><span class="text-slate-500">估计方法:</span> 与股票回报的相关性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">流动性溢价</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 对流动性较差的补偿</div><div class="text-xs text-slate-400"><span class="text-slate-500">估计方法:</span> 买卖价差、换手率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税收差异</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 国债免税优惠</div><div class="text-xs text-slate-400"><span class="text-slate-500">估计方法:</span> 因国家而异</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资级债券：预期损失仅占利差的20-30%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高收益债券：预期损失占比更高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>流动性溢价在危机时大幅上升</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资含义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">信用利差不仅反映违约风险，理解各成分有助于判断债券是否被高估或低估。</p>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学术经典</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">文献</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">The Pricing of Options and Corporate Liabilities</td><td class="px-3 py-2 text-xs text-slate-400">Black-Scholes</td><td class="px-3 py-2 text-xs text-slate-400">1973</td><td class="px-3 py-2 text-xs text-slate-400">BS期权定价模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Theory of Rational Option Pricing</td><td class="px-3 py-2 text-xs text-slate-400">Merton</td><td class="px-3 py-2 text-xs text-slate-400">1973</td><td class="px-3 py-2 text-xs text-slate-400">期权定价理论完善</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">An Equilibrium Characterization of the Term Structure</td><td class="px-3 py-2 text-xs text-slate-400">Vasicek</td><td class="px-3 py-2 text-xs text-slate-400">1977</td><td class="px-3 py-2 text-xs text-slate-400">利率期限结构模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">A Theory of the Term Structure of Interest Rates</td><td class="px-3 py-2 text-xs text-slate-400">Cox-Ingersoll-Ross</td><td class="px-3 py-2 text-xs text-slate-400">1985</td><td class="px-3 py-2 text-xs text-slate-400">CIR模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Bond Pricing and the Term Structure of Interest Rates</td><td class="px-3 py-2 text-xs text-slate-400">Heath-Jarrow-Morton</td><td class="px-3 py-2 text-xs text-slate-400">1992</td><td class="px-3 py-2 text-xs text-slate-400">HJM框架</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">教材推荐</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《固定收益证券》(Tuckman)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> MBA/研究生</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 实务导向，清晰易懂</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《期权、期货及其他衍生品》(Hull)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 本科/研究生</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 经典教材，全面系统</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《利率模型》(Brigo-Mercurio)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 研究生/实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 利率衍生品专著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">《波动率交易》(Sinclair)</div><div class="text-xs text-slate-400"><span class="text-slate-500">适合层次:</span> 实务</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 期权交易实战指南</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          固收定价分析链
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从收益率曲线到衍生品定价的核心逻辑</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">收益率曲线</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">期限结构</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">债券定价</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">现值·久期</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">信用风险</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">利差·评级</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">衍生品</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">期权·互换</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">收益率曲线</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">期限结构</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>即期利率: 零息债券的到期收益率</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>远期利率: 隐含的未来利率预期</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>曲线形态: 正常/倒挂/平坦各有含义</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">债券定价</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">现值·久期</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>P=ΣC/(1+y)^t+F/(1+y)^n</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>久期D: 价格对利率变化的敏感度</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>凸性: 久期的修正项(大幅变动时)</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">信用风险</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">利差·评级</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>信用利差=公司债收益率-国债收益率</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>评级体系: AAA→D的信用等级</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>违约概率×违约损失率=预期损失</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">衍生品</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">期权·互换</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>BSM模型: 期权的理论定价</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>利率互换: 固定↔浮动的风险转换</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>CDS: 信用风险的保险工具</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          收益率曲线实验室
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线查看不同期限的收益率</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">期限(年)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">收益率%</text>
+      
+      
+      
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">Yield</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">利率预期 <span class="text-white font-mono" id="comp-1-sv">i = 0</span></div>
+      <input type="range" id="comp-1-slider" min="-3" max="3" value="0" step="0.5">
+    </div>
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">收益率</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">期限溢价</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">久期风险</div>
+        <div class="font-mono text-lg font-bold" style="color:#f87171" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          债券定价计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">计算债券现值与久期</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">面值</label>
+            <input type="number" id="comp-2-face" value="100" min="0" step="10" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">票息率(%)</label>
+            <input type="number" id="comp-2-coupon" value="5" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">到期收益率(%)</label>
+            <input type="number" id="comp-2-ytm" value="4" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">剩余期限(年)</label>
+            <input type="number" id="comp-2-n" value="10" min="1" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">定价准确度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">债券价格</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">麦考利久期</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">交易状态</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">修正久期</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ P = \sum_{t=1}^{n}\frac{C}{(1+y)^t} + \frac{F}{(1+y)^n} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 资产定价 Chapter 03</div>
+    <div class="mt-2 md:mt-0">下一章：企业资本运作与上市决策 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '(1+r_n)^n = E[(1+r_1)', tip: '预期假说——长期利率=未来短期利率的几何平均'},
+    {match: '\\max(S_T - K, 0)', tip: '看涨期权到期收益——标的价格超过行权价才有钱赚'},
+    {match: '\\max(K - S_T, 0)', tip: '看跌期权到期收益——标的价格低于行权价才有钱赚'},
+    {match: 'S > K', tip: '期权实值——标的价格高于行权价，看涨期权有内在价值'},
+    {match: 'S < K', tip: '期权虚值——标的价格低于行权价，看涨期权无内在价值'},
+    {match: 'S = K', tip: '期权平值——标的价格等于行权价'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: '\\frac{\\partial C}{\\partial S}', tip: 'Delta——期权价格对标的资产价格的敏感度'},
+    {match: 'N(d_1)', tip: 'BS模型中标的资产的Delta对冲比率'},
+    {match: '\\frac{\\partial^2 C}{\\partial S^2}', tip: 'Gamma——Delta本身的变化速度'},
+    {match: '\\frac{\\partial C}{\\partial t}', tip: 'Theta——时间流逝对期权价格的影响'},
+    {match: '\\rho', tip: '相关系数——两个变量之间线性关系的强弱，-1到1'},
+    {match: 'e^{-rT}', tip: '把未来的钱按连续复利折算到今天值多少'},
+    {match: 'D_A = D_L', tip: '久期匹配——资产久期等于负债久期以对冲利率风险'},
+    {match: 'C_A \\geq C_L', tip: '凸度条件——资产凸度不低于负债凸度'},
+    {match: 'PV_A \\geq PV_L', tip: '现值匹配——资产现值不低于负债现值'},
+    {match: '\\sum_{t=1}', tip: '把每年的现金流都折现到今天然后加起来'},
+    {match: 'P = \\frac{F}{(1+y)^T}', tip: '零息债券定价——面值折现到今天'},
+    {match: 'P = \\frac{C}{y}', tip: '永续债券定价——每年固定利息÷到期收益率'},
+    {match: 'D_{mod} = \\frac{D_{Mac}}{1+y}', tip: '修正久期——利率每变1%，债券价格变约多少%'},
+    {match: '\\frac{\\Delta P}{P} \\approx -D', tip: '久期近似——利率变1%，债券价格变约-久期%'},
+    {match: '(1+r_t)^t', tip: 't时刻的收益率——金融时间序列的基本观测'},
+    {match: '期权价格 = 内在价值 + 时间价值', tip: '期权定价——内在价值是立即行权的收益，时间价值是等待的价值'},
+    {match: '\\sigma^2', tip: '方差——标准差的平方，衡量数据的分散程度'},
+    {match: 'C = \\frac{pC_u + (1-p)C_d}{1+r}', tip: '二叉树期权定价——用风险中性概率对上下两种结果求期望'},
+    {match: 'p = \\frac{(1+r) - d}{u - d}', tip: '风险中性概率——不是真实概率，是让定价无套利的概率'},
+    {match: 'V_{swap} = B_{fixed} - B_{floating}', tip: '利率互换价值——固定利率债券与浮动利率债券之差'},
+    {match: '信用利差 = 预期损失 + 风险溢价', tip: '信用利差的组成——违约风险+不确定性补偿+流动性'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=30,yMax=8;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 2+2*(1-Math.exp(-x/10))+c*0.01*x;})(0);
+    var y1=(function(x){return 2+2*(1-Math.exp(-x/10))+c*0.01*x;})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+  }
+  drawCurves();
+  
+  var sl=document.getElementById('comp-1-slider');
+  sl.addEventListener('input',function(){
+    sliderVal=parseFloat(sl.value);
+    document.getElementById('comp-1-sv').textContent='i = '+sliderVal.toFixed(1);
+    drawCurves();
+  });
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 2+2*(1-Math.exp(-x/10))+c*0.01*x;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='YTM';
+    document.getElementById('comp-1-m1').textContent=(y-2).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='超过短端的部分';
+    document.getElementById('comp-1-m2').textContent=(x*0.01*y).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='利率敏感度';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='期限(年)='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='收益率%='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var face=parseFloat(document.getElementById('comp-2-face').value);
+    var coupon=parseFloat(document.getElementById('comp-2-coupon').value);
+    var ytm=parseFloat(document.getElementById('comp-2-ytm').value);
+    var n=parseFloat(document.getElementById('comp-2-n').value);
+
+    var c=face*coupon/100; var y=ytm/100; var pv=0; var dur=0;
+    for(var t=1;t<=n;t++){var d=c/Math.pow(1+y,t);pv+=d;dur+=t*d;}
+    var fv=face/Math.pow(1+y,n);pv+=fv;dur+=n*fv;dur=dur/pv;
+    document.getElementById('comp-2-out0').textContent=pv.toFixed(2);
+    document.getElementById('comp-2-out1').textContent=dur.toFixed(2);
+    document.getElementById('comp-2-out2').textContent=pv>face?'溢价':(pv<face?'折价':'平价');
+    document.getElementById('comp-2-out3').textContent=(-dur/(1+y)*100).toFixed(2)+'%/1%';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,pv/120)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

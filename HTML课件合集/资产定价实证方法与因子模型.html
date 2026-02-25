@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资产定价实证方法与因子模型 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Econometrics</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">公式与检验方法</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 04</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">资产定价实证方法与因子模型</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">资产定价理论的实证检验方法与因子模型构建</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实证方法</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">因子模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">资产定价实证框架</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资产定价模型的一般形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E[R_i] - R_f = \sum_{k=1}^{K} \beta_{ik} \lambda_k\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E[R_i] - R_f\)：资产\(i\)的期望超额收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\beta_{ik}\)：资产\(i\)对因子\(k\)的暴露（因子载荷）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\lambda_k\)：因子\(k\)的风险价格</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证检验的核心问题</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定价误差</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验内容:</span> \(\alpha_i = 0\)？</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 时间序列检验</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验内容:</span> \(\lambda_k > 0\)？</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 横截面检验</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型比较</div><div class="text-xs text-slate-400"><span class="text-slate-500">检验内容:</span> 哪个模型更好？</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> GRS检验、截面\(R^2\)</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">时间序列检验</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">回归模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{it} - R_{ft} = \alpha_i + \sum_{k=1}^{K} \beta_{ik} F_{kt} + \epsilon_{it}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对于单个资产的假设检验</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[H_0: \alpha_i = 0\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[t_{\alpha_i} = \frac{\hat{\alpha}_i}{se(\hat{\alpha}_i)}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">联合检验：GRS检验</span>（Gibbons, Ross, Shanken 1989）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[GRS = \frac{T-N-K}{N}\left(\frac{1}{1+\bar{F}'\hat{\Sigma}_F^{-1}\bar{F}}\right)\hat{\boldsymbol{\alpha}}'\hat{\Sigma}^{-1}\hat{\boldsymbol{\alpha}} \sim F_{N, T-N-K}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(T\)：时间期数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(N\)：测试资产数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(K\)：因子数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\bar{F}\)：因子均值向量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\hat{\Sigma}_F\)：因子协方差矩阵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\hat{\Sigma}\)：残差协方差矩阵</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\hat{\boldsymbol{\alpha}}\)：alpha向量</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">GRS检验的解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>拒绝\(H_0\)：因子模型不能完全解释测试资产的收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不拒绝\(H_0\)：因子模型定价能力较好</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>注意：检验功效受测试资产选择影响</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">横截面检验：Fama-MacBeth方法</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三步法流程</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第一步：时间序列回归估计Beta</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{it} - R_{ft} = \alpha_i + \boldsymbol{\beta}_i' \mathbf{F}_t + \epsilon_{it}, \quad t = 1, ..., T\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对每个资产\(i\)估计因子载荷\(\hat{\boldsymbol{\beta}}_i\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第二步：横截面回归估计风险价格</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{it} - R_{ft} = \gamma_{0t} + \boldsymbol{\gamma}_t' \hat{\boldsymbol{\beta}}_i + u_{it}, \quad \forall t\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对每个时期\(t\)进行横截面回归，获得\(\{\gamma_{0t}, \boldsymbol{\gamma}_t\}\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第三步：计算时间序列均值和标准误</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\bar{\gamma}_k = \frac{1}{T}\sum_{t=1}^{T}\gamma_{kt}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[se(\bar{\gamma}_k) = \frac{s_{\gamma_k}}{\sqrt{T}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(s_{\gamma_k} = \sqrt{\frac{1}{T-1}\sum_{t=1}^{T}(\gamma_{kt} - \bar{\gamma}_k)^2}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Shanken (1992) 误差中的误差调整</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">由于\(\hat{\beta}\)有估计误差，Fama-MacBeth标准误需要调整：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Var(\hat{\gamma}) = \frac{1}{T}\left[(1 + \bar{\gamma}'\hat{\Sigma}_F^{-1}\bar{\gamma})\Sigma_u + \Sigma_\gamma\right]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\Sigma_u\)为第二阶段残差协方差，\(\Sigma_\gamma\)为\(\gamma_t\)的时序方差。</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">因子构建方法</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">组合排序法</span>（Fama-French方法）：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">单变量排序</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>每月末按特征排序</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>分成N组（如5组或10组）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>计算下月各组等权/市值加权收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>多空因子 = 高组 - 低组</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">双变量独立排序</span>（2×3或5×5）：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">例：SMB因子构建（规模-BM 2×3排序）</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap"></th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">低BM</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">中BM</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">高BM</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">小市值</td><td class="px-3 py-2 text-xs text-slate-400">SL</td><td class="px-3 py-2 text-xs text-slate-400">SM</td><td class="px-3 py-2 text-xs text-slate-400">SH</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">大市值</td><td class="px-3 py-2 text-xs text-slate-400">BL</td><td class="px-3 py-2 text-xs text-slate-400">BM</td><td class="px-3 py-2 text-xs text-slate-400">BH</td></tr></tbody></table></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[SMB = \frac{1}{3}(SL + SM + SH) - \frac{1}{3}(BL + BM + BH)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[HML = \frac{1}{2}(SH + BH) - \frac{1}{2}(SL + BL)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">条件排序</span>（控制另一变量）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>先按变量A分组</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>在每组内按变量B排序</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>合并各组形成因子</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">主要因子模型</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">CAPM</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E[R_i] - R_f = \beta_i (E[R_m] - R_f)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Fama-French三因子（1993）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha + \beta_m MKT + \beta_s SMB + \beta_h HML + \epsilon\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MKT</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建:</span> 市场组合-无风险利率</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释:</span> 系统性风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">SMB</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建:</span> 小市值-大市值</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释:</span> 规模风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">HML</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建:</span> 高BM-低BM</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释:</span> 价值风险</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Carhart四因子（1997）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha + \beta_m MKT + \beta_s SMB + \beta_h HML + \beta_u UMD + \epsilon\]</div>
+<div class="grid grid-cols-1 md:grid-cols-1 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">UMD</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建:</span> 过去赢家-过去输家</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 动量因子</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Fama-French五因子（2015）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha + \beta_m MKT + \beta_s SMB + \beta_h HML + \beta_r RMW + \beta_c CMA + \epsilon\]</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">RMW</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建:</span> 高盈利-低盈利</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释:</span> 盈利能力</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CMA</div><div class="text-xs text-slate-400"><span class="text-slate-500">构建:</span> 低投资-高投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释:</span> 投资保守</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">q因子模型（Hou, Xue, Zhang 2015）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_i - R_f = \alpha + \beta_m MKT + \beta_{me} R_{ME} + \beta_{I/A} R_{I/A} + \beta_{ROE} R_{ROE} + \epsilon\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">基于投资CAPM（I-CAPM）理论推导。</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型评价指标</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定价误差</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平均绝对alpha</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\frac{1}{N}\sum\</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> \hat{\alpha}_i\</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> \)</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> alpha平均大小</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">alpha的截面标准差</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(\sqrt{\frac{1}{N}\sum(\hat{\alpha}_i - \bar{\alpha})^2}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> alpha离散程度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">GRS p值</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> \(P(F > GRS)\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 联合显著性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">截面解释力</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R^2_{XS} = 1 - \frac{\sum_i (E[R_i] - \hat{E}[R_i])^2}{\sum_i (E[R_i] - \overline{E[R]})^2}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\hat{E}[R_i] = R_f + \hat{\boldsymbol{\beta}}_i' \hat{\boldsymbol{\lambda}}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最大夏普比率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[SR_{max} = \sqrt{\bar{\mathbf{F}}'\Sigma_F^{-1}\bar{\mathbf{F}}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">理论上，定价因子的最大夏普比率等于均值-方差有效前沿的斜率。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型比较</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>非嵌套模型：比较截面\(R^2\)和GRS</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>嵌套模型：似然比检验</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本外检验：滚动窗口预测</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">异象与因子动物园</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">异象（Anomaly）的定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">无法被现有因子模型解释的截面收益差异。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">著名异象</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">异象</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">发现者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">状态</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">规模效应</td><td class="px-3 py-2 text-xs text-slate-400">Banz (1981)</td><td class="px-3 py-2 text-xs text-slate-400">小市值股票回报高</td><td class="px-3 py-2 text-xs text-slate-400">减弱</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">价值效应</td><td class="px-3 py-2 text-xs text-slate-400">Fama-French (1992)</td><td class="px-3 py-2 text-xs text-slate-400">高BM股票回报高</td><td class="px-3 py-2 text-xs text-slate-400">依然存在</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">动量</td><td class="px-3 py-2 text-xs text-slate-400">Jegadeesh-Titman (1993)</td><td class="px-3 py-2 text-xs text-slate-400">过去赢家继续赢</td><td class="px-3 py-2 text-xs text-slate-400">依然存在</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">低波动</td><td class="px-3 py-2 text-xs text-slate-400">Ang et al. (2006)</td><td class="px-3 py-2 text-xs text-slate-400">低波动股票回报高</td><td class="px-3 py-2 text-xs text-slate-400">依然存在</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利</td><td class="px-3 py-2 text-xs text-slate-400">Novy-Marx (2013)</td><td class="px-3 py-2 text-xs text-slate-400">高盈利股票回报高</td><td class="px-3 py-2 text-xs text-slate-400">依然存在</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">投资</td><td class="px-3 py-2 text-xs text-slate-400">Titman et al. (2004)</td><td class="px-3 py-2 text-xs text-slate-400">低投资股票回报高</td><td class="px-3 py-2 text-xs text-slate-400">依然存在</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">应计</td><td class="px-3 py-2 text-xs text-slate-400">Sloan (1996)</td><td class="px-3 py-2 text-xs text-slate-400">低应计股票回报高</td><td class="px-3 py-2 text-xs text-slate-400">减弱</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子动物园（Factor Zoo）问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>文献中报告了300+个预测因子</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多重检验问题严重</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>很多因子样本外失效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>解决：更严格的统计标准（|t|>3）、样本外检验</span></div></div>
+  </div>
+</section>
+
+
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键公式与检验方法</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">时间序列回归的标准误</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">OLS标准误</span>（假设同方差、无自相关）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[se(\hat{\alpha}_i) = \sqrt{\frac{\hat{\sigma}_i^2}{T}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Newey-West HAC标准误</span>（异方差和自相关稳健）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{V}_{HAC} = \hat{\Gamma}_0 + \sum_{j=1}^{L}\left(1-\frac{j}{L+1}\right)(\hat{\Gamma}_j + \hat{\Gamma}_j')\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中\(\hat{\Gamma}_j = \frac{1}{T}\sum_{t=j+1}^{T}\hat{\epsilon}_t\hat{\epsilon}_{t-j}\mathbf{x}_t\mathbf{x}_{t-j}'\)</p>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">测试资产的选择</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">25个规模-BM组合</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 经典、可比性强</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 可能对FF因子有利</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">行业组合</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 经济含义清晰</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 因子暴露可能较弱</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">个股</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 信息量大</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 噪音大、计算量大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">异象组合</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 针对性强</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 可能过拟合</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最佳实践</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用多种测试资产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>包括模型"难以解释"的资产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>报告各组alpha的t统计量</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">滚动窗口估计</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">滚动Beta估计</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">使用过去\(W\)期数据估计Beta，用于下一期预测。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\hat{\beta}_{i,t} = \frac{\sum_{s=t-W}^{t-1}(R_{is} - \bar{R}_i)(F_s - \bar{F})}{\sum_{s=t-W}^{t-1}(F_s - \bar{F})^2}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">窗口长度选择</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>太短：估计噪音大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>太长：参数变化被忽略</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>常用：36-60个月</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例一：CAPM在中国市场的检验</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">CAPM能否解释A股市场的截面收益差异？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本：A股上市公司</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>期间：2000-2023年月度数据</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>测试资产：25个规模-BM组合</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">方法</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">时间序列检验</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_{pt} - R_{ft} = \alpha_p + \beta_p (R_{mt} - R_{ft}) + \epsilon_{pt}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">结果</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">组合</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">Alpha</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">t(Alpha)</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">Beta</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">R²</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">小-低BM</td><td class="px-3 py-2 text-xs text-slate-400">1.23%***</td><td class="px-3 py-2 text-xs text-slate-400">3.45</td><td class="px-3 py-2 text-xs text-slate-400">1.12</td><td class="px-3 py-2 text-xs text-slate-400">0.78</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">小-高BM</td><td class="px-3 py-2 text-xs text-slate-400">0.89%**</td><td class="px-3 py-2 text-xs text-slate-400">2.34</td><td class="px-3 py-2 text-xs text-slate-400">1.08</td><td class="px-3 py-2 text-xs text-slate-400">0.75</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">大-低BM</td><td class="px-3 py-2 text-xs text-slate-400">-0.12%</td><td class="px-3 py-2 text-xs text-slate-400">-0.45</td><td class="px-3 py-2 text-xs text-slate-400">0.95</td><td class="px-3 py-2 text-xs text-slate-400">0.82</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">大-高BM</td><td class="px-3 py-2 text-xs text-slate-400">0.34%</td><td class="px-3 py-2 text-xs text-slate-400">1.23</td><td class="px-3 py-2 text-xs text-slate-400">0.88</td><td class="px-3 py-2 text-xs text-slate-400">0.80</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">GRS检验</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GRS统计量：3.45</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>p值：0.000</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结论：强烈拒绝CAPM</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Fama-MacBeth检验</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\gamma_0\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">估计值:</span> 1.12%***</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> 3.56</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(\gamma_{MKT}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">估计值:</span> 0.23%</div><div class="text-xs text-slate-400"><span class="text-slate-500">t统计量:</span> 0.78</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>市场Beta的风险价格不显著</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>截距显著为正（零Beta收益过高）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>小市值和高BM组合有显著正alpha</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>CAPM无法解释A股截面收益</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例二：Fama-French五因子模型构建与检验</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子构建（中国市场）</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分组变量定义</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Size</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 总市值</div><div class="text-xs text-slate-400"><span class="text-slate-500">排序时点:</span> 每年6月末</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BM</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 账面市值比</div><div class="text-xs text-slate-400"><span class="text-slate-500">排序时点:</span> 每年6月末（t-1年末数据）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">OP</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 营业利润率</div><div class="text-xs text-slate-400"><span class="text-slate-500">排序时点:</span> 每年6月末</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">INV</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 总资产增长率</div><div class="text-xs text-slate-400"><span class="text-slate-500">排序时点:</span> 每年6月末</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">因子构建结果</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因子</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">月均收益</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">t统计量</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">波动率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">Sharpe Ratio</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">MKT</td><td class="px-3 py-2 text-xs text-slate-400">0.62%</td><td class="px-3 py-2 text-xs text-slate-400">1.45</td><td class="px-3 py-2 text-xs text-slate-400">5.8%</td><td class="px-3 py-2 text-xs text-slate-400">0.11</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">SMB</td><td class="px-3 py-2 text-xs text-slate-400">0.45%**</td><td class="px-3 py-2 text-xs text-slate-400">2.12</td><td class="px-3 py-2 text-xs text-slate-400">2.9%</td><td class="px-3 py-2 text-xs text-slate-400">0.16</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">HML</td><td class="px-3 py-2 text-xs text-slate-400">0.23%</td><td class="px-3 py-2 text-xs text-slate-400">0.89</td><td class="px-3 py-2 text-xs text-slate-400">3.5%</td><td class="px-3 py-2 text-xs text-slate-400">0.07</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">RMW</td><td class="px-3 py-2 text-xs text-slate-400">0.38%*</td><td class="px-3 py-2 text-xs text-slate-400">1.78</td><td class="px-3 py-2 text-xs text-slate-400">2.8%</td><td class="px-3 py-2 text-xs text-slate-400">0.14</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CMA</td><td class="px-3 py-2 text-xs text-slate-400">0.21%</td><td class="px-3 py-2 text-xs text-slate-400">0.92</td><td class="px-3 py-2 text-xs text-slate-400">3.1%</td><td class="px-3 py-2 text-xs text-slate-400">0.07</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型检验</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">模型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">GRS</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">p值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">截面R²</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">平均</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">α</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap"></th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CAPM</td><td class="px-3 py-2 text-xs text-slate-400">3.45</td><td class="px-3 py-2 text-xs text-slate-400">0.000</td><td class="px-3 py-2 text-xs text-slate-400">0.12</td><td class="px-3 py-2 text-xs text-slate-400">0.89%</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400"></td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FF3</td><td class="px-3 py-2 text-xs text-slate-400">2.34</td><td class="px-3 py-2 text-xs text-slate-400">0.002</td><td class="px-3 py-2 text-xs text-slate-400">0.45</td><td class="px-3 py-2 text-xs text-slate-400">0.56%</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400"></td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FF5</td><td class="px-3 py-2 text-xs text-slate-400">1.89</td><td class="px-3 py-2 text-xs text-slate-400">0.018</td><td class="px-3 py-2 text-xs text-slate-400">0.58</td><td class="px-3 py-2 text-xs text-slate-400">0.42%</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400"></td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>SMB在中国市场表现强劲</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>HML（价值因子）效应较弱</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>RMW（盈利因子）有一定解释力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>五因子模型优于三因子，但仍被拒绝</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例三：动量因子的构建与分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">动量因子定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">基于过去11个月收益（跳过最近1个月）排序。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MOM_i = \sum_{t=-12}^{-2} R_{it}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">构建方法</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>每月末按过去收益排序</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>分成10组</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>UMD = 组10（赢家）- 组1（输家）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">美国市场结果（1963-2023）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">月均收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 0.68%***</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">t统计量</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 4.23</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">月波动率</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 4.5%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">夏普比率</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 0.15</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">最大回撤</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> -54.7%</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">中国市场结果（2000-2023）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">月均收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 0.12%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">t统计量</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 0.45</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">月波动率</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 5.2%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">夏普比率</div><div class="text-xs text-slate-400"><span class="text-slate-500">值:</span> 0.02</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>美国市场动量效应显著且持续</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>中国市场动量效应很弱</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>可能原因：散户占比高、涨跌停限制、反转效应更强</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>动量策略有较大的崩溃风险</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1: 时间序列检验和横截面检验有什么区别？它们各自检验什么？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数据结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">时间序列检验:</span> 单个资产的时序数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">横截面检验:</span> 每期多个资产的截面数据</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">检验内容</div><div class="text-xs text-slate-400"><span class="text-slate-500">时间序列检验:</span> Alpha是否为零</div><div class="text-xs text-slate-400"><span class="text-slate-500">横截面检验:</span> 风险价格是否显著为正</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">原假设</div><div class="text-xs text-slate-400"><span class="text-slate-500">时间序列检验:</span> \(H_0: \alpha_i = 0\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">横截面检验:</span> \(H_0: \lambda_k = 0\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">代表方法</div><div class="text-xs text-slate-400"><span class="text-slate-500">时间序列检验:</span> GRS检验</div><div class="text-xs text-slate-400"><span class="text-slate-500">横截面检验:</span> Fama-MacBeth</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关系</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>时间序列alpha=0 ⟺ 横截面上只有Beta决定期望收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>两种检验应该得到一致的结论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实际中可能因估计误差、样本选择而有差异</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2: 为什么Fama-MacBeth方法需要Shanken调整？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">问题来源</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Fama-MacBeth方法的第二步使用的是估计的\(\hat{\beta}\)，而非真实的\(\beta\)。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">后果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>第二步回归存在误差中的误差（Errors-in-Variables）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Fama-MacBeth标准误低估了真实的不确定性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>t统计量被高估</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Shanken调整公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Var_{adjusted}(\hat{\gamma}) = Var_{FM}(\hat{\gamma}) \times (1 + \bar{\gamma}'\hat{\Sigma}_F^{-1}\bar{\gamma})\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实践建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子均值和方差较大时，调整更重要</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>报告调整前后的标准误</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>也可使用Bootstrap方法</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3: 什么是GRS检验？如何解释其结果？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">GRS检验的含义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">联合检验所有测试资产的alpha是否同时为零。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[H_0: \alpha_1 = \alpha_2 = ... = \alpha_N = 0\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">统计量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[GRS = \frac{T-N-K}{N} \times \frac{\hat{\boldsymbol{\alpha}}'\hat{\Sigma}^{-1}\hat{\boldsymbol{\alpha}}}{1 + \bar{F}'\hat{\Sigma}_F^{-1}\bar{F}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GRS高（p值小）：拒绝\(H_0\)，因子模型不能完全解释收益</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GRS低（p值大）：不拒绝\(H_0\)，模型定价能力较好</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">注意事项</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>测试资产选择影响结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>高GRS也可能因为单个异常资产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>应结合alpha的经济大小判断</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4: 如何构建一个新的因子？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 因子构建的完整流程：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 理论基础</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>找到经济学或金融学的理论支持</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>解释为什么这个特征应该与收益相关</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. 变量定义</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>明确计算公式</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>处理缺失值和异常值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>确定更新频率</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. 组合排序</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选择排序方法（单变量/双变量）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>确定分组数量（通常5-10组）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选择加权方式（等权/市值加权）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">4. 因子检验</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多空组合的收益和t统计量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对现有因子回归看alpha</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本内和样本外检验</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">5. 稳健性检验</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>子样本分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不同市场测试</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>交易成本考虑</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5: 如何评价不同因子模型的优劣？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定量指标</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">GRS统计量</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算:</span> 联合alpha检验</div><div class="text-xs text-slate-400"><span class="text-slate-500">越好的模型:</span> 越小越好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平均绝对alpha</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算:</span> \(\frac{1}{N}\sum\</div><div class="text-xs text-slate-400"><span class="text-slate-500">越好的模型:</span> \hat{\alpha}_i\</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> \)</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> 越小越好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">截面R²</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算:</span> 预测vs实际收益</div><div class="text-xs text-slate-400"><span class="text-slate-500">越好的模型:</span> 越大越好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">最大夏普比率</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算:</span> \(\sqrt{\bar{F}'\Sigma_F^{-1}\bar{F}}\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">越好的模型:</span> 理论上应达到前沿斜率</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定性考虑</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论基础是否扎实</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子是否可投资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>样本外表现是否稳健</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>交易成本后是否仍有效</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型比较示例</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">模型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">GRS</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">p值</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">截面R²</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">理论基础</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">CAPM</td><td class="px-3 py-2 text-xs text-slate-400">3.45</td><td class="px-3 py-2 text-xs text-slate-400">0.00</td><td class="px-3 py-2 text-xs text-slate-400">0.12</td><td class="px-3 py-2 text-xs text-slate-400">强</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FF3</td><td class="px-3 py-2 text-xs text-slate-400">2.34</td><td class="px-3 py-2 text-xs text-slate-400">0.00</td><td class="px-3 py-2 text-xs text-slate-400">0.45</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">FF5</td><td class="px-3 py-2 text-xs text-slate-400">1.89</td><td class="px-3 py-2 text-xs text-slate-400">0.02</td><td class="px-3 py-2 text-xs text-slate-400">0.58</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">q因子</td><td class="px-3 py-2 text-xs text-slate-400">1.67</td><td class="px-3 py-2 text-xs text-slate-400">0.04</td><td class="px-3 py-2 text-xs text-slate-400">0.62</td><td class="px-3 py-2 text-xs text-slate-400">强</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6: 因子投资在实践中如何应用？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应用场景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 业绩归因</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[R_p - R_f = \alpha_p + \beta_{MKT}MKT + \beta_{SMB}SMB + ...\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解释基金收益来源。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. 风险管理</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监控因子暴露</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>控制非预期风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>分散化配置</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. 因子投资策略</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Smart Beta ETF</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>多因子选股</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子择时</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">4. 策略构建</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">单因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 只暴露一个因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 价值ETF</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">多因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 综合多个因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 多因子量化基金</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">因子轮动</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 择时切换因子</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 宏观因子轮动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">因子中性</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 控制特定暴露</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 市场中性策略</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判性问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7: "因子动物园"问题的本质是什么？如何应对？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">问题本质</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">数据窥探（Data Snooping）</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>研究者在同一数据上测试大量假说</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>偶然显著的结果被发表</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">发表偏差（Publication Bias）</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>显著结果更容易发表</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不显著结果被"抽屉"隐藏</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">样本外失效</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>很多异象在发现后消失</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能是套利消除或数据挖掘</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应对策略</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">更严格的统计标准</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> \</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> t\</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> > 3而非2</div><div class="text-xs text-slate-400"><span class="text-slate-500">:</span> 减少假阳性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">多重检验调整</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> Bonferroni, FDR</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 控制FWER</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">样本外检验</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 不同时期/市场</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 检验稳健性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">经济理论</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 要求理论支持</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 筛选合理因子</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">预注册</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 提前公布假说</div><div class="text-xs text-slate-400"><span class="text-slate-500">效果:</span> 防止HARKing</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Harvey, Liu &amp; Zhu (2016)的建议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑已发表的316个因子</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新因子需要t统计量 > 3.0</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>相当于约0.1%的显著性水平</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8: 风险解释与行为解释的争论如何理解？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">风险解释</span>（Risk-based）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高收益是对承担系统性风险的补偿</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：价值股在经济衰退时表现更差</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代表：Fama-French，q因子模型</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">行为解释</span>（Behavioral）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高收益来自投资者的错误定价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：投资者过度外推成长股表现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代表：Lakonishok, Shleifer, Vishny (1994)</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">两种解释的检验</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">宏观条件</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释预测:</span> 不好时代超额收益更高</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为解释预测:</span> 无明确预测</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投资者情绪</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释预测:</span> 无明确预测</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为解释预测:</span> 情绪高时效应减弱</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长期表现</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释预测:</span> 持续存在</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为解释预测:</span> 套利后消失</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">盈利公告</div><div class="text-xs text-slate-400"><span class="text-slate-500">风险解释预测:</span> 不应有额外反应</div><div class="text-xs text-slate-400"><span class="text-slate-500">行为解释预测:</span> 应有正面意外</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">综合观点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>两种解释可能同时存在</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不同异象可能有不同解释</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实证上难以完全区分</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9: 中国市场的因子表现与美国有何不同？原因是什么？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要差异</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因子</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">美国市场</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">中国市场</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">差异原因</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">市场</td><td class="px-3 py-2 text-xs text-slate-400">显著正风险价格</td><td class="px-3 py-2 text-xs text-slate-400">风险价格不显著</td><td class="px-3 py-2 text-xs text-slate-400">市场效率差异</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">规模</td><td class="px-3 py-2 text-xs text-slate-400">效应减弱</td><td class="px-3 py-2 text-xs text-slate-400">效应强劲</td><td class="px-3 py-2 text-xs text-slate-400">壳价值、散户参与</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">价值</td><td class="px-3 py-2 text-xs text-slate-400">长期有效</td><td class="px-3 py-2 text-xs text-slate-400">效应较弱</td><td class="px-3 py-2 text-xs text-slate-400">会计信息质量</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">动量</td><td class="px-3 py-2 text-xs text-slate-400">强且持续</td><td class="px-3 py-2 text-xs text-slate-400">很弱或反转</td><td class="px-3 py-2 text-xs text-slate-400">涨跌停、散户交易</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">盈利</td><td class="px-3 py-2 text-xs text-slate-400">显著</td><td class="px-3 py-2 text-xs text-slate-400">较显著</td><td class="px-3 py-2 text-xs text-slate-400">相对一致</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">低波动</td><td class="px-3 py-2 text-xs text-slate-400">显著</td><td class="px-3 py-2 text-xs text-slate-400">显著</td><td class="px-3 py-2 text-xs text-slate-400">彩票偏好普遍</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">中国市场特殊因素</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">市场微观结构</span>：涨跌停限制、T+1制度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">投资者结构</span>：散户占比高、机构化程度低</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">制度因素</span>：壳资源价值、审批制IPO</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">信息环境</span>：会计信息质量、信息不对称</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不能简单照搬美国因子</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要适应中国市场特点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>关注制度变迁的影响</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典文献</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">Fama & French (1993)</span> - "Common risk factors in the returns on stocks and bonds"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>三因子模型原始论文</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">Fama & French (2015)</span> - "A five-factor asset pricing model"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>五因子模型</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">Hou, Xue & Zhang (2015)</span> - "Digesting Anomalies"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>q因子模型</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">Harvey, Liu & Zhu (2016)</span> - "...and the Cross-Section of Expected Returns"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子动物园问题</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">教材与综述</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">"Empirical Asset Pricing"</span> - Bali, Engle, Murray</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>全面的实证方法教材</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>包含代码</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">Cochrane (2005)</span> - "Asset Pricing"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论与实证结合</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">Campbell, Lo, MacKinlay (1997)</span> - "The Econometrics of Financial Markets"</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融计量经典</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据与代码</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">Kenneth French数据库</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>免费因子数据</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>mba.tuck.dartmouth.edu/pages/faculty/ken.french/</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">WRDS</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>学术数据标准来源</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span><span class="text-white font-semibold">Open Source Asset Pricing</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因子复制代码</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>openassetpricing.com</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          因子模型实证检验流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握资产定价实证研究的标准方法</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">因子构建</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">排序·分组</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">时序回归</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">Alpha·载荷</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">截面回归</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">Fama-MacBeth</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">模型比较</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">GRS·表现</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">因子构建</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">排序·分组</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>特征排序: 按市值/BM/动量等分组</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>多空组合: 买入顶组卖出底组</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>因子收益率: 多空组合的平均收益</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">时序回归</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">Alpha·载荷</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>Ri-Rf=αi+Σβik·Fk+εi</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>α: 模型无法解释的超额收益</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>β: 资产对因子的敏感度(载荷)</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">截面回归</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">Fama-MacBeth</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>每期: Ri=γ0+Σγk·β̂ik+εi</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>γk: 因子风险溢价的估计</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>Shanken修正: 调整第一阶段估计误差</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">模型比较</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">GRS·表现</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>GRS检验: 联合H0: 所有αi=0</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>模型比较: HJ距离/R²比较</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>样本外: 因子在新样本中是否持续有效</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Fama-MacBeth回归可视化
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击查看不同Beta下的截面收益</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Beta(β)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">月均超额收益%</text>
+      
+      
+      
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">SML</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">预测收益</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">Alpha</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">β暴露</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          GRS检验统计量计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">检验多因子模型定价能力</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">时间期数T</label>
+            <input type="number" id="comp-2-t" value="120" min="0" step="12" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">资产组合数N</label>
+            <input type="number" id="comp-2-nn" value="25" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">因子数K</label>
+            <input type="number" id="comp-2-k" value="3" min="1" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">因子夏普比率</label>
+            <input type="number" id="comp-2-sr" value="0.4" min="0" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">模型适配度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">GRS统计量</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">检验结论</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">自由度</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">定价能力</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ GRS = \frac{T-N-K}{N} \cdot \frac{\hat{\alpha}' \hat{\Sigma}^{-1} \hat{\alpha}}{1+\hat{\mu}'\hat{\Omega}^{-1}\hat{\mu}} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 计量经济学 Chapter 04</div>
+    <div class="mt-2 md:mt-0">下一章：时间序列分析与预测模型 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: ' - R_f', tip: '无风险利率——通常指国债收益率，是所有投资的起点'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: '\\lambda_k', tip: '第k个风险因子的风险溢价'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: 'R^2', tip: 'R方——模型能解释多少比例的数据变动，越接近1越好'},
+    {match: 'H_0', tip: '原假设(零假设)——需要检验是否成立的假设'},
+    {match: '\\sum_{t=1}', tip: '把每年的现金流都折现到今天然后加起来'},
+    {match: '\\hat{\\beta}', tip: '回归系数的估计值——X每变化1单位，Y平均变化多少'},
+    {match: ' > GRS)', tip: 'GRS检验——所有资产的alpha是否同时为零'},
+    {match: '\\epsilon', tip: '误差项——模型无法解释的部分'},
+    {match: '\\gamma_0', tip: '截距/常数项——第一阶段回归或Fama-MacBeth的截距'},
+    {match: 'SMB = ', tip: '规模因子——小盘股比大盘股多赚的部分'},
+    {match: 'HML = ', tip: '价值因子——高账面市值比比低的多赚的部分'},
+    {match: 'E[R_m]', tip: '市场期望收益率——所有投资者的平均要求回报'},
+    {match: 'a_{ROE} R', tip: '股东每投入1块钱能赚多少，ROE=15%意味着100块本金一年赚15块'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: 'MOM_i ', tip: '动量因子——过去涨得好的股票继续涨的趋势'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=2.5,yMax=3;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 0.5+x*0.8;})(0);
+    var y1=(function(x){return 0.5+x*0.8;})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 0.5+x*0.8;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='因子溢价=0.8%';
+    document.getElementById('comp-1-m1').textContent=(0.5).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='截距项';
+    document.getElementById('comp-1-m2').textContent=(x).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='系统风险';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='Beta(β)='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='月均超额收益%='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var t=parseFloat(document.getElementById('comp-2-t').value);
+    var nn=parseFloat(document.getElementById('comp-2-nn').value);
+    var k=parseFloat(document.getElementById('comp-2-k').value);
+    var sr=parseFloat(document.getElementById('comp-2-sr').value);
+
+    var f_stat=(t-nn-k)/nn*(1/(1+sr*sr));
+    var p_val=f_stat<2?0.1:0.01;
+    document.getElementById('comp-2-out0').textContent=f_stat.toFixed(3);
+    document.getElementById('comp-2-out1').textContent=p_val<0.05?'拒绝H0':'不拒绝';
+    document.getElementById('comp-2-out2').textContent=(t-nn-k)+','+nn;
+    document.getElementById('comp-2-out3').textContent=p_val<0.05?'模型不完备':'模型充分';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,1/(f_stat+0.1))));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

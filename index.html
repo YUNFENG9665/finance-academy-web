@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>认知重力场 · 金融实验室</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- Design system -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: {
+        sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+        mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+      }}}
+    }
+  </script>
+</head>
+<body class="app-shell font-sans">
+
+  <!-- ══════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+          <circle cx="16" cy="16" r="14" stroke="#10b981" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="5" fill="#10b981"/>
+          <line x1="16" y1="2" x2="16" y2="8"  stroke="#10b981" stroke-width="1.5"/>
+          <line x1="16" y1="24" x2="16" y2="30" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="2"  y1="16" x2="8"  y2="16" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="24" y1="16" x2="30" y2="16" stroke="#10b981" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">认知重力场</div>
+        <div class="brand-sub">金融实验室</div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Category navigation -->
+    <nav class="cat-nav">
+      <div class="nav-section-label">知识领域</div>
+      <ul id="cat-list" class="cat-list">
+        <!-- Populated by JS: renderSidebarCategories() -->
+      </ul>
+    </nav>
+
+    <!-- Spacer -->
+    <div style="flex:1"></div>
+
+    <!-- Progress ring footer -->
+    <div class="sidebar-footer">
+      <div class="progress-ring-wrap">
+        <svg class="progress-ring-svg" viewBox="0 0 72 72" width="72" height="72">
+          <circle class="ring-track" cx="36" cy="36" r="28"/>
+          <circle class="ring-fill" cx="36" cy="36" r="28"
+                  id="progress-ring-circle"
+                  stroke-dasharray="175.9"
+                  stroke-dashoffset="175.9"/>
+        </svg>
+        <div class="ring-center">
+          <span class="ring-pct" id="progress-pct">0%</span>
+          <span class="ring-lbl">进度</span>
+        </div>
+      </div>
+
+      <div class="sidebar-stats">
+        <div class="sidebar-stat">
+          <span class="ss-num" id="stat-done">0</span>
+          <span class="ss-lbl">已学</span>
+        </div>
+        <div class="sidebar-stat-sep"></div>
+        <div class="sidebar-stat">
+          <span class="ss-num">48</span>
+          <span class="ss-lbl">课程</span>
+        </div>
+        <div class="sidebar-stat-sep"></div>
+        <div class="sidebar-stat">
+          <span class="ss-num">6</span>
+          <span class="ss-lbl">领域</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════ -->
+  <main class="main-content" id="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none">
+          <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="12.5" y1="12.5" x2="17" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="search" id="search-input" class="search-input"
+               placeholder="搜索课程、概念、公式..." autocomplete="off">
+        <kbd class="search-kbd">⌘K</kbd>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-pill">
+          <span class="pill-dot"></span>
+          <span>96+ 交互组件</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Filter strip -->
+    <div class="filter-strip">
+      <div class="filter-tabs" id="filter-tabs">
+        <!-- All tab -->
+        <button class="filter-tab active" data-cat="all">
+          全部<span class="tab-badge">48</span>
+        </button>
+        <!-- Category tabs populated by JS -->
+      </div>
+
+      <div class="view-toggle">
+        <button id="btn-grid" class="view-btn active" title="网格视图">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+            <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
+            <rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+          </svg>
+        </button>
+        <button id="btn-list" class="view-btn" title="列表视图">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+            <rect x="1" y="2" width="14" height="2.5" rx="1"/>
+            <rect x="1" y="6.75" width="14" height="2.5" rx="1"/>
+            <rect x="1" y="11.5" width="14" height="2.5" rx="1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty state (hidden by default) -->
+    <div id="empty-state" class="empty-state hidden">
+      <svg viewBox="0 0 48 48" fill="none" width="48" height="48">
+        <circle cx="22" cy="22" r="16" stroke="#475569" stroke-width="2"/>
+        <line x1="33" y1="33" x2="44" y2="44" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p>未找到匹配的课程</p>
+      <button id="reset-search" class="reset-btn">清除搜索</button>
+    </div>
+
+    <!-- Course grid -->
+    <div class="course-area">
+      <div id="course-grid" class="course-grid">
+        <!-- Built by buildCourseCard() in JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       DETAIL PANEL (slides in from right)
+  ══════════════════════════════════════════ -->
+  <aside class="detail-panel" id="detail-panel">
+
+    <!-- Panel header -->
+    <div class="panel-header">
+      <button class="panel-close-btn" id="close-panel" title="关闭">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none">
+          <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="panel-nav-btns">
+        <button class="panel-nav-btn" id="panel-prev" title="上一课" disabled>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="panel-nav-btn" id="panel-next" title="下一课" disabled>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+            <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Course meta (title, tags, stats) -->
+    <div class="panel-meta" id="panel-meta">
+      <!-- Built by JS: openPanel() -->
+    </div>
+
+    <!-- Iframe toggle bar -->
+    <div class="iframe-toggle-bar">
+      <button class="iframe-toggle active" id="toggle-preview">
+        <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+          <rect x="1" y="1" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <rect x="3" y="13" width="4" height="2" rx="0.5"/><rect x="9" y="13" width="4" height="2" rx="0.5"/>
+        </svg>
+        课件预览
+      </button>
+      <button class="iframe-toggle" id="toggle-fullscreen" title="新标签打开">
+        <svg viewBox="0 0 16 16" width="12" height="12" fill="none">
+          <path d="M9 3h4v4M8.5 7.5L13 3M7 13H3V9M7.5 8.5L3 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        新窗口
+      </button>
+    </div>
+
+    <!-- Courseware iframe -->
+    <div class="panel-iframe-wrap">
+      <div class="iframe-loading" id="iframe-loading">
+        <div class="iframe-spinner"></div>
+        <span>加载课件中...</span>
+      </div>
+      <iframe id="course-iframe"
+              class="course-iframe"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              src="about:blank"
+              title="课件预览">
+      </iframe>
+    </div>
+  </aside>
+
+  <!-- Overlay backdrop (mobile) -->
+  <div class="panel-backdrop" id="panel-backdrop"></div>
+
+  <!-- Application scripts -->
+  <script src="js/courses-data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.app = new FinanceAcademyApp();
+    });
+  </script>
+</body>
+</html>

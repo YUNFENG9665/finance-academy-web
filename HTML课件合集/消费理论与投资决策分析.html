@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消费理论与投资决策分析 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 04</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">消费理论与投资决策分析</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解消费和投资这两个GDP最重要组成部分的决定因素</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">5</div><div class="text-xs text-slate-500 mt-1">消费理论</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">投资模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">消费函数的演进</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">凯恩斯消费函数（1936）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = \bar{C} + cY\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\bar{C}\)：自主消费（与收入无关的基本消费）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(c\)：边际消费倾向（MPC），\(0 < c < 1\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y\)：当期可支配收入</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">凯恩斯三大心理法则</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费随收入增加</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 收入↑ → 消费↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(\frac{dC}{dY} > 0\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MPC < 1</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 消费增加 < 收入增加</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(0 < c < 1\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">APC递减</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 富人平均消费倾向低</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(\frac{dAPC}{dY} < 0\)</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">边际消费倾向 vs 平均消费倾向</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MPC = \frac{dC}{dY} = c\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[APC = \frac{C}{Y} = \frac{\bar{C}}{Y} + c\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">凯恩斯消费函数的实证问题</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">短期 vs 长期</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 短期APC递减，长期APC稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> Kuznets悖论</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费平滑</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 消费比收入更稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 凯恩斯函数无法解释</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">生命周期假说（Modigliani, 1954）</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">核心思想</span>：消费者在整个生命周期内平滑消费。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = \frac{1}{T}(W + R \cdot Y)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(W\)：初始财富</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(R\)：剩余工作年限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y\)：年收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(T\)：剩余寿命</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">更一般的形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = \alpha W + \beta Y\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\alpha\)：财富的边际消费倾向</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\beta\)：收入的边际消费倾向</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生命周期消费路径</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">收入/消费
+    │       ╱╲ 收入
+    │      ╱  ╲
+    │─────/────\──────── 消费（平滑）
+    │    ╱      ╲
+    │   ╱        ╲
+    └──────────────────→ 年龄
+       工作期    退休期
+       储蓄      消耗储蓄</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键洞见</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费取决于终身资源</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 不只是当期收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策影响:</span> 暂时性减税效果有限</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财富效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 股市/房市影响消费</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策影响:</span> 资产价格波动传导</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">储蓄生命周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 工作期储蓄，退休期消耗</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策影响:</span> 人口老龄化影响储蓄率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">遗产动机</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 可能延长积累期</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策影响:</span> 财富不平等代际传递</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">永久收入假说（Friedman, 1957）</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">核心思想</span>：消费取决于永久收入而非暂时收入。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C = kY_P\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(k\)：消费比例（接近1）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y_P\)：永久收入（长期平均预期收入）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收入分解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = Y_P + Y_T\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y_P\)：永久收入（持久性、可预期）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(Y_T\)：暂时收入（随机波动、均值为零）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">永久收入的形成</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y_P^t = \lambda Y^t + (1-\lambda)Y_P^{t-1}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">适应性预期：永久收入是过去收入的加权平均。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策含义</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">暂时性减税</div><div class="text-xs text-slate-400"><span class="text-slate-500">收入性质:</span> 暂时收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">消费反应:</span> 小（储蓄为主）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">永久性减税</div><div class="text-xs text-slate-400"><span class="text-slate-500">收入性质:</span> 永久收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">消费反应:</span> 大（消费增加）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">一次性转移支付</div><div class="text-xs text-slate-400"><span class="text-slate-500">收入性质:</span> 暂时收入</div><div class="text-xs text-slate-400"><span class="text-slate-500">消费反应:</span> 小</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生命周期 vs 永久收入</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时间范围</div><div class="text-xs text-slate-400"><span class="text-slate-500">生命周期假说:</span> 有限生命</div><div class="text-xs text-slate-400"><span class="text-slate-500">永久收入假说:</span> 无限期（可含遗产）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财富作用</div><div class="text-xs text-slate-400"><span class="text-slate-500">生命周期假说:</span> 明确纳入</div><div class="text-xs text-slate-400"><span class="text-slate-500">永久收入假说:</span> 隐含在永久收入中</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">关注点</div><div class="text-xs text-slate-400"><span class="text-slate-500">生命周期假说:</span> 储蓄-消耗周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">永久收入假说:</span> 收入波动的平滑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">共同点</div><div class="text-xs text-slate-400"><span class="text-slate-500">生命周期假说:</span> 都强调前瞻性、跨期平滑</div><div class="text-xs text-slate-400"><span class="text-slate-500">永久收入假说:</span> </div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">随机游走假说（Hall, 1978）</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">理性预期下的消费行为</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果消费者是理性的、前瞻性的：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[C_{t+1} = C_t + \epsilon_{t+1}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">消费是随机游走，不可预测！</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">推导</span>（欧拉方程）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[u'(C_t) = \beta(1+r)E_t[u'(C_{t+1})]\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果\(\beta(1+r) = 1\)（不耐心程度=利率），则\(E_t[C_{t+1}] = C_t\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消费变化只反映新信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可预测的收入变化不应影响消费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>只有收入"意外"才改变消费</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证检验</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费对滞后收入有反应</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否支持理论:</span> 不支持</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能解释:</span> 流动性约束</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费对可预测收入变化有反应</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否支持理论:</span> 不支持</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能解释:</span> 有限理性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费对退税反应过大</div><div class="text-xs text-slate-400"><span class="text-slate-500">是否支持理论:</span> 不支持</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能解释:</span> 心理账户</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">理论失败的原因</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">流动性约束</span>：部分消费者无法借贷</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">有限理性</span>：认知能力有限，采用经验法则</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">预防性储蓄</span>：面对不确定性额外储蓄</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">心理账户</span>：不同收入来源不可替代</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">投资理论</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资的决定因素</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因素</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">影响方向</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">机制</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">弹性估计</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">实际利率</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">提高资本成本</td><td class="px-3 py-2 text-xs text-slate-400">-0.5至-1</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">预期需求</td><td class="px-3 py-2 text-xs text-slate-400">正</td><td class="px-3 py-2 text-xs text-slate-400">产能需求（加速数）</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">不确定性</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">推迟投资（实物期权）</td><td class="px-3 py-2 text-xs text-slate-400">显著</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">企业利润</td><td class="px-3 py-2 text-xs text-slate-400">正</td><td class="px-3 py-2 text-xs text-slate-400">内部融资来源</td><td class="px-3 py-2 text-xs text-slate-400">中等</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">税收政策</td><td class="px-3 py-2 text-xs text-slate-400">取决于政策</td><td class="px-3 py-2 text-xs text-slate-400">影响税后回报</td><td class="px-3 py-2 text-xs text-slate-400">显著</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">信贷条件</td><td class="px-3 py-2 text-xs text-slate-400">正</td><td class="px-3 py-2 text-xs text-slate-400">融资可得性</td><td class="px-3 py-2 text-xs text-slate-400">经济衰退时大</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资的组成</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">内容</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">占比（美国）</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">设备投资</td><td class="px-3 py-2 text-xs text-slate-400">机器、车辆</td><td class="px-3 py-2 text-xs text-slate-400">~45%</td><td class="px-3 py-2 text-xs text-slate-400">波动大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">建筑投资</td><td class="px-3 py-2 text-xs text-slate-400">厂房、办公楼</td><td class="px-3 py-2 text-xs text-slate-400">~25%</td><td class="px-3 py-2 text-xs text-slate-400">周期长</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">住宅投资</td><td class="px-3 py-2 text-xs text-slate-400">住房建设</td><td class="px-3 py-2 text-xs text-slate-400">~25%</td><td class="px-3 py-2 text-xs text-slate-400">利率敏感</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">存货投资</td><td class="px-3 py-2 text-xs text-slate-400">库存变化</td><td class="px-3 py-2 text-xs text-slate-400">~5%</td><td class="px-3 py-2 text-xs text-slate-400">高度波动</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">加速数原理</span>（Accelerator）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[I_t = v(Y_t - Y_{t-1})\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">投资取决于产出变化，\(v\)是资本-产出比。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">问题</span>：只考虑需求，忽略资本成本。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">新古典投资理论（Jorgenson）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[I = f(r, MPK, \delta)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MPK = r + \delta\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">最优资本存量使得资本边际产品等于资本使用成本。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">托宾Q理论</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q = \frac{企业市场价值}{资本重置成本}\]</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Q > 1</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 市场高估资本价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">投资决策:</span> 增加投资（新建>买现有）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Q < 1</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 市场低估资本价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">投资决策:</span> 减少投资（买现有>新建）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Q = 1</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 边际状态</div><div class="text-xs text-slate-400"><span class="text-slate-500">投资决策:</span> 投资=折旧</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实物期权理论</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">不确定性下，等待获取信息有价值。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[投资触发点 > 传统NPV=0的点\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不可逆投资的特点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资本一旦安装难以撤回</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>等待期权价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不确定性抑制投资</span></div></div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：乘数效应</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政府支出乘数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Delta Y = \frac{1}{1-c} \Delta G = k_G \cdot \Delta G\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[k_G = \frac{1}{1-MPC}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">税收乘数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[k_T = \frac{-MPC}{1-MPC}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平衡预算乘数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[k_{BB} = k_G + k_T = \frac{1-MPC}{1-MPC} = 1\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">数值示例</span>（MPC = 0.8）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政府支出</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> 1/(1-0.8)</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 5</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">税收</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> -0.8/(1-0.8)</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> -4</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平衡预算</div><div class="text-xs text-slate-400"><span class="text-slate-500">公式:</span> —</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 1</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">开放经济中的乘数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[k = \frac{1}{1 - c(1-t) + m}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(t\)：边际税率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(m\)：边际进口倾向</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">开放经济乘数更小（漏出更多）。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：跨期消费选择</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">两期模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max U(C_1, C_2) \quad s.t. \quad C_1 + \frac{C_2}{1+r} = Y_1 + \frac{Y_2}{1+r}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">预算约束</span>：现值形式</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PV(消费) = PV(收入) = 终身财富\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">欧拉方程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{U'(C_1)}{U'(C_2)} = \beta(1+r)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">CRRA效用函数下</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{C_2}{C_1} = [\beta(1+r)]^\sigma\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\sigma = 1/\rho\)：跨期替代弹性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\rho\)：相对风险厌恶系数</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">利率变化的效应</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">替代效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> r↑ → C1↓, C2↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 未来消费更便宜</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> r↑ → C1↑, C2↑（净储蓄者）</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 利息收入增加</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">净效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> 不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 取决于初始位置和偏好</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：托宾Q投资模型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">边际Q定义</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[q = \frac{多一单位资本的市场价值}{多一单位资本的重置成本}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">平均Q定义</span>（实际可测）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q = \frac{股权市值 + 债务市值}{资本重置成本}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">投资方程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{I}{K} = f(q), \quad f'(q) > 0\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">与股市的联系</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>股价上涨 → Q上升 → 投资增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融市场与实体经济的桥梁</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证问题</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">解释力有限</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 现金流比Q更显著</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能原因:</span> 融资约束</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">平均Q≠边际q</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 市场泡沫、调整成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">可能原因:</span> 测量问题</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：资本使用者成本</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[UC = P_K(r + \delta - \frac{\Delta P_K}{P_K})\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P_K\)：资本品价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(r\)：实际利率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\delta\)：折旧率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\frac{\Delta P_K}{P_K}\)：资本增值率</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含税的资本使用者成本</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[UC = \frac{P_K}{1-\tau}[(1-\tau z)(r+\delta) - \frac{\Delta P_K}{P_K}]\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\tau\)：公司税率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(z\)：折旧税盾现值</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最优资本存量条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MPK = UC\]</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例1：中国高储蓄率之谜</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：中国储蓄率长期高达40-50%，远超全球平均（约25%）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">储蓄率国际比较</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率（2023）:</span> ~45%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 全球最高之一</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率（2023）:</span> ~18%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 消费主导</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">日本</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率（2023）:</span> ~28%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 老龄化中下降</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">印度</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率（2023）:</span> ~30%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 发展中国家典型</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">原因分析</span>（生命周期视角）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">预防性储蓄</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 社保不完善、医疗教育支出大</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~30%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人口结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 劳动年龄人口占比高</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~25%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">房价因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 购房首付需要大量储蓄</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~20%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">文化因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 储蓄传统、面子消费</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~15%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入分配</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 高收入群体储蓄率高</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~10%</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">企业储蓄的重要性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国企业储蓄占总储蓄约40%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原因：利润留存、分红少、融资渠道窄</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">高储蓄率是好事还是坏事？</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">增长</div><div class="text-xs text-slate-400"><span class="text-slate-500">好处:</span> 资本积累快</div><div class="text-xs text-slate-400"><span class="text-slate-500">坏处:</span> 消费不足、内需弱</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">好处:</span> 外部冲击缓冲</div><div class="text-xs text-slate-400"><span class="text-slate-500">坏处:</span> 全球失衡</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">福利</div><div class="text-xs text-slate-400"><span class="text-slate-500">好处:</span> —</div><div class="text-xs text-slate-400"><span class="text-slate-500">坏处:</span> 当代人福利牺牲</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策方向</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>完善社会保障 → 减少预防性储蓄</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>提高劳动收入占比 → 增加消费能力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>发展消费金融 → 平滑消费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>租购并举 → 减少购房储蓄压力</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">美</span>
+        <h3 class="text-white font-semibold text-sm">案例2：美国消费信贷与储蓄率变化</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：美国储蓄率经历了显著波动。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">历史演变</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1970s</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率:</span> ~10%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 高储蓄</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2005-07</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率:</span> ~2%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 信贷泡沫</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2008-09</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率:</span> ~8%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 危机后修复</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率:</span> ~20%+</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 疫情刺激</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2023</div><div class="text-xs text-slate-400"><span class="text-slate-500">储蓄率:</span> ~4%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 超额储蓄耗尽</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">疫情期间超额储蓄</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>规模：约2.3万亿美元</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>来源：财政刺激 + 消费受限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消耗：支撑2022-23年消费</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">消费信贷扩张的影响</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">消费</div><div class="text-xs text-slate-400"><span class="text-slate-500">短期:</span> ↑ 平滑消费</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期:</span> 债务负担</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">储蓄率</div><div class="text-xs text-slate-400"><span class="text-slate-500">短期:</span> ↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期:</span> —</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">增长</div><div class="text-xs text-slate-400"><span class="text-slate-500">短期:</span> ↑ 需求拉动</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期:</span> 可持续性问题</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">稳定性</div><div class="text-xs text-slate-400"><span class="text-slate-500">短期:</span> ↓ 杠杆积累</div><div class="text-xs text-slate-400"><span class="text-slate-500">长期:</span> 金融脆弱性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">永久收入假说视角</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信贷放松 → 流动性约束缓解 → 消费更接近永久收入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但也可能导致过度消费（超越永久收入）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">企</span>
+        <h3 class="text-white font-semibold text-sm">案例3：企业投资的不确定性效应</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：政策不确定性抑制企业投资。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">实证发现</span>（Baker, Bloom & Davis不确定性指数）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2016美国大选</div><div class="text-xs text-slate-400"><span class="text-slate-500">不确定性指数变化:</span> +40%</div><div class="text-xs text-slate-400"><span class="text-slate-500">投资反应:</span> 投资延迟</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2018-19贸易战</div><div class="text-xs text-slate-400"><span class="text-slate-500">不确定性指数变化:</span> +80%</div><div class="text-xs text-slate-400"><span class="text-slate-500">投资反应:</span> 资本支出下降</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020疫情</div><div class="text-xs text-slate-400"><span class="text-slate-500">不确定性指数变化:</span> +200%</div><div class="text-xs text-slate-400"><span class="text-slate-500">投资反应:</span> 投资骤降</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不确定性影响投资的渠道</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实物期权</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 等待获取信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论基础:</span> 不可逆投资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">融资约束</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 风险溢价上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论基础:</span> 代理成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 预期需求下降</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论基础:</span> 加速数原理</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">管理行为</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 风险厌恶加剧</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论基础:</span> 行为公司金融</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>政策一致性和可预测性本身有价值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>不确定性是经济周期放大器</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>央行沟通策略的重要性（前瞻指引）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">中国制造业投资案例</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>房地产调控不确定性 → 相关产业投资延迟</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>平台经济监管 → 科技企业资本支出下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>地缘政治 → 供应链投资重构</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">凯恩斯消费函数与生命周期/永久收入假说有什么本质区别？哪个更符合现实？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：前瞻性、时间范围、收入分类</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">为什么暂时性减税刺激消费的效果可能不大？实际政策中如何设计才能更有效？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：永久收入、流动性约束、心理账户</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">托宾Q理论如何将金融市场与实体投资联系起来？为什么股市繁荣可能刺激投资？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：市场估值、融资成本、信心效应</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如果利率上升，消费会如何变化？需要考虑哪些效应？不同群体反应相同吗？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：替代效应、收入效应、净储蓄者vs净借款者</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">政府应该用减税还是增加支出来刺激经济？乘数有何不同？考虑什么因素？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：乘数大小、挤出效应、政策时滞</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何解释中国储蓄率高而消费率低？这对经济再平衡意味着什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：预防性储蓄、房价、社保、分配</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">消费者真的能按生命周期理论那样理性规划吗？行为经济学（如心理账户、双曲贴现）提出了什么挑战？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：有限理性、自我控制、nudge政策</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">在零利率环境下，货币政策如何影响投资？传统渠道失效后有什么替代？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：QE、前瞻指引、财政-货币配合</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">李嘉图等价说减税不会刺激消费（因为预期未来税收增加），这个理论在实践中成立吗？为什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：完美预期、代际关系、流动性约束</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《高级宏观经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Romer</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">研究生标准教材</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《递归宏观经济理论》</td><td class="px-3 py-2 text-xs text-slate-400">Ljungqvist & Sargent</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">动态方法，数学要求高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《宏观经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Wickens</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">现代方法，清晰</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《消费经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Deaton</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">消费理论专著</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">论文</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"A Theory of the Consumption Function"</td><td class="px-3 py-2 text-xs text-slate-400">Friedman</td><td class="px-3 py-2 text-xs text-slate-400">1957</td><td class="px-3 py-2 text-xs text-slate-400">永久收入假说</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Life Cycle Saving and Balanced Growth"</td><td class="px-3 py-2 text-xs text-slate-400">Modigliani</td><td class="px-3 py-2 text-xs text-slate-400">1966</td><td class="px-3 py-2 text-xs text-slate-400">生命周期假说</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Stochastic Implications of the LC-PIH"</td><td class="px-3 py-2 text-xs text-slate-400">Hall</td><td class="px-3 py-2 text-xs text-slate-400">1978</td><td class="px-3 py-2 text-xs text-slate-400">随机游走假说</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"A General Equilibrium Approach to Monetary Theory"</td><td class="px-3 py-2 text-xs text-slate-400">Tobin</td><td class="px-3 py-2 text-xs text-slate-400">1969</td><td class="px-3 py-2 text-xs text-slate-400">Q理论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Investment Under Uncertainty"</td><td class="px-3 py-2 text-xs text-slate-400">Dixit & Pindyck</td><td class="px-3 py-2 text-xs text-slate-400">1994</td><td class="px-3 py-2 text-xs text-slate-400">实物期权</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据来源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BEA</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 美国消费、投资数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 详细分解</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">FRED</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 储蓄率、消费信贷</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 时间序列</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">国家统计局</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 中国消费投资数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 支出法GDP</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Consumer Expenditure Survey</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 美国家庭消费微观数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 异质性分析</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          收入→消费→投资传导
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段追踪国民收入的流转与放大过程</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">收入约束</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">预算线·跨期</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">消费决策</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">边际倾向MPC</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">储蓄转化</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">金融中介</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">投资乘数</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">连锁反应</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">收入约束</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">预算线·跨期</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>可支配收入=总收入-税收-转移</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>跨期预算约束: 当期消费vs未来消费</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>流动性约束对消费平滑的限制</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">消费决策</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">边际倾向MPC</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>凯恩斯: C=C₀+MPC·Y (短期)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>莫迪利安尼: 生命周期假说(终身收入)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>弗里德曼: 持久收入假说(长期预期)</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">储蓄转化</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">金融中介</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>储蓄通过银行体系转化为贷款</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>利率是储蓄与投资的调节器</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>金融深化提高储蓄-投资转化效率</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">投资乘数</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">连锁反应</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>乘数k=1/(1-MPC): MPC越大放大越强</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>一轮投资→多轮消费→GDP倍增</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>挤出效应: 政府投资挤占私人投资</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          凯恩斯消费函数实验室
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线查看不同收入水平下的消费与储蓄</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Y(收入)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">C(消费)</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-1-thresh"/>
+      <text id="comp-1-thresh-l" x="575" y="0" fill="#475569" font-size="8">自主消费</text>
+      
+      <line id="comp-1-ec0" x1="70" y1="340" x2="570" y2="10" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
+<text id="comp-1-ec0-l" x="575" y="15" fill="#334155" font-size="10" font-weight="bold">45°</text>
+
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">C</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">消费C</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">储蓄S</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">APC</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          投资乘数计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">输入边际消费倾向，计算投资乘数效应</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">边际消费倾向 MPC</label>
+            <input type="number" id="comp-2-mpc" value="0.8" min="0.1" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">投资变动 ΔI (亿)</label>
+            <input type="number" id="comp-2-di" value="100" min="0" step="10" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">乘数效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">乘数k</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">总产出变化ΔY</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">间接效应</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">放大倍数</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ k = \frac{1}{1 - MPC} = \frac{\Delta Y}{\Delta I} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 04</div>
+    <div class="mt-2 md:mt-0">下一章：经济增长理论与实证研究 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '0 < c < 1', tip: '边际消费倾向在0和1之间——多赚1块会多花一部分但不会全花掉'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'Y_P', tip: '永久收入——一个人一辈子的平均收入水平'},
+    {match: 'E_t[C_{t+1}] = C_t', tip: '随机游走假说——最佳预测明天的消费就是今天的消费'},
+    {match: '\\sigma', tip: '标准差——数据偏离平均值有多远，在金融中代表风险/波动率'},
+    {match: '\\rho', tip: '相关系数——两个变量之间线性关系的强弱，-1到1'},
+    {match: 'C = \\bar{C} + cY', tip: '凯恩斯消费函数——消费=自发消费+边际消费倾向×收入'},
+    {match: 'MPC = \\frac{dC}{dY}', tip: '边际消费倾向——多赚1块钱会多花多少'},
+    {match: 'APC = \\frac{C}{Y}', tip: '平均消费倾向——收入中用于消费的比例'},
+    {match: 'C = \\frac{1}{T}(W + R', tip: '生命周期假说——人们把一生的收入平均分配到每一年消费'},
+    {match: 'C = kY_P', tip: '弗里德曼——消费取决于永久收入(长期平均)，不受短期波动影响'},
+    {match: '\\epsilon', tip: '误差项——模型无法解释的部分'},
+    {match: 'I_t = v(Y_t - Y_{t-1})', tip: '加速器原理——GDP增长越快，投资增长越猛'},
+    {match: 'MPK = r + \\delta', tip: '企业投资的条件——资本边际产出等于利率加折旧'},
+    {match: 'Q = \\frac{企业市场价值}{资本重置成本}', tip: '托宾Q——Q>1时值得投资建新厂，Q<1时不如买旧公司'},
+    {match: ' 传统NPV=0的', tip: '把未来所有现金流折算到今天值多少钱，正数=值得投资'},
+    {match: '\\Delta Y = \\frac{1}{1-c}', tip: '乘数效应——初始支出像滚雪球一样带动更多消费'},
+    {match: 'k_G = \\frac{1}{1-MPC}', tip: '凯恩斯乘数——政府多花1块，GDP增加1/(1-MPC)块'},
+    {match: '\\max U(C_1, C_2)', tip: '跨期消费最优化——在预算约束下最大化两期效用'},
+    {match: "\\frac{U'(C_1)}{U'(C_2)} = \\beta(1+r)", tip: '欧拉方程——今天和明天消费的最优分配条件'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=100;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 10+0.75*x;})(0);
+    var y1=(function(x){return 10+0.75*x;})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    var ec0_y0=(function(x){var c=sliderVal;return x;})(0);
+    var ec0_y1=(function(x){var c=sliderVal;return x;})(xMax);
+    var ecl0=document.getElementById('comp-1-ec0');
+    ecl0.setAttribute('x1',xc(0));ecl0.setAttribute('y1',yc(Math.min(Math.max(ec0_y0,0),yMax)));
+    ecl0.setAttribute('x2',xc(xMax));ecl0.setAttribute('y2',yc(Math.max(ec0_y1,0)));
+    
+    var thY=yc(10);
+    document.getElementById('comp-1-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-1-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-1-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 10+0.75*x;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='MPC=0.75';
+    document.getElementById('comp-1-m1').textContent=(x-y).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent=(x-y)>0?'正储蓄':'负储蓄(借贷)';
+    document.getElementById('comp-1-m2').textContent=(y/x).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent=y/x>1?'入不敷出':'量入为出';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='Y(收入)='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='C(消费)='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var mpc=parseFloat(document.getElementById('comp-2-mpc').value);
+    var di=parseFloat(document.getElementById('comp-2-di').value);
+
+    var k=1/(1-mpc);
+    var dy=k*di;
+    document.getElementById('comp-2-out0').textContent=k.toFixed(2);
+    document.getElementById('comp-2-out1').textContent=dy.toFixed(0);
+    document.getElementById('comp-2-out2').textContent=(dy-di).toFixed(0);
+    document.getElementById('comp-2-out3').textContent=(mpc*100).toFixed(0)+'%→'+(dy/di).toFixed(1)+'x';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,1/(1/(1-mpc))*2)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

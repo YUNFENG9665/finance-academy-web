@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">AI-Fin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">分析维度</a>
+      <a href="#s14" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">输出</a>
+      <a href="#s16" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模式与公式</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 03</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">使用</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">高效使用大模型的核心技能</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">提示策略</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">工作流型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">提示工程基础</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">什么是提示工程</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">提示工程（Prompt Engineering）是指设计和优化输入给大语言模型的文本（提示/Prompt），以获得期望输出的技术和方法。好的提示可以显著提升模型输出的质量、准确性和可用性。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">好提示的核心要素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">清晰的任务说明</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 明确告诉模型要做什么</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> "分析以下财务报表，指出三个主要风险点"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">具体的输出格式</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 指定期望的输出结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> "以JSON格式输出，包含字段：公司名、评级、理由"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">相关的上下文</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 提供必要的背景信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> "这是一家科技行业的初创公司，成立于2020年"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">示例（Few-shot）</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 提供输入输出示例</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> "示例：输入A→输出B，现在请处理：输入C"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">角色设定</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 给模型设定专业身份</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> "你是一位拥有20年经验的财务分析师"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">约束条件</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 设定限制和边界</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> "回答不超过200字，不要推测未披露的信息"</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">提示结构模板</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">你是一位[专业角色]，擅长[专业领域]。
+
+请执行以下任务：[具体任务描述]
+
+以下是需要处理的数据：
+{数据内容}
+
+请按照以下格式输出：
+- 格式：[JSON/表格/段落]
+- 字段：[具体字段说明]
+- 约束：[字数、风格等限制]
+
+输入：[示例输入]
+输出：[示例输出]</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">高级提示技术</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">思维链（Chain-of-Thought, CoT）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">原理</span>：引导模型像人类一样逐步推理，而不是直接给出答案。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">请一步步分析以下问题：
+[问题内容]
+
+请按以下步骤思考：
+1. 首先，识别问题的关键信息
+2. 然后，列出相关的计算步骤
+3. 接着，逐步执行计算
+4. 最后，给出结论并验证</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融应用示例</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">请分析以下公司的估值是否合理：
+- 公司：某科技公司
+- 市值：500亿
+- 净利润：20亿
+- 营收增速：30%
+- 行业平均PE：25x
+
+请一步步分析：
+1. 计算当前PE倍数
+2. 与行业平均对比
+3. 考虑增速给予的溢价
+4. 综合判断估值水平
+5. 给出投资建议</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">自一致性（Self-Consistency）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">原理</span>：多次采样，选择最一致的答案。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实现方式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import openai
+
+def self_consistent_analysis(prompt, n_samples=5):
+    &quot;&quot;&quot;自一致性分析：多次采样取共识&quot;&quot;&quot;
+    responses = []
+    for _ in range(n_samples):
+        response = openai.chat.completions.create(
+            model=&quot;gpt-4&quot;,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            temperature=0.7  # 保持一定随机性
+        )
+        responses.append(response.choices[0].message.content)
+
+    # 投票选择最一致的答案
+    return get_majority_answer(responses)</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">思维树（Tree-of-Thought, ToT）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">原理</span>：探索多个推理路径，评估并选择最优路径。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">结构</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">问题
+├── 思路A
+│   ├── 子步骤A1 → 评估分数
+│   └── 子步骤A2 → 评估分数
+├── 思路B
+│   ├── 子步骤B1 → 评估分数
+│   └── 子步骤B2 → 评估分数
+└── 选择最优路径 → 最终答案</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">检索增强生成（RAG）提示</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">原理</span>：结合检索到的相关信息进行回答。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">提示模板</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">请基于以下检索到的信息回答用户问题。
+
+[文档1内容]
+[文档2内容]
+[文档3内容]
+
+{user_question}
+
+- 只使用上述文档中的信息
+- 如果文档中没有相关信息，请明确说明
+- 引用信息时注明来源文档</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融提示模板库</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">财务分析模板</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">你是一位资深财务分析师，拥有CPA和CFA资质。
+</pre></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">分析维度</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">盈利能力</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">请从以下维度进行分析：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>毛利率、净利率、ROE、ROA趋势</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>与同行业对比</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>盈利质量评估</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">偿债能力</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资产负债率、流动比率、速动比率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>债务结构分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利息覆盖倍数</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">运营效率</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>应收账款周转率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>存货周转率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>总资产周转率</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">成长能力</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>营收增长率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>利润增长率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可持续增长率</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section id="s14" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">输出</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">AI Agent设计</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">信用等级：AAA/AA/A/BBB/BB/B/CCC/CC/C</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">风险展望：稳定/正面/负面</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">评估说明：[详细说明]</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">
+
+#### 4.1 Agent基础架构
+
+**Agent定义**：AI Agent是一个能够感知环境、做出决策、执行动作的自主系统。与简单的LLM调用不同，Agent可以使用工具、维护记忆、执行多步骤任务。
+
+**核心组件**：
+</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">┌─────────────────────────────────────────────────────────────┐</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│                        AI Agent                              │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">├─────────────────────────────────────────────────────────────┤</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  │  感知   │→ │  规划   │→ │  执行   │→ │  反馈   │        │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  │ Perceive│  │  Plan   │  │ Execute │  │Feedback │        │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  └─────────┘  └─────────┘  └─────────┘  └─────────┘        │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│       ↑                          │                          │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│       │         ┌────────────────┴───────────────┐         │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│       │         ↓                                ↓         │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  ┌─────────┐  ┌─────────┐                 ┌─────────┐      │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  │  记忆   │  │  工具   │                 │  输出   │      │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  │ Memory  │  │  Tools  │                 │ Output  │      │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">│  └─────────┘  └─────────┘                 └─────────┘      │</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">└─────────────────────────────────────────────────────────────┘</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">
+**ReAct框架**（Reasoning + Acting）：
+
+```python
+class ReActAgent:
+    &quot;&quot;&quot;ReAct模式的Agent实现&quot;&quot;&quot;
+
+    def __init__(self, llm, tools):
+        self.llm = llm
+        self.tools = tools
+        self.memory = []
+
+    def run(self, task):
+        &quot;&quot;&quot;执行任务&quot;&quot;&quot;
+        self.memory.append(f&quot;任务: {task}&quot;)
+
+        while not self.is_done():
+            # 思考：分析当前状态
+            thought = self.think()
+            self.memory.append(f&quot;思考: {thought}&quot;)
+
+            # 行动：选择并执行工具
+            action, action_input = self.decide_action(thought)
+            self.memory.append(f&quot;行动: {action}({action_input})&quot;)
+
+            # 观察：获取执行结果
+            observation = self.execute_action(action, action_input)
+            self.memory.append(f&quot;观察: {observation}&quot;)
+
+        return self.generate_final_answer()</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">金融Agent工具集</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">工具类别</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">工具名称</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">功能描述</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">数据获取</span></td><td class="px-3 py-2 text-xs text-slate-400">stock_price</td><td class="px-3 py-2 text-xs text-slate-400">获取股票实时/历史价格</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">financial_report</td><td class="px-3 py-2 text-xs text-slate-400">获取财务报表数据</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">news_search</td><td class="px-3 py-2 text-xs text-slate-400">搜索相关新闻资讯</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">research_report</td><td class="px-3 py-2 text-xs text-slate-400">获取研究报告</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">计算分析</span></td><td class="px-3 py-2 text-xs text-slate-400">calculator</td><td class="px-3 py-2 text-xs text-slate-400">数学计算</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">ratio_analysis</td><td class="px-3 py-2 text-xs text-slate-400">财务比率计算</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">dcf_valuation</td><td class="px-3 py-2 text-xs text-slate-400">DCF估值模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">monte_carlo</td><td class="px-3 py-2 text-xs text-slate-400">蒙特卡洛模拟</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">数据库</span></td><td class="px-3 py-2 text-xs text-slate-400">sql_query</td><td class="px-3 py-2 text-xs text-slate-400">数据库查询</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">vector_search</td><td class="px-3 py-2 text-xs text-slate-400">向量相似性搜索</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">代码执行</span></td><td class="px-3 py-2 text-xs text-slate-400">python_exec</td><td class="px-3 py-2 text-xs text-slate-400">Python代码执行</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">chart_generator</td><td class="px-3 py-2 text-xs text-slate-400">图表生成</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工具定义示例</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.tools import tool
+
+@tool
+def get_stock_financials(stock_code: str, metric: str) -&gt; dict:
+    &quot;&quot;&quot;
+    获取股票的财务指标
+
+    参数:
+        stock_code: 股票代码，如 &quot;000001.SZ&quot;
+        metric: 指标名称，如 &quot;roe&quot;, &quot;pe&quot;, &quot;revenue_growth&quot;
+
+    返回:
+        包含指标数值和历史数据的字典
+    &quot;&quot;&quot;
+    # 调用数据接口获取数据
+    data = fetch_financial_data(stock_code, metric)
+    return {
+        &quot;stock_code&quot;: stock_code,
+        &quot;metric&quot;: metric,
+        &quot;current_value&quot;: data[&quot;current&quot;],
+        &quot;history&quot;: data[&quot;history&quot;],
+        &quot;industry_avg&quot;: data[&quot;industry_avg&quot;]
+    }
+
+@tool
+def dcf_valuation(
+    fcf: list,
+    growth_rate: float,
+    terminal_growth: float,
+    discount_rate: float
+) -&gt; dict:
+    &quot;&quot;&quot;
+    DCF估值计算
+
+    参数:
+        fcf: 历史自由现金流列表
+        growth_rate: 预测期增长率
+        terminal_growth: 永续增长率
+        discount_rate: 折现率（WACC）
+
+    返回:
+        估值结果和敏感性分析
+    &quot;&quot;&quot;
+    # DCF计算逻辑
+    ...</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">多Agent系统</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">协作模式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">┌────────────────────────────────────────────────────────────┐
+│                    金融分析多Agent系统                      │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌──────────────┐                                          │
+│  │  协调Agent   │←──────────────────────┐                  │
+│  │ (Coordinator)│                       │                  │
+│  └──────┬───────┘                       │                  │
+│         │                               │                  │
+│    分配任务                          汇总结果              │
+│         │                               │                  │
+│  ┌──────┴───────────────────────────────┴──────┐          │
+│  │                                              │          │
+│  ↓          ↓           ↓           ↓          │          │
+│┌────┐   ┌────┐    ┌────┐     ┌────┐           │          │
+││数据│   │财务│    │行业│     │风险│           │          │
+││Agent   │分析│    │研究│     │评估│           │          │
+││    │   │Agent    │Agent     │Agent           │          │
+│└────┘   └────┘    └────┘     └────┘           │          │
+│  │         │          │          │             │          │
+│  └─────────┴──────────┴──────────┴─────────────┘          │
+│                        ↓                                   │
+│                  ┌──────────┐                              │
+│                  │ 报告Agent │                              │
+│                  │ (Reporter)│                              │
+│                  └──────────┘                              │
+│                        │                                   │
+│                        ↓                                   │
+│                   最终分析报告                              │
+└────────────────────────────────────────────────────────────┘</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">工作流编排</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">LangChain框架</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心概念</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">Chain</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 操作链</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 串联多个操作</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">Agent</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 智能代理</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 动态决策和工具使用</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">Memory</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 记忆管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 维护对话历史</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">Retriever</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 检索器</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 获取相关文档</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">Tool</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 工具</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 外部能力扩展</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融分析工作流示例</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.chat_models import ChatOpenAI
+from langchain.chains import LLMChain, SequentialChain
+from langchain.prompts import PromptTemplate
+
+extract_prompt = PromptTemplate(
+    input_variables=[&quot;raw_data&quot;],
+    template=&quot;&quot;&quot;
+    从以下财务数据中提取关键指标：
+    {raw_data}
+
+    请提取：营收、净利润、毛利率、ROE、资产负债率
+    输出格式：JSON
+    &quot;&quot;&quot;
+)
+extract_chain = LLMChain(llm=llm, prompt=extract_prompt, output_key=&quot;metrics&quot;)
+
+compare_prompt = PromptTemplate(
+    input_variables=[&quot;metrics&quot;],
+    template=&quot;&quot;&quot;
+    基于以下指标进行同行业对比分析：
+    {metrics}
+
+    行业平均数据：
+    - 毛利率：35%
+    - ROE：15%
+    - 资产负债率：50%
+
+    请分析该公司在行业中的位置。
+    &quot;&quot;&quot;
+)
+compare_chain = LLMChain(llm=llm, prompt=compare_prompt, output_key=&quot;comparison&quot;)
+
+report_prompt = PromptTemplate(
+    input_variables=[&quot;metrics&quot;, &quot;comparison&quot;],
+    template=&quot;&quot;&quot;
+    基于以下分析生成投资摘要：
+
+    财务指标：{metrics}
+    行业对比：{comparison}
+
+    请生成300字以内的投资摘要，包括：优势、劣势、投资建议。
+    &quot;&quot;&quot;
+)
+report_chain = LLMChain(llm=llm, prompt=report_prompt, output_key=&quot;report&quot;)
+
+analysis_workflow = SequentialChain(
+    chains=[extract_chain, compare_chain, report_chain],
+    input_variables=[&quot;raw_data&quot;],
+    output_variables=[&quot;metrics&quot;, &quot;comparison&quot;, &quot;report&quot;]
+)
+
+result = analysis_workflow({&quot;raw_data&quot;: financial_data})</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">LlamaIndex框架</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心能力</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from llama_index import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.query_engine import SubQuestionQueryEngine
+from llama_index.tools import QueryEngineTool
+
+research_docs = SimpleDirectoryReader(&quot;./research_reports&quot;).load_data()
+news_docs = SimpleDirectoryReader(&quot;./news&quot;).load_data()
+filings_docs = SimpleDirectoryReader(&quot;./filings&quot;).load_data()
+
+research_index = VectorStoreIndex.from_documents(research_docs)
+news_index = VectorStoreIndex.from_documents(news_docs)
+filings_index = VectorStoreIndex.from_documents(filings_docs)
+
+query_engine_tools = [
+    QueryEngineTool.from_defaults(
+        query_engine=research_index.as_query_engine(),
+        name=&quot;research_reports&quot;,
+        description=&quot;用于查询研究报告中的分析观点和投资建议&quot;
+    ),
+    QueryEngineTool.from_defaults(
+        query_engine=news_index.as_query_engine(),
+        name=&quot;news&quot;,
+        description=&quot;用于查询最新的新闻和市场动态&quot;
+    ),
+    QueryEngineTool.from_defaults(
+        query_engine=filings_index.as_query_engine(),
+        name=&quot;filings&quot;,
+        description=&quot;用于查询公司公告和财务报告&quot;
+    )
+]
+
+query_engine = SubQuestionQueryEngine.from_defaults(
+    query_engine_tools=query_engine_tools
+)
+
+response = query_engine.query(
+    &quot;分析贵州茅台的投资价值，综合考虑研报观点、最新新闻和财务数据&quot;
+)</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">工作流设计模式</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">常见模式</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">顺序链</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">适用场景:</span> 步骤明确的流程</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 数据清洗→分析→报告</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">分支链</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">适用场景:</span> 条件分支处理</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 根据行业选择不同分析模板</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">并行链</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">适用场景:</span> 独立任务并行</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 同时分析多个财务指标</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">循环链</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">适用场景:</span> 迭代优化</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 反复修改直到满意</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">人机协作</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">适用场景:</span> 需要人工确认</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 重要决策前的审核</div></div></div>
+  </div>
+</section>
+
+
+
+<section id="s16" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心模式与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">提示效果评估</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">评估维度</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">准确性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">指标:</span> Accuracy</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算方法:</span> 正确回答数 / 总问题数</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">相关性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">指标:</span> Relevance</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算方法:</span> 人工评分 1-5 或 LLM 评分</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">完整性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">指标:</span> Completeness</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算方法:</span> 覆盖的要点数 / 应覆盖要点数</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">一致性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">指标:</span> Consistency</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算方法:</span> 多次回答的相似度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">有用性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">指标:</span> Usefulness</div><div class="text-xs text-slate-400"><span class="text-slate-500">计算方法:</span> 用户满意度评分</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">Agent性能指标</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">任务完成率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[TCR = \frac{成功完成的任务数}{总任务数} \times 100\%\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平均步骤数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[AvgSteps = \frac{\sum_{i=1}^{n} steps_i}{n}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工具使用效率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[ToolEfficiency = \frac{有效工具调用数}{总工具调用数}\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">工作流优化</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">延迟优化</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>并行化独立步骤</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>缓存中间结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用更快的模型处理简单任务</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">成本优化</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>任务路由：简单任务用小模型</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Prompt压缩：减少token数</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>批处理：合并相似请求</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s17" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">案例研究</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">自</span>
+        <h3 class="text-white font-semibold text-sm">案例1：自动化研报分析Agent</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某券商研究所希望构建一个自动化研报分析系统，能够根据用户输入的公司名称，自动收集信息、分析财务状况、生成投资摘要。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统架构</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">用户输入（公司名称）
+        │
+        ↓
+┌───────────────────┐
+│   协调Agent       │
+│   (Coordinator)   │
+└────────┬──────────┘
+         │
+    ┌────┴────┬─────────┬─────────┐
+    ↓         ↓         ↓         ↓
+┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
+│数据  │ │财务  │ │新闻  │ │行业  │
+│Agent │ │Agent │ │Agent │ │Agent │
+└──────┘ └──────┘ └──────┘ └──────┘
+    │         │         │         │
+    └────┬────┴────┬────┴────┬────┘
+         ↓              ↓
+    ┌──────────────────────┐
+    │    报告生成Agent     │
+    └──────────────────────┘
+              │
+              ↓
+        结构化研报摘要</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Agent定义</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.agents import AgentExecutor, create_openai_tools_agent
+
+data_agent_prompt = &quot;&quot;&quot;
+你是一个数据获取专家。
+任务：获取指定公司的以下信息：
+1. 公司基本信息（主营业务、行业、上市时间）
+2. 最近3年财务数据（营收、净利润、ROE）
+3. 当前股价和估值指标（PE、PB）
+
+公司名称：{company_name}
+&quot;&quot;&quot;
+
+finance_agent_prompt = &quot;&quot;&quot;
+你是一位资深财务分析师。
+任务：基于以下财务数据进行分析：
+{financial_data}
+
+请从以下维度分析：
+1. 盈利能力及趋势
+2. 财务健康状况
+3. 估值合理性
+4. 主要财务风险
+
+输出结构化分析报告。
+&quot;&quot;&quot;
+
+news_agent_prompt = &quot;&quot;&quot;
+你是一位新闻分析专家。
+任务：搜索并分析与以下公司相关的近期新闻：
+公司：{company_name}
+
+请提供：
+1. 近一周重要新闻摘要（3-5条）
+2. 新闻情感倾向（正面/中性/负面）
+3. 可能影响股价的事件
+&quot;&quot;&quot;
+
+report_agent_prompt = &quot;&quot;&quot;
+你是一位专业的投资分析师。
+基于以下分析结果，生成一份投资摘要：
+
+数据信息：{data_summary}
+财务分析：{finance_analysis}
+新闻分析：{news_analysis}
+行业分析：{industry_analysis}
+
+报告要求：
+1. 核心观点（一句话）
+2. 投资评级（买入/增持/中性/减持）
+3. 主要优势（3点）
+4. 主要风险（3点）
+5. 催化剂/风险事件
+6. 估值判断
+
+字数控制在500字以内。
+&quot;&quot;&quot;</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">执行流程</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>用户输入公司名称（如"贵州茅台"）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>协调Agent分配任务给各专业Agent</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>数据Agent获取财务数据</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>财务Agent分析财务状况</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>新闻Agent收集分析新闻</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span>行业Agent提供行业背景</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span>报告Agent汇总生成最终报告</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">输出示例</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">json</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">{
+  &quot;company&quot;: &quot;贵州茅台&quot;,
+  &quot;core_view&quot;: &quot;白酒龙头稳健增长，估值有支撑&quot;,
+  &quot;rating&quot;: &quot;增持&quot;,
+  &quot;strengths&quot;: [
+    &quot;品牌壁垒深厚，定价权强&quot;,
+    &quot;盈利能力行业领先，ROE超30%&quot;,
+    &quot;现金流充沛，财务稳健&quot;
+  ],
+  &quot;risks&quot;: [
+    &quot;估值处于历史中高位&quot;,
+    &quot;白酒行业增速放缓&quot;,
+    &quot;政策风险（限制三公消费）&quot;
+  ],
+  &quot;catalysts&quot;: &quot;春节旺季销售数据、提价预期&quot;,
+  &quot;valuation&quot;: &quot;当前PE 35x，高于行业但有品牌溢价支撑&quot;
+}</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">智</span>
+        <h3 class="text-white font-semibold text-sm">案例2：智能投顾对话系统</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某银行理财部门希望构建一个智能投顾系统，能够通过对话了解客户需求，提供个性化的投资建议。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统设计</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">记忆管理</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.memory import ConversationSummaryBufferMemory
+
+memory = ConversationSummaryBufferMemory(
+    llm=llm,
+    max_token_limit=2000,
+    return_messages=True
+)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对话流程设计</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">开场白 → 需求了解 → 风险评估 → 产品推荐 → 疑问解答 → 方案确认
+           │
+           ↓
+    ┌──────────────────────────────────────┐
+    │            状态机                     │
+    ├──────────────────────────────────────┤
+    │ 状态1: 收集基本信息                   │
+    │        - 投资金额                     │
+    │        - 投资期限                     │
+    │        - 流动性需求                   │
+    ├──────────────────────────────────────┤
+    │ 状态2: 评估风险偏好                   │
+    │        - 风险承受能力                 │
+    │        - 投资经验                     │
+    │        - 损失容忍度                   │
+    ├──────────────────────────────────────┤
+    │ 状态3: 生成投资方案                   │
+    │        - 资产配置建议                 │
+    │        - 产品推荐                     │
+    │        - 预期收益风险                 │
+    ├──────────────────────────────────────┤
+    │ 状态4: 答疑与确认                     │
+    │        - 解答客户疑问                 │
+    │        - 调整方案                     │
+    │        - 确认投资意向                 │
+    └──────────────────────────────────────┘</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心提示模板</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre"></pre></div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section id="s24" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">回复要求</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">案例3：合规文档审查Agent</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>语气专业但亲切</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每次只问1-2个问题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用通俗易懂的语言</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>适时总结已了解的信息</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">
+**风险评估逻辑**：
+```python
+def assess_risk_tolerance(answers):
+    &quot;&quot;&quot;评估客户风险承受能力&quot;&quot;&quot;
+    score = 0
+
+    # 投资期限
+    if answers[&quot;investment_horizon&quot;] &gt; 5:
+        score += 3
+    elif answers[&quot;investment_horizon&quot;] &gt; 2:
+        score += 2
+    else:
+        score += 1
+
+    # 收入稳定性
+    if answers[&quot;income_stability&quot;] == &quot;very_stable&quot;:
+        score += 3
+    elif answers[&quot;income_stability&quot;] == &quot;stable&quot;:
+        score += 2
+    else:
+        score += 1
+
+    # 损失容忍度
+    if answers[&quot;max_loss_tolerance&quot;] &gt; 20:
+        score += 3
+    elif answers[&quot;max_loss_tolerance&quot;] &gt; 10:
+        score += 2
+    else:
+        score += 1
+
+    # 投资经验
+    if answers[&quot;investment_experience&quot;] == &quot;experienced&quot;:
+        score += 3
+    elif answers[&quot;investment_experience&quot;] == &quot;moderate&quot;:
+        score += 2
+    else:
+        score += 1
+
+    # 确定风险等级
+    if score &gt;= 10:
+        return &quot;激进型&quot;
+    elif score &gt;= 7:
+        return &quot;成长型&quot;
+    elif score &gt;= 4:
+        return &quot;平衡型&quot;
+    else:
+        return &quot;保守型&quot;</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某金融机构法务部门希望使用AI辅助审查合同和合规文件，识别潜在风险条款。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统架构</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.chains import create_extraction_chain
+
+schema = {
+    &quot;properties&quot;: {
+        &quot;parties&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;description&quot;: &quot;合同各方名称&quot;
+        },
+        &quot;effective_date&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;description&quot;: &quot;生效日期&quot;
+        },
+        &quot;termination_date&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;description&quot;: &quot;终止日期&quot;
+        },
+        &quot;key_obligations&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;description&quot;: &quot;主要义务条款&quot;
+        },
+        &quot;penalty_clauses&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;description&quot;: &quot;违约条款&quot;
+        },
+        &quot;risk_flags&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;description&quot;: &quot;风险提示&quot;
+        }
+    }
+}
+
+extraction_chain = create_extraction_chain(schema, llm)
+
+risk_check_prompt = &quot;&quot;&quot;
+你是一位资深法务专家，请审查以下合同条款：
+
+{contract_text}
+
+请检查以下风险点：
+1. 是否存在不对等条款
+2. 是否存在模糊表述
+3. 是否缺少必要的保护条款
+4. 是否符合监管要求
+5. 违约责任是否合理
+
+对每个发现的问题，请说明：
+- 问题所在条款
+- 风险等级（高/中/低）
+- 建议修改方案
+&quot;&quot;&quot;</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">审查工作流</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">文档解析</span>：将合同PDF/Word转为文本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">结构提取</span>：识别合同各部分</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">条款分析</span>：逐条分析关键条款</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">风险识别</span>：标记潜在风险点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">报告生成</span>：生成审查意见书</span></div></div>
+  </div>
+</section>
+
+<section id="s25" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">常见问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q1: 如何选择合适的提示技术？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：根据任务类型选择：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">简单问答</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐技术:</span> 直接提示</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 足够简单，无需复杂技术</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数学/逻辑推理</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐技术:</span> 思维链（CoT）</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 分步推理提高准确性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需要高准确性</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐技术:</span> 自一致性</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 多次采样减少随机错误</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">复杂决策</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐技术:</span> 思维树（ToT）</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 探索多路径找最优解</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">知识密集型</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐技术:</span> RAG</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 结合外部知识</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">多步骤任务</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐技术:</span> Agent</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 工具使用和规划</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q2: Agent经常&quot;幻觉&quot;或使用错误的工具怎么办？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：几个解决策略：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">更清晰的工具描述</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">@tool
+def get_stock_price(stock_code: str) -&gt; float:
+    &quot;&quot;&quot;
+    获取股票的最新价格。
+
+    参数：
+        stock_code: 股票代码，格式为&quot;代码.交易所&quot;
+                   例如：&quot;000001.SZ&quot;（深圳），&quot;600000.SH&quot;（上海）
+
+    返回：
+        最新股价（浮点数）
+
+    注意：
+        - 仅支持A股市场
+        - 交易时间返回实时价格，非交易时间返回收盘价
+    &quot;&quot;&quot;</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">添加工具使用示例</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">
+任务：查询贵州茅台的股价
+思考：需要获取股票价格，应使用get_stock_price工具
+行动：get_stock_price(&quot;600519.SH&quot;)
+观察：1800.00
+
+任务：计算该股票的市盈率
+思考：需要用股价除以每股收益，但我还没有EPS数据
+行动：get_stock_financials(&quot;600519.SH&quot;, &quot;eps&quot;)
+观察：{&quot;eps&quot;: 50.0}
+行动：calculator(&quot;1800 / 50&quot;)
+观察：36.0
+回答：贵州茅台的市盈率为36倍</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">强制工具选择约束</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">allowed_tools = [&quot;get_stock_price&quot;, &quot;get_stock_financials&quot;, &quot;calculator&quot;]
+agent = create_agent(tools=[t for t in all_tools if t.name in allowed_tools])</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q3: 如何处理长文档的提示？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：几种策略：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">Map-Reduce模式</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.chains.summarize import load_summarize_chain
+
+chain = load_summarize_chain(llm, chain_type=&quot;map_reduce&quot;)</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">层次化摘要</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">原文档（100页）
+    ↓ 分块
+[块1] [块2] ... [块10]
+    ↓ 各块摘要
+[摘要1] [摘要2] ... [摘要10]
+    ↓ 合并摘要
+    最终摘要</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">智能截断</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def smart_truncate(text, max_tokens=3000):
+    &quot;&quot;&quot;智能截断，保留重要部分&quot;&quot;&quot;
+    # 保留开头（背景）
+    # 保留结尾（结论）
+    # 中间部分摘要
+    ...</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q4: 如何设计一个健壮的工作流？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：关键设计原则：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">错误处理</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from langchain.chains import LLMChain
+from tenacity import retry, stop_after_attempt
+
+@retry(stop=stop_after_attempt(3))
+def robust_chain_call(chain, inputs):
+    try:
+        return chain(inputs)
+    except Exception as e:
+        logger.error(f&quot;Chain failed: {e}&quot;)
+        raise</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">超时控制</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import asyncio
+
+async def call_with_timeout(chain, inputs, timeout=30):
+    try:
+        return await asyncio.wait_for(
+            chain.acall(inputs),
+            timeout=timeout
+        )
+    except asyncio.TimeoutError:
+        return {&quot;error&quot;: &quot;Timeout&quot;, &quot;fallback&quot;: &quot;请稍后重试&quot;}</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">回退机制</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def chain_with_fallback(primary_chain, fallback_chain, inputs):
+    try:
+        result = primary_chain(inputs)
+        if is_valid_result(result):
+            return result
+    except:
+        pass
+
+    # 使用fallback
+    return fallback_chain(inputs)</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q5: 如何评估和优化提示效果？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：系统化的评估流程：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">建立测试集</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">test_cases = [
+    {
+        &quot;input&quot;: &quot;分析工商银行的财务状况&quot;,
+        &quot;expected_topics&quot;: [&quot;盈利能力&quot;, &quot;资产质量&quot;, &quot;资本充足率&quot;],
+        &quot;expected_format&quot;: &quot;json&quot;
+    },
+    # 更多测试用例...
+]</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">自动化评估</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def evaluate_prompt(prompt_template, test_cases):
+    scores = []
+    for case in test_cases:
+        response = llm(prompt_template.format(**case[&quot;input&quot;]))
+
+        # 评估覆盖度
+        coverage = check_topic_coverage(response, case[&quot;expected_topics&quot;])
+
+        # 评估格式
+        format_score = check_format(response, case[&quot;expected_format&quot;])
+
+        # 评估准确性
+        accuracy = check_accuracy(response, case.get(&quot;ground_truth&quot;))
+
+        scores.append({
+            &quot;coverage&quot;: coverage,
+            &quot;format&quot;: format_score,
+            &quot;accuracy&quot;: accuracy
+        })
+
+    return aggregate_scores(scores)</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">A/B测试</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def ab_test_prompts(prompt_a, prompt_b, test_cases, n_trials=100):
+    results_a = []
+    results_b = []
+
+    for _ in range(n_trials):
+        case = random.choice(test_cases)
+
+        # 评估两个版本
+        score_a = evaluate_single(prompt_a, case)
+        score_b = evaluate_single(prompt_b, case)
+
+        results_a.append(score_a)
+        results_b.append(score_b)
+
+    # 统计显著性检验
+    return statistical_test(results_a, results_b)</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q6: 金融场景下有哪些特殊的提示设计考量？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：金融场景的特殊要求：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">准确性要求高</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">请在给出结论前：
+1. 再次核对引用的数据
+2. 检查计算过程
+3. 确认结论的逻辑性
+4. 如有不确定，明确说明</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">合规性要求</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">注意：
+- 不要给出具体的投资建议
+- 不要预测具体的股价
+- 提醒用户投资有风险
+- 建议用户咨询专业顾问</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">数据时效性</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">请注意：
+- 明确说明数据的时间点
+- 如果数据可能过期，请提醒
+- 对于时效敏感的信息，建议用户核实</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q7: 如何在提示中有效使用Few-shot示例？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：Few-shot示例的最佳实践：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">选择代表性示例</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">- 覆盖不同类型的输入
+- 包含边界情况
+- 展示期望的输出格式
+- 示例之间差异明显</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">示例结构</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">markdown</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre"></pre></div>
+    </div>
+  </details>
+</section>
+
+
+
+
+
+<section id="s28" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">示例3（中性案例）</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">Q</span>
+        <h3 class="text-white font-semibold text-sm">Q8: 如何处理模型的不确定性输出？</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">输入：某消费品公司，ROE 15%，营收增速 8%，PE 18x</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">分析：该公司盈利能力稳健（ROE 15%符合行业水平），增速平稳，</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">估值合理（与增速匹配）。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">结论：稳健型公司，适合长期持有。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">现在请分析：{user_input}</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">
+
+
+**答案**：处理不确定性的策略：
+
+1. **要求置信度**
+```markdown
+请在回答中包含你的置信度（高/中/低），并说明原因：
+- 高：有充分数据支持
+- 中：有部分数据支持，部分推断
+- 低：主要基于推断或数据不足</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">多次采样</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def get_confident_answer(prompt, threshold=0.8, max_attempts=5):
+    responses = []
+    for _ in range(max_attempts):
+        response = llm(prompt, temperature=0.7)
+        responses.append(response)
+
+    # 计算一致性
+    consistency = calculate_consistency(responses)
+    if consistency &gt;= threshold:
+        return majority_vote(responses), consistency
+    else:
+        return &quot;答案不确定，请人工复核&quot;, consistency</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">Q</span>
+        <h3 class="text-white font-semibold text-sm">Q9: 如何设计可维护的提示模板系统？</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">答案</span>：模板系统设计：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from jinja2 import Template
+
+class PromptTemplateManager:
+    &quot;&quot;&quot;提示模板管理器&quot;&quot;&quot;
+
+    def __init__(self, template_dir=&quot;prompts/&quot;):
+        self.template_dir = template_dir
+        self.templates = {}
+        self.load_templates()
+
+    def load_templates(self):
+        &quot;&quot;&quot;加载所有模板&quot;&quot;&quot;
+        for file in os.listdir(self.template_dir):
+            if file.endswith(&quot;.jinja2&quot;):
+                name = file.replace(&quot;.jinja2&quot;, &quot;&quot;)
+                with open(os.path.join(self.template_dir, file)) as f:
+                    self.templates[name] = Template(f.read())
+
+    def render(self, template_name, **kwargs):
+        &quot;&quot;&quot;渲染模板&quot;&quot;&quot;
+        if template_name not in self.templates:
+            raise ValueError(f&quot;Template {template_name} not found&quot;)
+        return self.templates[template_name].render(**kwargs)
+
+    def get_financial_analysis_prompt(self, company_data):
+        &quot;&quot;&quot;获取财务分析提示&quot;&quot;&quot;
+        return self.render(&quot;financial_analysis&quot;,
+                          data=company_data,
+                          current_date=datetime.now().strftime(&quot;%Y-%m-%d&quot;))
+
+manager = PromptTemplateManager()
+prompt = manager.get_financial_analysis_prompt(company_data)</pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="s29" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">工具与框架</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[LangChain](https://langchain.com)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 框架</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> LLM应用开发框架</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[LlamaIndex](https://llamaindex.ai)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 框架</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 数据索引和检索框架</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[OpenAI Cookbook](https://github.com/openai/openai-cookbook)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 教程</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 官方最佳实践</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[Prompt Engineering Guide](https://promptingguide.ai)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 指南</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 提示工程综合指南</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">[Claude Prompt Library](https://docs.anthropic.com/claude/prompt-library)</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 模板</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> Claude提示模板库</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">学术论文</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Chain-of-Thought Prompting</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2022</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 提出思维链方法</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Self-Consistency</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2022</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 自一致性采样</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Tree of Thoughts</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2023</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 思维树探索</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">ReAct</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2022</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 推理+行动框架</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Toolformer</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2023</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 工具使用学习</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">实践教程</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">DeepLearning.AI Prompt Engineering</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> Coursera</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 提示工程基础</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">LangChain for LLM Application</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> DeepLearning.AI</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> LangChain实战</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Building AI Agents</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> Udemy</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> Agent开发</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          AI Agent工作流设计
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段掌握从单次提示到多Agent系统的设计方法</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">提示设计</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">角色·格式·示例</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">高级技术</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">CoT·ToT</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">Agent架构</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">工具·记忆</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">工作流编排</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">并行·评估</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">提示设计</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">角色·格式·示例</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>角色设定: 你是一位资深金融分析师</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>输出格式: JSON/表格/结构化报告</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>Few-shot: 提供输入→输出示例对</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">高级技术</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">CoT·ToT</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>思维链CoT: 让模型逐步推理</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>思维树ToT: 分支探索多条路径</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>自洽性: 多次采样取多数一致答案</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">Agent架构</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">工具·记忆</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>工具调用: 搜索/计算/API接入</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>记忆系统: 短期(上下文)+长期(向量库)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>规划能力: 任务分解→子任务→聚合</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">工作流编排</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">并行·评估</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>串行链路: A→B→C顺序执行</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>并行扇出: 同时调用多个Agent</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>质量评估: 准确性/一致性/有用性评分</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Agent调用次数-效果权衡
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整API单价，找到最优调用策略</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">调用次数</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">综合得分</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">任务质量</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">成本效益</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>API单价(¢/K) <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>最优质量分: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>最优调用数: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="0" max="10" value="5" step="1">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          工作流效率评估计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">评估AI工作流的效率提升</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">人工耗时(小时)</label>
+            <input type="number" id="comp-2-tm" value="8" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">AI耗时(小时)</label>
+            <input type="number" id="comp-2-ta" value="2" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">AI质量分(0-100)</label>
+            <input type="number" id="comp-2-qa" value="85" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">人工质量分(0-100)</label>
+            <input type="number" id="comp-2-qm" value="90" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">工作流效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">时间节省</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">质量保持率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">调整后效率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">采用建议</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ 效率提升 = \frac{T_{manual} - T_{AI}}{T_{manual}} \times 100\% \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 人工智能金融 Chapter 03</div>
+    <div class="mt-2 md:mt-0">下一章：金融数据获取与处理技术 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'TCR = \\frac{成功', tip: '任务完成率——成功完成的任务占总任务的比例'},
+    {match: 'AvgSteps', tip: '平均步骤数——衡量AI完成任务的效率'},
+    {match: 'ToolEfficiency', tip: '工具效率——有效工具调用占总调用的比例'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=60,yMax=100;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(80-3*c)/2;
+    var eq_y=52-1.2*c;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 20+0.8*x;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 20+0.8*x;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 100-1.2*x-c*3;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 100-1.2*x-c*3;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='P = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='综合得分*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='调用次数*='+eq_x.toFixed(1);
+    var r1=52-1.2*c;
+    var r2=(80-3*c)/2;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var tm=parseFloat(document.getElementById('comp-2-tm').value);
+    var ta=parseFloat(document.getElementById('comp-2-ta').value);
+    var qa=parseFloat(document.getElementById('comp-2-qa').value);
+    var qm=parseFloat(document.getElementById('comp-2-qm').value);
+
+    var eff=(tm-ta)/tm*100;
+    var qratio=qa/qm*100;
+    var adjusted=eff*qa/qm;
+    document.getElementById('comp-2-out0').textContent=eff.toFixed(0)+'%';
+    document.getElementById('comp-2-out1').textContent=qratio.toFixed(0)+'%';
+    document.getElementById('comp-2-out2').textContent=adjusted.toFixed(0)+'%';
+    document.getElementById('comp-2-out3').textContent=adjusted>50?'强烈推荐':(adjusted>20?'值得采用':'需优化');
+    // Ring
+    var score=Math.max(0,Math.min(1,adjusted/100));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

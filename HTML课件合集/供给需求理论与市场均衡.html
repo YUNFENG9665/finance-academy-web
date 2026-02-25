@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供给需求理论与市场均衡 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Micro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">图形分析</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">金融市场中</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 02</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">供给需求理论与市场均衡</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">微观经济学的核心分析框架，理解市场价格形成机制</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">均衡模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">弹性理论</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">需求曲线的微观基础</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">需求曲线不是凭空画出来的线条，它背后是千百万消费者的<span class="text-white font-semibold">理性选择</span>。理解需求曲线，就是理解"人为什么这样买东西"。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">需求的本质是什么？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">需求不是"想要"，而是"愿意且能够购买"。一个穷学生想要法拉利，但这不构成需求；他愿意花30元买一杯奶茶，这才是需求。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">经济学中的需求必须满足两个条件：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">支付意愿（Willingness to Pay）</span>：消费者主观上愿意购买</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">支付能力（Ability to Pay）</span>：消费者客观上有足够的购买力</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求函数的完整表达</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">需求不仅仅取决于价格，完整的需求函数应该写作：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q_d = f(P, I, P_s, P_c, T, E, N)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">变量</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">含义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">影响方向</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">P</td><td class="px-3 py-2 text-xs text-slate-400">本品价格</td><td class="px-3 py-2 text-xs text-slate-400">负向（沿曲线移动）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">I</td><td class="px-3 py-2 text-xs text-slate-400">消费者收入</td><td class="px-3 py-2 text-xs text-slate-400">正常品正向，低档品负向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">\(P_s\)</td><td class="px-3 py-2 text-xs text-slate-400">替代品价格</td><td class="px-3 py-2 text-xs text-slate-400">正向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">\(P_c\)</td><td class="px-3 py-2 text-xs text-slate-400">互补品价格</td><td class="px-3 py-2 text-xs text-slate-400">负向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">T</td><td class="px-3 py-2 text-xs text-slate-400">消费者偏好/品味</td><td class="px-3 py-2 text-xs text-slate-400">取决于偏好方向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">E</td><td class="px-3 py-2 text-xs text-slate-400">预期（未来价格、收入）</td><td class="px-3 py-2 text-xs text-slate-400">取决于预期内容</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">N</td><td class="px-3 py-2 text-xs text-slate-400">市场中消费者数量</td><td class="px-3 py-2 text-xs text-slate-400">正向</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">需求曲线为什么向下倾斜？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">三个层次的解释：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">边际效用递减</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心逻辑:</span> 多吃一个苹果的满足感不如第一个</div><div class="text-xs text-slate-400"><span class="text-slate-500">深层含义:</span> 消费者愿意为额外单位支付的价格递减</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">替代效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心逻辑:</span> 价格上涨时转向替代品</div><div class="text-xs text-slate-400"><span class="text-slate-500">深层含义:</span> 价格是相对的，不是绝对的</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心逻辑:</span> 价格上涨降低实际购买力</div><div class="text-xs text-slate-400"><span class="text-slate-500">深层含义:</span> 名义收入不变但"变穷了"</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">替代效应与收入效应的深入分析</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当商品价格变化时，消费者的需求量变化可以分解为两部分：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Delta Q = \Delta Q_{替代效应} + \Delta Q_{收入效应}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">斯勒茨基方程（Slutsky Equation）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\partial x}{\partial p} = \frac{\partial x^h}{\partial p} - x \cdot \frac{\partial x}{\partial m}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>左边是总效应（需求对价格的反应）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>第一项是替代效应（希克斯需求）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>第二项是收入效应</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">不同商品的效应组合</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">商品类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">替代效应</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">收入效应</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">总效应</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">需求曲线</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">正常品</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">向下倾斜</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">低档品</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">正</td><td class="px-3 py-2 text-xs text-slate-400">通常为负</td><td class="px-3 py-2 text-xs text-slate-400">向下倾斜</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">吉芬品</td><td class="px-3 py-2 text-xs text-slate-400">负</td><td class="px-3 py-2 text-xs text-slate-400">正（强）</td><td class="px-3 py-2 text-xs text-slate-400">正</td><td class="px-3 py-2 text-xs text-slate-400">向上倾斜</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">吉芬品是理论上存在但现实中极为罕见的特例——价格上涨反而导致需求量增加。经典案例是19世纪爱尔兰大饥荒时期的土豆。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求曲线移动 vs 沿曲线移动</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">价格变化</span> → 沿曲线移动（需求量变化）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">其他因素变化</span>（收入、偏好、相关品价格、预期）→ 整条曲线移动（需求变化）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这个区分极其重要！新闻说"需求下降"，到底是价格上涨导致的需求量下降，还是整条需求曲线左移？这是完全不同的两件事。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求的价格弹性公式推导</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">需求的价格弹性定义为需求量变化的百分比除以价格变化的百分比：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_d = \frac{\Delta Q / Q}{\Delta P / P} = \frac{\Delta Q}{\Delta P} \cdot \frac{P}{Q}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于连续函数，使用微分形式：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_d = \frac{dQ}{dP} \cdot \frac{P}{Q}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于线性需求函数 \(Q = a - bP\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_d = -b \cdot \frac{P}{a - bP}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">注意弹性沿着线性需求曲线是变化的！</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>在高价格处（需求曲线上部）：\(|E_d| > 1\)，需求富有弹性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>在中点处：\(|E_d| = 1\)，单位弹性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>在低价格处（需求曲线下部）：\(|E_d| < 1\)，需求缺乏弹性</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">供给曲线的微观基础</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">供给曲线反映的是生产者的<span class="text-white font-semibold">利润最大化决策</span>：在什么价格下，愿意生产多少？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供给函数的完整表达</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q_s = g(P, P_i, T, E, N_f, G)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">P</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 产品价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 正向（沿曲线移动）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(P_i\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 投入品价格</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 负向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">T</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 生产技术水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 正向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">E</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 生产者预期</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 取决于预期内容</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">\(N_f\)</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 市场中企业数量</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 正向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">G</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 政府政策（税收、补贴）</div><div class="text-xs text-slate-400"><span class="text-slate-500">影响方向:</span> 取决于政策类型</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">供给曲线为什么向上倾斜？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">核心原因是<span class="text-white font-semibold">边际成本递增</span>：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产能有限：工厂满负荷运转效率下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>要素稀缺：扩大生产需要高价雇用额外工人</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>技术约束：产量越高，单位成本越高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>机会成本：资源用于生产此商品就不能生产其他商品</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">利润最大化条件的推导</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">企业利润函数：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi = TR - TC = P \cdot Q - C(Q)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">利润最大化的一阶条件（对Q求导并令其为零）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{d\pi}{dQ} = P - MC = 0\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = MC\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这就是供给曲线的微观基础：在完全竞争市场中，<span class="text-white font-semibold">企业的供给曲线就是其边际成本曲线（在平均可变成本以上的部分）</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短期供给 vs 长期供给</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">时间维度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">可调整因素</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">供给弹性</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">典型案例</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">瞬时（Market Period）</td><td class="px-3 py-2 text-xs text-slate-400">几乎无法调整</td><td class="px-3 py-2 text-xs text-slate-400">完全无弹性</td><td class="px-3 py-2 text-xs text-slate-400">渔船已经出海，当天的鱼获量固定</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">短期（Short Run）</td><td class="px-3 py-2 text-xs text-slate-400">可变投入（劳动、原材料）</td><td class="px-3 py-2 text-xs text-slate-400">较低弹性</td><td class="px-3 py-2 text-xs text-slate-400">工厂加班生产，但不能扩建</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">长期（Long Run）</td><td class="px-3 py-2 text-xs text-slate-400">所有投入（包括资本、技术）</td><td class="px-3 py-2 text-xs text-slate-400">较高弹性</td><td class="px-3 py-2 text-xs text-slate-400">新工厂建设、新企业进入</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">超长期（Very Long Run）</td><td class="px-3 py-2 text-xs text-slate-400">技术水平可变</td><td class="px-3 py-2 text-xs text-slate-400">最高弹性</td><td class="px-3 py-2 text-xs text-slate-400">技术革新改变生产函数</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这解释了为什么石油价格暴涨时，短期供给几乎无法增加，但长期会有新油田开发、替代能源出现。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供给弹性的计算</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">供给的价格弹性：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_s = \frac{\Delta Q_s / Q_s}{\Delta P / P} = \frac{\Delta Q_s}{\Delta P} \cdot \frac{P}{Q_s}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于线性供给函数 \(Q_s = c + dP\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_s = d \cdot \frac{P}{c + dP}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供给弹性的决定因素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时间长度</div><div class="text-xs text-slate-400"><span class="text-slate-500">弹性影响:</span> 时间越长，弹性越大</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 长期可以调整更多因素</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">生产要素可得性</div><div class="text-xs text-slate-400"><span class="text-slate-500">弹性影响:</span> 要素越容易获得，弹性越大</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 扩产更容易</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">库存水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">弹性影响:</span> 库存越高，短期弹性越大</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 可以快速出货</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">生产周期</div><div class="text-xs text-slate-400"><span class="text-slate-500">弹性影响:</span> 周期越短，弹性越大</div><div class="text-xs text-slate-400"><span class="text-slate-500">解释:</span> 可以快速调整产量</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">市场均衡：供需交汇的奇迹</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">市场均衡是经济学最优美的概念之一：没有任何人"决定"价格，但价格就是自然而然地形成了。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡的定义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">均衡价格（P\*）</span>：使供给量等于需求量的价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">均衡数量（Q\*）</span>：在均衡价格下的交易量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">市场出清</span>：没有过剩库存，没有排队抢购</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡的数学求解</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设需求函数为 \(Q_d = D(P)\)，供给函数为 \(Q_s = S(P)\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">均衡条件：\(D(P^*) = S(P^*)\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于线性函数：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q_d = a - bP, \quad Q_s = c + dP\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[a - bP^* = c + dP^*\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P^* = \frac{a - c}{b + d}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q^* = \frac{ad + bc}{b + d}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡的稳定性——瓦尔拉斯调整过程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">价格高于均衡 → 供给 &gt; 需求 → 库存积压 → 卖家降价 → 价格回落
+价格低于均衡 → 需求 &gt; 供给 → 排队抢购 → 卖家涨价 → 价格上升</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">马歇尔调整过程</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">除了瓦尔拉斯的价格调整，马歇尔提出了数量调整过程：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">数量低于均衡 → 需求价格 &gt; 供给价格 → 有利可图 → 厂商增产 → 数量增加
+数量高于均衡 → 需求价格 &lt; 供给价格 → 亏损 → 厂商减产 → 数量减少</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡稳定性的数学条件</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">瓦尔拉斯稳定性要求：在均衡点附近，过度需求函数（\(ED = Q_d - Q_s\)）关于价格的斜率为负：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{dED}{dP} = \frac{dQ_d}{dP} - \frac{dQ_s}{dP} < 0\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">即需求曲线比供给曲线更陡峭（在绝对值意义上）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡的哲学意义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">亚当·斯密的"看不见的手"在这里得到最清晰的体现——每个人都在追求自己的利益，但市场价格机制却让社会资源得到有效配置。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡的唯一性与多重均衡</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在标准情况下（需求向下、供给向上），均衡是唯一的。但在特殊情况下可能存在多重均衡：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>后弯的劳动供给曲线</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>网络效应导致的多重需求均衡</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>递增规模报酬导致的向下倾斜供给曲线</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">比较静态分析</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">比较静态分析是经济学家的核心工具：<span class="text-white font-semibold">当外部条件改变时，均衡如何变化？</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">比较静态分析的方法论</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">比较静态分析比较的是两个均衡状态，而不是从一个均衡到另一个均衡的动态过程。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">基本步骤：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>确定初始均衡（\(P_0^*, Q_0^*\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>识别外生变量的变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>判断哪条曲线移动，向哪个方向移动</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>找到新均衡（\(P_1^*, Q_1^*\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>比较新旧均衡的差异</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">四种基本情形</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">变化</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">曲线移动</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">价格变化</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">数量变化</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">需求增加（收入↑、偏好↑）</td><td class="px-3 py-2 text-xs text-slate-400">需求曲线右移</td><td class="px-3 py-2 text-xs text-slate-400">P↑</td><td class="px-3 py-2 text-xs text-slate-400">Q↑</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">需求减少（替代品降价）</td><td class="px-3 py-2 text-xs text-slate-400">需求曲线左移</td><td class="px-3 py-2 text-xs text-slate-400">P↓</td><td class="px-3 py-2 text-xs text-slate-400">Q↓</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">供给增加（技术进步、成本↓）</td><td class="px-3 py-2 text-xs text-slate-400">供给曲线右移</td><td class="px-3 py-2 text-xs text-slate-400">P↓</td><td class="px-3 py-2 text-xs text-slate-400">Q↑</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">供给减少（原材料涨价）</td><td class="px-3 py-2 text-xs text-slate-400">供给曲线左移</td><td class="px-3 py-2 text-xs text-slate-400">P↑</td><td class="px-3 py-2 text-xs text-slate-400">Q↓</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">变化幅度的数学分析</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于线性模型，设需求函数参数 \(a\) 增加 \(\Delta a\)（需求曲线右移）：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">新均衡价格：\(P_1^* = \frac{(a + \Delta a) - c}{b + d} = P_0^* + \frac{\Delta a}{b + d}\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">价格变化：\(\Delta P = \frac{\Delta a}{b + d}\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">数量变化：\(\Delta Q = d \cdot \Delta P = \frac{d \cdot \Delta a}{b + d}\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">变化幅度与弹性的关系</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">需求变化导致的价格变化幅度取决于供给弹性：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给越缺乏弹性（\(d\)越小），价格变化越大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给越富有弹性（\(d\)越大），数量变化越大</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">同时变动的复杂情形</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当供需同时变化时，价格和数量的变化方向取决于哪条曲线移动更多：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求增加 + 供给增加</div><div class="text-xs text-slate-400"><span class="text-slate-500">价格变化:</span> 不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">数量变化:</span> Q一定↑</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求减少 + 供给减少</div><div class="text-xs text-slate-400"><span class="text-slate-500">价格变化:</span> 不确定</div><div class="text-xs text-slate-400"><span class="text-slate-500">数量变化:</span> Q一定↓</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求增加 + 供给减少</div><div class="text-xs text-slate-400"><span class="text-slate-500">价格变化:</span> P一定↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">数量变化:</span> 不确定</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">需求减少 + 供给增加</div><div class="text-xs text-slate-400"><span class="text-slate-500">价格变化:</span> P一定↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">数量变化:</span> 不确定</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">比较静态分析的矩阵形式</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于一般形式的供需系统，可以使用全微分和克莱姆法则求解：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设 \(Q_d = D(P, \alpha)\)，\(Q_s = S(P, \beta)\)，其中 \(\alpha, \beta\) 为外生参数。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">均衡条件：\(D(P, \alpha) = S(P, \beta)\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对 \(\alpha\) 全微分：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D_P \cdot dP + D_\alpha \cdot d\alpha = S_P \cdot dP\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{dP}{d\alpha} = \frac{D_\alpha}{S_P - D_P}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">由于 \(D_P < 0\), \(S_P > 0\)，所以 \(S_P - D_P > 0\)。若 \(D_\alpha > 0\)（需求增加参数），则 \(\frac{dP}{d\alpha} > 0\)。</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">消费者剩余与生产者剩余</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">剩余分析是评价市场效率和政策效果的核心工具。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">消费者剩余（CS）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">消费者愿意支付的最高价格与实际支付价格之差的总和。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>几何意义：需求曲线以下、价格线以上的面积</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>经济含义：消费者从交易中获得的"净收益"</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">消费者剩余的数学表达</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于连续需求曲线 \(P = D^{-1}(Q)\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CS = \int_0^{Q^*} D^{-1}(Q) dQ - P^* \cdot Q^*\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于线性需求曲线 \(P = a - bQ\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CS = \frac{1}{2} \cdot Q^* \cdot (a - P^*) = \frac{1}{2} \cdot Q^* \cdot b \cdot Q^* = \frac{b(Q^*)^2}{2}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">或者用价格表示：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CS = \frac{(a - P^*)^2}{2b}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生产者剩余（PS）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">实际收到的价格与愿意接受的最低价格之差的总和。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>几何意义：价格线以下、供给曲线以上的面积</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>经济含义：生产者从交易中获得的"净收益"</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生产者剩余与利润的关系</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在短期内：\(PS = TR - TVC = \pi + TFC\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">即生产者剩余等于利润加上固定成本。当固定成本为零（长期均衡）时，\(PS = \pi\)。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生产者剩余的数学表达</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于连续供给曲线 \(P = S^{-1}(Q)\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PS = P^* \cdot Q^* - \int_0^{Q^*} S^{-1}(Q) dQ\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于线性供给曲线 \(P = c + dQ\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PS = \frac{1}{2} \cdot Q^* \cdot (P^* - c) = \frac{d(Q^*)^2}{2}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">总剩余与效率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[总剩余 = CS + PS\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在完全竞争市场的均衡点，总剩余最大化——这就是市场效率的含义。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">社会总剩余最大化的证明</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设社会福利函数为：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[W = \int_0^Q D^{-1}(q) dq - \int_0^Q S^{-1}(q) dq\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">最大化条件（对Q求导）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{dW}{dQ} = D^{-1}(Q) - S^{-1}(Q) = 0\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[D^{-1}(Q^*) = S^{-1}(Q^*)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这正是市场均衡条件！因此，竞争市场均衡实现了社会福利最大化。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">无谓损失（Deadweight Loss）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当市场偏离均衡（如价格管制、税收）时，部分社会剩余永久丧失，称为无谓损失。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[DWL = \frac{1}{2} \times \Delta P \times \Delta Q\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(\Delta P\) 是价格扭曲程度，\(\Delta Q\) 是数量减少量。</p>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型1：线性供需模型求解</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">需求函数</span>：\(Q_d = a - bP\)（a > 0, b > 0）</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">供给函数</span>：\(Q_s = c + dP\)（c可正可负, d > 0）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参数的经济含义</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">a</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 需求曲线的横截距（最大需求量）</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 取决于市场规模</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">b</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 需求曲线斜率的绝对值</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 反映需求对价格的敏感度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">c</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 供给曲线的横截距</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 可正可负，反映最低生产意愿</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">d</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 供给曲线斜率</div><div class="text-xs text-slate-400"><span class="text-slate-500">典型范围:</span> 反映供给对价格的敏感度</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">均衡求解</span>：令 \(Q_d = Q_s\)</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[a - bP^* = c + dP^*\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P^* = \frac{a - c}{b + d}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q^* = a - b \cdot \frac{a-c}{b+d} = \frac{ad + bc}{b + d}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数值例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">若 \(Q_d = 100 - 2P\)，\(Q_s = 20 + 3P\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">则 \(P^* = \frac{100-20}{2+3} = 16\)，\(Q^* = 100 - 2(16) = 68\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">验证</span>：\(Q_s = 20 + 3(16) = 68\)，与需求量相等，市场出清。</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型2：消费者剩余计算</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">对于线性需求曲线 \(P = \frac{a}{b} - \frac{1}{b}Q\)：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CS = \frac{1}{2} \times (P_{max} - P^*) \times Q^*\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(P_{max} = \frac{a}{b}\) 是需求曲线的纵截距（最高支付意愿）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">续上例的计算</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P_{max} = \frac{100}{2} = 50\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(CS = \frac{1}{2} \times (50 - 16) \times 68 = \frac{1}{2} \times 34 \times 68 = 1156\)</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生产者剩余计算</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P_{min} = \frac{-c}{d} = \frac{-20}{3} \approx -6.67\)（供给曲线与价格轴的交点）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>由于 \(c > 0\)，供给曲线不经过原点，需要注意积分下限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(PS = \frac{1}{2} \times (P^* - P_{min}) \times Q^* = \frac{1}{2} \times 68 \times 68 / 3 \times 3 = \frac{68^2}{2 \times 3} \times 3\)</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">更简单的方法：用供给曲线从0到Q*的面积</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PS = P^* \cdot Q^* - \int_0^{Q^*} (c + dQ)/d \cdot dQ\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">对于 \(P = \frac{Q_s - c}{d}\)，即 \(Q_s = c + dP\)：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当 \(Q = 0\) 时，\(P = -c/d\)</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[PS = \frac{(P^* + c/d) \cdot Q^*}{2} = \frac{(16 + 20/3) \cdot 68}{2} = \frac{68/3 \cdot 68}{2} = \frac{68^2}{2 \times 3} \times (3 + 20/16)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">简化计算：\(PS = \frac{1}{2} \times Q^* \times (P^* - MC(0))\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(MC(0) = c/d\) 为生产第一单位的边际成本。</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型3：税收效果分析</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">政府对每单位商品征收税额 \(t\)：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">税后均衡分析</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设税收由卖方缴纳，供给曲线垂直上移 \(t\) 单位：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原供给曲线：\(Q_s = c + dP\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>税后供给曲线：\(Q_s = c + d(P - t) = (c - dt) + dP\)</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">新均衡：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P_c = \frac{a - (c - dt)}{b + d} = P^* + \frac{dt}{b + d}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q_t = a - bP_c = Q^* - \frac{bdt}{b + d}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">税负分摊</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消费者支付价格上涨：\(P_c - P^* = \frac{dt}{b + d} = \frac{t \cdot E_s}{E_s + |E_d|}\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产者收到价格下降：\(P^* - P_p = \frac{bt}{b + d} = \frac{t \cdot |E_d|}{E_s + |E_d|}\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>税收收入：\(T = t \times Q_t\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无谓损失：\(DWL = \frac{1}{2} \times t \times (Q^* - Q_t)\)</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">关键结论</span>：税负分摊取决于弹性！弹性小的一方承担更多税负。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">税负分摊的直觉解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>弹性小意味着对价格变化不敏感</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不敏感的一方无法通过调整行为来"躲避"税负</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因此只能被动承担更多税收</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数值例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设 \(t = 6\)，使用前面的参数（\(b = 2\), \(d = 3\)）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消费者承担：\(\frac{6 \times 3}{2 + 3} = 3.6\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产者承担：\(\frac{6 \times 2}{2 + 3} = 2.4\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新均衡数量：\(Q_t = 68 - \frac{2 \times 3 \times 6}{5} = 68 - 7.2 = 60.8\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>税收收入：\(T = 6 \times 60.8 = 364.8\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无谓损失：\(DWL = \frac{1}{2} \times 6 \times 7.2 = 21.6\)</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型4：价格管制效果</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">价格上限（Price Ceiling）</span>：\(P_{ceiling} < P^*\)</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：短缺（\(Q_d > Q_s\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短缺量 = \(Q_d(P_{ceiling}) - Q_s(P_{ceiling})\)</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价格上限的福利分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">短缺导致的非效率：
+1. 消费者剩余：部分增加（低价受益），部分减少（买不到）
+2. 生产者剩余：明确减少
+3. 无谓损失：交易量减少导致的社会福利损失
+4. 隐性成本：排队、寻找、黑市等</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">价格下限（Price Floor）</span>：\(P_{floor} > P^*\)</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：过剩（\(Q_s > Q_d\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过剩量 = \(Q_s(P_{floor}) - Q_d(P_{floor})\)</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最低工资的案例分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>价格下限 = 最低工资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>劳动需求（企业）向下倾斜</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>劳动供给（工人）向上倾斜</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最低工资高于均衡工资 → 失业（劳动过剩）</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">模型5：补贴效果分析</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">政府对每单位商品给予生产者补贴 \(s\)：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">补贴后均衡</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给曲线下移 \(s\) 单位</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新均衡价格：\(P_c = P^* - \frac{bs}{b + d}\)（消费者支付价格下降）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产者收到：\(P_p = P_c + s = P^* + \frac{ds}{b + d}\)（高于原均衡价格）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新均衡数量：\(Q_s = Q^* + \frac{bds}{b + d}\)（增加）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">补贴的财政成本</span>：\(G = s \times Q_s\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">补贴的效率分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消费者剩余增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产者剩余增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政府支出为负（财政成本）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>净福利变化 = \(\Delta CS + \Delta PS - G < 0\)（存在无谓损失）</span></div></div>
+  </div>
+</section>
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">图形分析与几何推导</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">图1：基本供需均衡图</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">价格(P)
+    ^
+    |
+P_max -----.
+    |       \
+    |        \ 需求曲线 D
+    |         \
+    |          \
+P*  |- - - - - -X- - - - - -
+    |         / | \
+    |        /  |  \
+    |       /   |   \
+    |      /    |    \
+    |     /  供给曲线S \
+    |    /      |      \
+    +---/-------+-------\---&gt; 数量(Q)
+       0       Q*       Q_max</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键区域</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>三角形 (0, P_max, X)：消费者剩余</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>三角形 (0, P_min, X)：生产者剩余（P_min为供给曲线与纵轴交点）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>点 X：均衡点，坐标为 (Q<em class="text-slate-300">, P</em>)</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">图2：税收效果图</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">价格(P)
+    ^
+    |           D
+    |          /
+Pc  |. . . . .X&#x27;. . .
+    |        /  :
+P*  |- - - -X - + - - 供给曲线上移t
+    |      /:   :
+Pp  |. . ./.:. .X . . 原供给曲线S
+    |    / :   /
+    |   /  :  /
+    +------+------&gt; 数量(Q)
+          Qt Q*</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">税收效果分解</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>X：原均衡点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>X'：新均衡点（消费者面对的）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>税楔：\(P_c - P_p = t\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政府税收：矩形面积 \(t \times Q_t\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无谓损失：三角形 XX' 区域</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">图3：价格上限效果图</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">价格(P)
+    ^
+    |
+P*  |- - - - -X- - - - -
+    |        /|\
+    |       / | \
+Pc  |------/--+--\------ 价格上限
+    |     /   |   \
+    |    /    |    \
+    |   /     |     \
+    +--/------+------\--&gt; 数量(Q)
+      Qs     Q*     Qd
+
+      |&lt;--短缺量--&gt;|</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短缺的后果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>交易量只能达到 \(Q_s\)（供给量）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>存在 \(Q_d - Q_s\) 的过度需求</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要非价格配给机制</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">金融市场中的应用</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">应用1：股票市场的供需分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">股票的需求</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>来源：投资者对公司未来现金流的预期</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>影响因素：盈利预期、利率水平、风险偏好、替代投资品收益</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求曲线的特殊性</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">股票需求曲线可能不是简单的向下倾斜。在某些情况下，价格上涨可能增加需求（动量效应、追涨心理）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">股票的供给</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短期：几乎完全无弹性（已发行股票数量固定）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长期：可通过增发、回购调整</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">定增（增发）的供需分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">增发前：供给固定 S₀，需求 D，均衡价格 P₀
+增发公告：供给曲线右移 S₁
+结果：在原价格下出现供给过剩 → 价格下跌至新均衡 P₁</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这解释了为什么定增公告通常导致股价下跌。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">股票回购的效果</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">回购前：供给 S₀，需求 D，均衡价格 P₀
+回购实施：供给曲线左移 S₁
+结果：在原价格下出现需求过剩 → 价格上涨至新均衡 P₁</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">应用2：债券市场与利率决定</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">债券价格与利率的反向关系</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P = \frac{C}{1+r} + \frac{C}{(1+r)^2} + ... + \frac{C+F}{(1+r)^n}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">债券价格上涨 ↔ 利率下降</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">债券市场的供需</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">需求方</span>：投资者（银行、保险、基金、个人）</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需求曲线向下倾斜：价格越低（利率越高），债券越有吸引力</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">供给方</span>：借款人（政府、企业）</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给曲线向上倾斜：价格越高（利率越低），借款成本越低，愿意发行更多债券</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币政策对债券市场的影响</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">央行降息 → 无风险利率下降 → 债券需求增加（相对吸引力上升）
+         → 需求曲线右移 → 债券价格上涨 → 收益率下降</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">应用3：外汇市场的供需分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">汇率决定的供需模型</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设人民币/美元汇率为 E（每美元兑换的人民币数量）</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">美元需求</span>（人民币供给）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国进口商需要美元支付进口</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国投资者需要美元投资海外</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>汇率越低（美元越便宜），需求越大</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">美元供给</span>（人民币需求）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国进口商需要人民币支付进口</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国投资者需要人民币投资中国</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>汇率越高（美元越贵），愿意供给越多美元</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贸易顺差的影响</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">中国贸易顺差 → 出口收入（美元）&gt; 进口支出（美元）
+            → 美元供给 &gt; 美元需求（在原汇率下）
+            → 美元贬值压力 / 人民币升值压力</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">应用4：房地产市场的供需动态</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">房地产需求的特殊性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">双重属性</span>：既是消费品（居住需求）又是投资品（增值预期）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">预期驱动</span>：价格上涨预期可能增加需求（投机需求）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">杠杆放大</span>：贷款政策显著影响购买力</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">房地产供给的特殊性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">短期完全无弹性</span>：建造周期长（2-3年）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">土地约束</span>：核心区位土地稀缺</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">政策依赖</span>：土地出让、规划审批影响供给</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">房价上涨的供需解释</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">需求因素：收入增长、城市化、货币宽松、投资需求
+供给因素：土地供应不足、建设周期滞后
+结果：需求增长快于供给增长 → 持续价格上涨</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">应用5：大宗商品市场</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">石油市场的供需分析</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求侧</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短期需求弹性极低（运输依赖石油）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>长期可以转向替代能源、提高效率</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供给侧</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短期供给弹性低（产能调整需要时间）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OPEC卡特尔行为影响供给曲线</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">油价暴涨的机制</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">需求突然增加（经济复苏）或供给突然减少（地缘冲突）
+  → 在短期低弹性情况下
+  → 价格需要大幅上涨才能恢复均衡</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这解释了为什么石油价格波动远大于一般商品。</p>
+    </div>
+  </div>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">房</span>
+        <h3 class="text-white font-semibold text-sm">案例1：房地产限购政策分析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：中国多个城市实施限购政策，限制家庭购房数量。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供需分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">限购前均衡：高需求 + 有限供给 → 高房价
+限购政策：人为限制部分需求 → 需求曲线左移
+短期效果：交易量下降，价格可能下跌
+长期效果：
+  - 供给端：开发商减少投资 → 供给曲线左移
+  - 需求端：被压抑的需求积累
+  - 结果：价格可能反弹</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">深层思考</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>限购是否解决了"住房难"问题，还是只是压制了症状？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>被限制的需求去了哪里？（代持、假离婚、商住房）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>限购如何影响住房的"投资品"属性和"消费品"属性？</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策效果的定量估计</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设限购使30%的投机需求退出市场：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需求曲线左移约30%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>若供给弹性为0.5，需求弹性为-1.0</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>价格下降幅度约为需求减少幅度的2/3</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</span>
+        <h3 class="text-white font-semibold text-sm">案例2：2020年口罩价格管制</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：新冠疫情初期，多国政府实施口罩价格上限。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供需分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">正常状态：需求较低，价格稳定
+疫情冲击：需求曲线大幅右移 → 均衡价格暴涨
+政府干预：价格上限 &lt; 新均衡价格 → 短缺</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短缺的后果</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">排队等待</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 凌晨排队、浪费时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济学解释:</span> 时间成本替代货币成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">非价格配给</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 先到先得、关系配给</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济学解释:</span> 价格机制失灵后的替代机制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">黑市交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 高价转卖、执法成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济学解释:</span> 被压制的价格信号在地下恢复</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">质量下降</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 假冒伪劣产品出现</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济学解释:</span> 无法通过价格竞争，转向质量"竞争"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">供给不足</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 生产激励不足</div><div class="text-xs text-slate-400"><span class="text-slate-500">经济学解释:</span> 低价抑制生产积极性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">替代方案比较</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政府采购+定向发放</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 公平分配</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 效率低，反应慢</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价格放开+补贴低收入者</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 保持激励</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 执行复杂，补贴精准度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">出口限制+产能扩张</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 增加国内供给</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 国际关系影响</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">分时定价</div><div class="text-xs text-slate-400"><span class="text-slate-500">优点:</span> 平滑需求</div><div class="text-xs text-slate-400"><span class="text-slate-500">缺点:</span> 执行困难</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">U</span>
+        <h3 class="text-white font-semibold text-sm">案例3：Uber的动态定价（Surge Pricing）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：Uber在需求高峰时段提高价格，有时高达平时的2-3倍。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经济学解释</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">正常时段：供需平衡，正常价格
+高峰时段（下雨、演唱会结束）：需求曲线右移
+动态定价：价格上涨 → 两个效果
+  1. 需求侧：部分乘客选择其他出行方式
+  2. 供给侧：更多司机愿意上线
+结果：市场趋向新均衡，减少等待时间</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">消费者反感的原因</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>"公平"直觉：同样的服务为什么价格不同？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信息不对称：消费者不知道涨价是否合理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>趁人之危感：在人们"必须"用车时涨价</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">思考</span>：动态定价在经济学上是效率的，但为什么消费者普遍反感？这揭示了效率与公平之间的张力。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">2</span>
+        <h3 class="text-white font-semibold text-sm">案例4：2021年全球芯片短缺</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：新冠疫情后，全球芯片供应严重不足，汽车等行业受到重大冲击。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供需分析</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求侧变化</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>远程办公/学习 → 电脑、平板需求激增</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据中心扩张 → 服务器芯片需求增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>汽车电动化 → 车用芯片需求大幅上升</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供给侧冲击</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>疫情导致工厂停工</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>极端天气影响生产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>芯片产能扩张需要2-3年</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场动态</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">短期（2021年）：
+  - 供给几乎无法增加
+  - 需求大幅右移
+  - 价格暴涨但仍然短缺
+
+中期（2022-2023年）：
+  - 新产能逐步投产
+  - 部分需求回落
+  - 短缺缓解，价格下降
+
+长期影响：
+  - 各国推动本土芯片制造
+  - 供应链重组</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">碳</span>
+        <h3 class="text-white font-semibold text-sm">案例5：碳排放权交易市场</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：为应对气候变化，许多国家建立碳排放权交易市场（Cap and Trade）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">供需分析框架</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">供给</span>：政府发放的碳排放配额（人为设定）</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>供给曲线垂直（完全无弹性）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>政府通过调整配额总量影响价格</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">需求</span>：企业的排放需求</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>取决于减排成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>减排成本高的企业需求更多配额</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需求曲线向下倾斜</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场机制的效率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">企业A：减排成本100元/吨
+企业B：减排成本50元/吨
+碳价：70元/吨
+
+结果：
+- 企业A选择购买配额（比自己减排便宜）
+- 企业B选择减排并出售配额（获利20元/吨）
+- 社会总减排成本最小化</pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="s6" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题（用于深度思考和 NotebookLM 生成对话）</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么需求曲线向下倾斜？请分别从边际效用递减、替代效应和收入效应三个角度解释，并举出一个三种效应同时作用的例子。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">"供给创造需求"（萨伊定律）在什么条件下成立？凯恩斯如何反驳这一观点？这个争论对理解经济周期有什么意义？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">市场均衡一定是"好"的吗？请区分"均衡"和"最优"这两个概念，并举例说明均衡可能不是社会最优的情形。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">解释"需求的价格弹性沿着线性需求曲线变化"这一结论。为什么在高价格处弹性大，低价格处弹性小？这对企业定价有什么启示？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">什么是吉芬品？它的存在如何挑战需求定律？请解释吉芬品产生的必要条件。</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">假设政府对香烟每包征收5元税。如果香烟的需求弹性为-0.4，供给弹性为1.0，那么消费者和生产者各承担多少税负？为什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">为什么租金管制往往导致住房质量下降？请用供需模型分析，并解释"短缺"如何改变房东和租客的行为。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">2021年全球芯片短缺导致汽车价格上涨。请用供需模型分析：（1）短期内为什么价格暴涨？（2）长期内价格会如何变化？（3）二手车市场受到什么影响？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">某城市对出租车实行数量管制（牌照制度）。请分析：（1）这相当于什么类型的供给曲线？（2）对价格和服务质量有何影响？（3）与网约车的竞争如何改变市场格局？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span><span class="text-white font-semibold">现实中市场真的能达到均衡吗？还是市场一直在向均衡调整的过程中？如果均衡只是理论概念，那它对分析现实有什么用？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">11.</span><span><span class="text-white font-semibold">价格管制往往事与愿违（短缺、黑市、质量下降），但为什么政府仍然频繁使用？请从政治经济学角度分析价格管制的"政治理性"。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">12.</span><span><span class="text-white font-semibold">"市场总是有效的"这个命题在什么意义上是正确的？在什么意义上是错误的？请结合市场失灵的各种情形讨论。</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">跨学科联系类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">13.</span><span><span class="text-white font-semibold">股票价格是否也遵循供需规律？与普通商品市场相比，金融市场的供需有什么特殊之处？（提示：考虑预期的作用、卖空机制、信息效率）</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">14.</span><span><span class="text-white font-semibold">行为经济学发现消费者经常表现出"损失厌恶"——同样金额的损失比收益感受更强烈。这如何影响需求曲线的形状？价格上涨和下跌对需求量的影响是否对称？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">15.</span><span><span class="text-white font-semibold">如何用供需模型理解"流动性"的概念？为什么金融危机时资产价格会暴跌？这与"市场厚度"有什么关系？</span></span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s7" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">练习题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">基础计算题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">题目1</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设某商品的需求函数为 \(Q_d = 200 - 4P\)，供给函数为 \(Q_s = -40 + 6P\)。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) 求均衡价格和均衡数量</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) 计算均衡时的消费者剩余和生产者剩余</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(c) 若政府征收每单位5元的从量税，求新的均衡价格、数量，以及无谓损失</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参考答案</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) \(P^* = 24\)，\(Q^* = 104\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) \(CS = \frac{1}{2} \times 104 \times 26 = 1352\)，\(PS = \frac{1}{2} \times 104 \times \frac{104}{6} \times 6 = 902.67\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(c) 消费者支付价格 \(P_c = 27\)，数量 \(Q_t = 92\)，\(DWL = \frac{1}{2} \times 5 \times 12 = 30\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">题目2</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某农产品市场中，需求函数为 \(P = 100 - 2Q\)，供给函数为 \(P = 10 + Q\)。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) 政府实施最低保护价40元，计算过剩量</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) 如果政府承诺收购全部过剩产品，财政支出是多少？</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(c) 这种政策的总福利损失是多少？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">题目3</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设汽油的需求弹性为-0.2，供给弹性为0.3。如果石油危机导致汽油供给减少10%：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) 价格将变化多少？</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) 需求量将变化多少？</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(c) 为什么短期内汽油价格波动如此剧烈？</p>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析论述题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">题目4</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某城市的房租中位数为每月3000元，市政府正在考虑实施2500元的租金上限。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) 用供需图分析这一政策的短期和长期影响</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) 讨论可能出现的非预期后果</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(c) 提出替代性的住房政策建议</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">题目5</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">解释为什么"丰收悖论"（丰收年份农民收入反而下降）会发生。用供需弹性分析证明在需求缺乏弹性的市场中，产量增加会导致总收入下降。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">题目6</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">比较以下两种控制烟草消费的政策：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(a) 对香烟征收从量税</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">(b) 对香烟实施价格上限</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">从效率、公平、可行性等角度进行全面分析。</p>
+    </div>
+  </details>
+</section>
+
+<section id="s8" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">章节</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">曼昆《经济学原理》</td><td class="px-3 py-2 text-xs text-slate-400">第4-6章</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">直观图解，案例丰富</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">范里安《微观经济学：现代观点》</td><td class="px-3 py-2 text-xs text-slate-400">第1-6章</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">数学推导严谨</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">平狄克《微观经济学》</td><td class="px-3 py-2 text-xs text-slate-400">第2章</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">应用导向，案例详实</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">张五常《经济解释》</td><td class="px-3 py-2 text-xs text-slate-400">卷一</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">独特视角，深入浅出</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">马斯-科莱尔《微观经济理论》</td><td class="px-3 py-2 text-xs text-slate-400">第1-3章</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">研究生水平，数学严格</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Hayek, F.A. (1945). "The Use of Knowledge in Society" - 价格作为信息机制的经典论述</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Stiglitz, J. (1987). "The Causes and Consequences of the Dependence of Quality on Price" - 价格与质量的关系</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Akerlof, G. (1970). "The Market for Lemons" - 信息不对称如何影响市场均衡</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Roth, A. (2008). "What Have We Learned from Market Design?" - 市场设计与均衡</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《魔鬼经济学》- 用供需思维分析日常现象</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《卧底经济学家》- 价格机制的生动解读</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《经济学的思维方式》- 供需分析的应用训练</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《价格理论》（弗里德曼）- 芝加哥学派的经典</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">在线资源</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Khan Academy 微观经济学课程（免费）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>MIT OpenCourseWare 14.01 微观经济学（免费）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Coursera "Microeconomics Principles"（付费证书）</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="s11" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">自我评估</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">评估题1：概念辨析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">下列说法是否正确？如果错误，请指出错误所在。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>"需求增加意味着需求曲线向右移动。"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>"价格上涨导致供给增加。"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>"均衡价格是政府规定的公平价格。"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>"税收全部由消费者承担。"</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>"价格上限总是能帮助穷人。"</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>正确</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>错误——价格上涨导致"供给量"增加（沿曲线移动），而非"供给"增加（曲线移动）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>错误——均衡价格是市场供需自发形成的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>错误——税负分摊取决于供需弹性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>错误——可能导致短缺、黑市等，穷人不一定受益</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">评估题2：图形分析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">画出以下情形的供需图：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>政府对某商品征税</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>政府实施价格下限（高于均衡价格）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>需求增加且供给减少同时发生</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">评估题3：案例分析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">选择一个你熟悉的市场（如咖啡、电影票、机票），分析：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>影响需求的主要因素有哪些？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>影响供给的主要因素有哪些？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>该市场是否存在政府干预？效果如何？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>价格是否经常波动？原因是什么？</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">评估题4：批判思考</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">"既然市场均衡能实现效率最大化，政府就不应该干预市场。"</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">请评价这一观点，讨论其正确性和局限性。</p>
+    </div>
+  </div>
+</section>
+
+<section id="s12" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">学习路径建议</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">初学者路径（1-2周）</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>阅读曼昆《经济学原理》第4-6章</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>完成基础计算题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>掌握四种基本比较静态分析情形</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>能够画出和解释基本供需图</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">进阶学习路径（3-4周）</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>学习范里安《微观经济学》第1-6章</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>掌握弹性计算和应用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>深入理解福利分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>分析现实案例</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">高阶研究路径（2个月+）</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>学习MWG《微观经济理论》相关章节</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>掌握一般均衡理论基础</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>了解市场设计和机制设计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>阅读相关学术论文</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          市场均衡的形成与调整
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解价格信号如何协调供需</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">需求分析</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">消费者行为</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">供给分析</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">生产者行为</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">均衡形成</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">价格发现</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">比较静态</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">冲击·税收</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">需求分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">消费者行为</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>需求定律: 价格↑→需求量↓</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>需求曲线移动: 收入/偏好/替代品变化</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>弹性衡量: 需求对价格变化的敏感程度</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">供给分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">生产者行为</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>供给定律: 价格↑→供给量↑</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>边际成本递增决定供给曲线斜率</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>短期vs长期: 产能约束影响供给弹性</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">均衡形成</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">价格发现</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>均衡价格: 供给量=需求量的唯一价格</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>超额供给→价格下降→向均衡收敛</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>超额需求→价格上升→向均衡收敛</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">比较静态</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">冲击·税收</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>需求冲击: 曲线移动→新均衡</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>税收楔子: 买方价≠卖方价产生无谓损失</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>税负归宿: 弹性小的一方承担更多税负</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          税收楔子模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块加征从量税，观察市场均衡变化与无谓损失</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Q</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">P</text>
+      <polygon id="comp-1-cs" points="" fill="rgba(16,185,129,0.08)"/>
+      <polygon id="comp-1-ps" points="" fill="rgba(245,158,11,0.08)"/>
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">D</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">S+t</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>从量税 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>税收收入: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>DWL: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="0" max="25" value="0" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          弹性与总收益实验室
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击需求曲线查看不同价位的弹性与总收益</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-2-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-2-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-2-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-2-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Q</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">P</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-2-thresh"/>
+      <text id="comp-2-thresh-l" x="575" y="0" fill="#475569" font-size="8">|Ed|=1</text>
+      <rect id="comp-2-area" x="70" y="340" width="0" height="0" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.3)" stroke-width="1" rx="2"/>
+      <text id="comp-2-area-l" x="0" y="0" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="monospace" style="display:none"></text>
+      
+      <line id="comp-2-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-2-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">D</text>
+      <circle id="comp-2-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-2-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-2-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-2-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">|Ed|</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-2-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">TR</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-2-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">定价建议</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-2-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-2-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 微观经济学 Chapter 02</div>
+    <div class="mt-2 md:mt-0">下一章：市场效率与福利经济学 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'P_s', tip: '均衡价格前的供给价格——供给曲线上的价格'},
+    {match: 'P_c', tip: '均衡价格前的需求价格——需求曲线上的价格'},
+    {match: '|E_d| < 1', tip: '缺乏弹性——涨价总收入反而增加'},
+    {match: 'Q_s = c + dP', tip: '供给函数——价格越高供给越多'},
+    {match: 'D(P^*) =', tip: '均衡价格——供给和需求相等时的市场价格'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'P = a - bQ', tip: '线性反需求函数——价格随数量增加而下降'},
+    {match: 'Q_d = a - bP', tip: '需求函数——价格越高需求越少'},
+    {match: 'Q_d = Q_s', tip: '市场均衡条件——需求量等于供给量'},
+    {match: 'Q_d = 100 - 2P', tip: '需求函数案例——价格每涨1，需求量减少2'},
+    {match: 'Q_s = 20 + 3P', tip: '供给函数案例——价格每涨1，供给量增加3'},
+    {match: 'Q^* = ', tip: '均衡数量——均衡价格下的市场交易量'},
+    {match: 'CS = \\frac{1}{2}', tip: '消费者剩余——需求曲线下方、价格上方的三角形面积'},
+    {match: 'c > 0', tip: '供给截距条件——影响初始供给水平的参数'},
+    {match: 'PS = \\frac{1}{2}', tip: '生产者剩余——价格上方、供给曲线下方的面积'},
+    {match: 'DWL = ', tip: '无谓损失——市场扭曲导致白白浪费掉的社会福利'},
+    {match: 'DWL = \\frac{1}{2}', tip: '无谓损失=½×税率²×弹性，税率翻倍损失翻四倍'},
+    {match: 'Q_d = 200 - 4P', tip: '需求函数案例——斜率更大说明消费者对价格更敏感'},
+    {match: 'Q_s = -40 + 6P', tip: '供给函数案例——价格低于某值时没有供给'},
+    {match: 'Q_d = f(P', tip: '需求量取决于价格、收入、替代品价格等多个因素'},
+    {match: '\\frac{\\partial x}{\\partial p}', tip: '斯拉茨基方程——价格效应=替代效应+收入效应'},
+    {match: '\\frac{dQ}{dP}', tip: '价格每变1%，销量变多少%？数值越大消费者越敏感'},
+    {match: 'Q_s = g(P', tip: '供给量取决于价格、成本、技术水平等因素'},
+    {match: '\\pi = TR - TC', tip: '利润 = 总收入-总成本'},
+    {match: 'P = MC', tip: '完全竞争均衡——价格等于边际成本'},
+    {match: 'a - bP^* = c + dP^*', tip: '联立供需方程求均衡——令需求=供给解出P*'},
+    {match: 'P^* = \\frac{a - c}{b + d}', tip: '均衡价格——供给和需求交叉点的价格'},
+    {match: '\\int_0^{Q', tip: '消费者剩余——你愿意花的钱减去实际花的钱，就是你占到的便宜'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=120,yMax=60;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(50-10-c)/(0.4+0.3);
+    var eq_y=50-((50-10-c)/(0.4+0.3))*0.4;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 50-x*0.4;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 50-x*0.4;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 10+x*0.3+c;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 10+x*0.3+c;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+      var c1y0 = 50;
+      var c2y0 = 10+c;
+      document.getElementById('comp-1-cs').setAttribute('points',
+        xc(0)+','+yc(c1y0)+' '+px+','+py+' '+xc(0)+','+py);
+      document.getElementById('comp-1-ps').setAttribute('points',
+        xc(0)+','+yc(c2y0)+' '+px+','+py+' '+xc(0)+','+py);
+    document.getElementById('comp-1-sl').textContent='t = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='P*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='Q*='+eq_x.toFixed(1);
+    var r1=c*eq_x;
+    var r2=0.5*c*(((50-10)/(0.4+0.3))-eq_x);
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=50;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 50-x/2;})(0);
+    var y1=(function(x){return 50-x/2;})(xMax);
+    var cl=document.getElementById('comp-2-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    
+    var thY=yc(25);
+    document.getElementById('comp-2-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-2-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-2-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-2-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 50-x/2;})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-2-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-2-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-2-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    var areaRect=document.getElementById('comp-2-area');
+    areaRect.setAttribute('x',xc(0));areaRect.setAttribute('y',py);
+    areaRect.setAttribute('width',px-xc(0));areaRect.setAttribute('height',yc(0)-py);
+    var areaL=document.getElementById('comp-2-area-l');
+    areaL.style.display='block';
+    areaL.setAttribute('x',xc(0)+(px-xc(0))/2);
+    areaL.setAttribute('y',py+(yc(0)-py)/2+4);
+    areaL.textContent='TR='+Math.round(x*y) ;
+    document.getElementById('comp-2-readout').style.display='grid';
+    
+    document.getElementById('comp-2-m0').textContent=(Math.abs(-2*y/x)).toFixed(2);
+    document.getElementById('comp-2-m0s').textContent=Math.abs(-2*y/x)>1.05?'富有弹性':(Math.abs(-2*y/x)<0.95?'缺乏弹性':'单位弹性');
+    document.getElementById('comp-2-m1').textContent=(x*y).toFixed(2);
+    document.getElementById('comp-2-m1s').textContent='P \u00D7 Q';
+    document.getElementById('comp-2-m2').textContent=(Math.abs(-2*y/x)).toFixed(2);
+    document.getElementById('comp-2-m2s').textContent=Math.abs(-2*y/x)>1.05?'降价增收':(Math.abs(-2*y/x)<0.95?'涨价增收':'已最优');
+    var infoEl=document.getElementById('comp-2-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='Q='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='P='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

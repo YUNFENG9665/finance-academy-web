@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简化的RAG问答系统架构 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">AI-Fin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">技术对比</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用案例</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 01</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">简化的RAG问答系统架构</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">AI金融的入门章节，理解大模型和金融AI的全景</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">模型架构</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">应用场景</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">大语言模型（LLM）基础</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">什么是大语言模型</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">大语言模型是基于深度学习的自然语言处理模型，通过在海量文本数据上预训练，学习语言的统计规律和语义理解能力。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Transformer架构核心组件</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">自注意力机制</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 捕捉序列内依赖关系</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d_k}})V\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">多头注意力</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 多角度理解信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(MultiHead = Concat(head_1,...,head_h)W^O\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">位置编码</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 引入序列位置信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(PE_{(pos,2i)} = sin(pos/10000^{2i/d})\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">前馈网络</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 非线性变换</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(FFN(x) = max(0, xW_1+b_1)W_2+b_2\)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">层归一化</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 稳定训练</div><div class="text-xs text-slate-400"><span class="text-slate-500">数学表达:</span> \(LayerNorm(x) = \gamma \frac{x-\mu}{\sigma} + \beta\)</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">注意力机制的直觉理解</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">Query (查询): &quot;我想找什么信息？&quot;
+Key (键):     &quot;每个位置有什么信息？&quot;
+Value (值):   &quot;如果匹配，返回什么？&quot;
+
+注意力权重 = Query与所有Key的相似度（经softmax归一化）
+输出 = 注意力权重加权的Value求和</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要大语言模型对比</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">模型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">开发者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">参数规模</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">金融适用场景</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">GPT-4/4o</td><td class="px-3 py-2 text-xs text-slate-400">OpenAI</td><td class="px-3 py-2 text-xs text-slate-400">~1.8T</td><td class="px-3 py-2 text-xs text-slate-400">推理强、多模态</td><td class="px-3 py-2 text-xs text-slate-400">研报生成、复杂分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Claude 3/3.5</td><td class="px-3 py-2 text-xs text-slate-400">Anthropic</td><td class="px-3 py-2 text-xs text-slate-400">未公开</td><td class="px-3 py-2 text-xs text-slate-400">长上下文、安全</td><td class="px-3 py-2 text-xs text-slate-400">合规审查、文档分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Gemini</td><td class="px-3 py-2 text-xs text-slate-400">Google</td><td class="px-3 py-2 text-xs text-slate-400">未公开</td><td class="px-3 py-2 text-xs text-slate-400">多模态、搜索集成</td><td class="px-3 py-2 text-xs text-slate-400">市场研究、信息整合</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">LLaMA 3</td><td class="px-3 py-2 text-xs text-slate-400">Meta</td><td class="px-3 py-2 text-xs text-slate-400">8B-405B</td><td class="px-3 py-2 text-xs text-slate-400">开源、可微调</td><td class="px-3 py-2 text-xs text-slate-400">定制化金融应用</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Qwen</td><td class="px-3 py-2 text-xs text-slate-400">阿里</td><td class="px-3 py-2 text-xs text-slate-400">0.5B-72B</td><td class="px-3 py-2 text-xs text-slate-400">中文优化</td><td class="px-3 py-2 text-xs text-slate-400">中国市场应用</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">DeepSeek</td><td class="px-3 py-2 text-xs text-slate-400">深度求索</td><td class="px-3 py-2 text-xs text-slate-400">7B-67B</td><td class="px-3 py-2 text-xs text-slate-400">代码能力强</td><td class="px-3 py-2 text-xs text-slate-400">量化策略开发</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">模型能力的涌现（Emergent Abilities）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当模型规模超过一定阈值时，会突然获得新能力：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思维链推理（Chain-of-Thought）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>少样本学习（Few-shot Learning）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>指令遵循（Instruction Following）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代码生成与调试</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融AI应用全景</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融AI应用矩阵</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">业务领域</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">具体应用</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">技术栈</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">成熟度</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">投资研究</span></td><td class="px-3 py-2 text-xs text-slate-400">研报生成、因子挖掘、舆情分析</td><td class="px-3 py-2 text-xs text-slate-400">LLM + NLP + 时序模型</td><td class="px-3 py-2 text-xs text-slate-400">★★★★☆</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">风险管理</span></td><td class="px-3 py-2 text-xs text-slate-400">欺诈检测、信用评分、压力测试</td><td class="px-3 py-2 text-xs text-slate-400">ML + 图神经网络</td><td class="px-3 py-2 text-xs text-slate-400">★★★★★</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">客户服务</span></td><td class="px-3 py-2 text-xs text-slate-400">智能客服、投顾机器人、KYC</td><td class="px-3 py-2 text-xs text-slate-400">LLM + 对话系统</td><td class="px-3 py-2 text-xs text-slate-400">★★★★☆</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">交易执行</span></td><td class="px-3 py-2 text-xs text-slate-400">算法交易、做市、最优执行</td><td class="px-3 py-2 text-xs text-slate-400">RL + 深度学习</td><td class="px-3 py-2 text-xs text-slate-400">★★★☆☆</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">合规监管</span></td><td class="px-3 py-2 text-xs text-slate-400">文本审查、反洗钱、监管报告</td><td class="px-3 py-2 text-xs text-slate-400">NLP + 规则引擎</td><td class="px-3 py-2 text-xs text-slate-400">★★★★☆</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">另类数据</span></td><td class="px-3 py-2 text-xs text-slate-400">卫星图像、社交媒体、消费数据</td><td class="px-3 py-2 text-xs text-slate-400">CV + NLP + ML</td><td class="px-3 py-2 text-xs text-slate-400">★★★☆☆</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">AI在投资流程中的应用</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">┌─────────────────────────────────────────────────────────────────┐
+│                      AI驱动的投资流程                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   数据获取        →    信息处理      →    决策生成    →   执行优化│
+│   ┌─────────┐        ┌─────────┐       ┌─────────┐    ┌───────┐│
+│   │另类数据 │        │NLP分析  │       │因子模型 │    │算法   ││
+│   │爬虫采集 │   →    │情感提取 │   →   │ML预测  │ →  │交易   ││
+│   │API接入  │        │实体识别 │       │组合优化│    │最优   ││
+│   └─────────┘        └─────────┘       └─────────┘    │执行   ││
+│                                                       └───────┘│
+└─────────────────────────────────────────────────────────────────┘</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融数据类型与特点</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融数据分类</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">例子</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">处理挑战</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">结构化数据</span></td><td class="px-3 py-2 text-xs text-slate-400">表格形式、字段明确</td><td class="px-3 py-2 text-xs text-slate-400">行情、财务报表、交易记录</td><td class="px-3 py-2 text-xs text-slate-400">缺失值、异常值</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">半结构化数据</span></td><td class="px-3 py-2 text-xs text-slate-400">有一定格式但不规整</td><td class="px-3 py-2 text-xs text-slate-400">JSON/XML接口、网页</td><td class="px-3 py-2 text-xs text-slate-400">解析、标准化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">非结构化数据</span></td><td class="px-3 py-2 text-xs text-slate-400">无固定格式</td><td class="px-3 py-2 text-xs text-slate-400">新闻、研报、公告、音视频</td><td class="px-3 py-2 text-xs text-slate-400">NLP/CV处理</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">另类数据</span></td><td class="px-3 py-2 text-xs text-slate-400">非传统金融数据</td><td class="px-3 py-2 text-xs text-slate-400">卫星图、消费数据、社交</td><td class="px-3 py-2 text-xs text-slate-400">获取、清洗、合规</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融数据的典型特征（程式化事实）</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">低信噪比</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 有效信号被噪声淹没</div><div class="text-xs text-slate-400"><span class="text-slate-500">对AI的影响:</span> 需要大样本、正则化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">非平稳性</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 统计特性随时间变化</div><div class="text-xs text-slate-400"><span class="text-slate-500">对AI的影响:</span> 需要在线学习、regime切换</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">尖峰厚尾</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 极端事件频发</div><div class="text-xs text-slate-400"><span class="text-slate-500">对AI的影响:</span> 损失函数设计、尾部建模</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">波动聚集</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 大波动后跟随大波动</div><div class="text-xs text-slate-400"><span class="text-slate-500">对AI的影响:</span> GARCH类模型、注意力机制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场微观结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 买卖价差、流动性</div><div class="text-xs text-slate-400"><span class="text-slate-500">对AI的影响:</span> 高频特征工程</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数据质量维度</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">准确性（Accuracy）</span>：数据是否正确</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">完整性（Completeness）</span>：缺失率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">一致性（Consistency）</span>：不同来源是否一致</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">及时性（Timeliness）</span>：数据延迟</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">有效性（Validity）</span>：是否符合业务规则</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">AI金融的挑战与风险</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">技术挑战</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">幻觉问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> LLM生成不存在的信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对策略:</span> RAG、事实核查、置信度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">时效性</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 预训练知识过时</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对策略:</span> RAG、微调、实时数据接入</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可解释性</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 黑箱决策难以解释</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对策略:</span> SHAP、注意力可视化、规则约束</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">过拟合</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 历史不代表未来</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对策略:</span> 样本外验证、正则化、集成</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">对抗攻击</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 恶意输入欺骗模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对策略:</span> 对抗训练、输入过滤</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">监管与合规挑战</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型可解释性</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 需解释决策依据</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 可解释AI、文档化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公平性</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 不歧视特定群体</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 公平性约束、审计</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数据隐私</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 保护客户数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> 联邦学习、差分隐私</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型风险管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 验证、监控、治理</div><div class="text-xs text-slate-400"><span class="text-slate-500">解决方案:</span> SR 11-7、压力测试</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">伦理考量</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>算法偏见与歧视</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>就业影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场操纵风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>系统性风险放大</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">技术栈概览</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">AI金融开发技术栈</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">┌─────────────────────────────────────────────────────────────┐
+│                       应用层                                 │
+│    投研系统 | 风控平台 | 智能客服 | 量化交易                  │
+├─────────────────────────────────────────────────────────────┤
+│                      框架层                                  │
+│  LangChain | LlamaIndex | HuggingFace | OpenAI API          │
+├─────────────────────────────────────────────────────────────┤
+│                      模型层                                  │
+│  GPT-4 | Claude | LLaMA | BERT | FinBERT | 自研模型         │
+├─────────────────────────────────────────────────────────────┤
+│                      数据层                                  │
+│  向量数据库(Pinecone/Milvus) | 时序数据库 | 图数据库          │
+├─────────────────────────────────────────────────────────────┤
+│                      基础设施                                │
+│  GPU集群 | 云服务(AWS/Azure/阿里云) | Kubernetes            │
+└─────────────────────────────────────────────────────────────┘</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心Python库</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类别</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">库</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">用途</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">数据处理</td><td class="px-3 py-2 text-xs text-slate-400">pandas, numpy, polars</td><td class="px-3 py-2 text-xs text-slate-400">数据清洗、计算</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">机器学习</td><td class="px-3 py-2 text-xs text-slate-400">scikit-learn, xgboost, lightgbm</td><td class="px-3 py-2 text-xs text-slate-400">传统ML</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">深度学习</td><td class="px-3 py-2 text-xs text-slate-400">PyTorch, TensorFlow</td><td class="px-3 py-2 text-xs text-slate-400">神经网络</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">NLP</td><td class="px-3 py-2 text-xs text-slate-400">transformers, spacy, nltk</td><td class="px-3 py-2 text-xs text-slate-400">文本处理</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">LLM应用</td><td class="px-3 py-2 text-xs text-slate-400">langchain, llamaindex, openai</td><td class="px-3 py-2 text-xs text-slate-400">LLM开发</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">金融专用</td><td class="px-3 py-2 text-xs text-slate-400">quantlib, zipline, backtrader</td><td class="px-3 py-2 text-xs text-slate-400">量化金融</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">可视化</td><td class="px-3 py-2 text-xs text-slate-400">matplotlib, plotly, streamlit</td><td class="px-3 py-2 text-xs text-slate-400">图表、应用</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">大模型的金融落地路径</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">落地成熟度模型</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">阶段</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">描述</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">典型应用</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">风险等级</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">L1-辅助</td><td class="px-3 py-2 text-xs text-slate-400">AI辅助人工决策</td><td class="px-3 py-2 text-xs text-slate-400">研报初稿、信息摘要</td><td class="px-3 py-2 text-xs text-slate-400">低</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">L2-增强</td><td class="px-3 py-2 text-xs text-slate-400">AI提供建议，人审核</td><td class="px-3 py-2 text-xs text-slate-400">风险预警、客户洞察</td><td class="px-3 py-2 text-xs text-slate-400">中低</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">L3-自动</td><td class="px-3 py-2 text-xs text-slate-400">AI自动执行，人监控</td><td class="px-3 py-2 text-xs text-slate-400">智能客服、简单交易</td><td class="px-3 py-2 text-xs text-slate-400">中</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">L4-自主</td><td class="px-3 py-2 text-xs text-slate-400">AI独立决策和执行</td><td class="px-3 py-2 text-xs text-slate-400">高频交易、程序化</td><td class="px-3 py-2 text-xs text-slate-400">高</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实施路线图</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">Phase 1 (0-3月)          Phase 2 (3-6月)         Phase 3 (6-12月)
+┌─────────────┐          ┌─────────────┐         ┌─────────────┐
+│ POC验证     │    →     │ 试点上线    │    →    │ 规模化部署  │
+│ - 场景选择  │          │ - 小范围测试│         │ - 全面推广  │
+│ - 数据准备  │          │ - 效果评估  │         │ - 持续优化  │
+│ - 模型选型  │          │ - 风险控制  │         │ - 运维监控  │
+└─────────────┘          └─────────────┘         └─────────────┘</pre></div>
+  </div>
+</section>
+
+
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键技术对比</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">LLM vs 传统NLP</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">训练数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统NLP:</span> 任务特定、标注数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">大语言模型:</span> 海量无标注文本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型架构</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统NLP:</span> RNN/CNN/特征工程</div><div class="text-xs text-slate-400"><span class="text-slate-500">大语言模型:</span> Transformer</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">任务适应</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统NLP:</span> 每个任务重新训练</div><div class="text-xs text-slate-400"><span class="text-slate-500">大语言模型:</span> 提示词或少量微调</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">知识获取</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统NLP:</span> 需要显式知识库</div><div class="text-xs text-slate-400"><span class="text-slate-500">大语言模型:</span> 隐式存储在参数中</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">推理能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统NLP:</span> 有限</div><div class="text-xs text-slate-400"><span class="text-slate-500">大语言模型:</span> 涌现能力</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资源需求</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统NLP:</span> 相对较低</div><div class="text-xs text-slate-400"><span class="text-slate-500">大语言模型:</span> 高算力、高成本</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">主流LLM API对比</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">API</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优势</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">劣势</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定价（百万token）</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">OpenAI GPT-4o</td><td class="px-3 py-2 text-xs text-slate-400">能力强、生态完善</td><td class="px-3 py-2 text-xs text-slate-400">成本高、数据出境</td><td class="px-3 py-2 text-xs text-slate-400">$5-15</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">Anthropic Claude</td><td class="px-3 py-2 text-xs text-slate-400">长上下文、安全</td><td class="px-3 py-2 text-xs text-slate-400">国内访问受限</td><td class="px-3 py-2 text-xs text-slate-400">$3-15</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">阿里通义千问</td><td class="px-3 py-2 text-xs text-slate-400">国内合规、中文好</td><td class="px-3 py-2 text-xs text-slate-400">英文能力稍弱</td><td class="px-3 py-2 text-xs text-slate-400">¥0.5-2</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">百度文心一言</td><td class="px-3 py-2 text-xs text-slate-400">国内生态、行业定制</td><td class="px-3 py-2 text-xs text-slate-400">开放度较低</td><td class="px-3 py-2 text-xs text-slate-400">¥0.8-2</td></tr></tbody></table></div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用案例</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例一：LLM驱动的智能研报生成系统</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某券商研究所每天需要处理大量公司公告和新闻，分析师工作负担重。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统架构</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">┌─────────────────────────────────────────────────────────────┐
+│                    智能研报生成系统                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐ │
+│  │ 数据采集 │ →  │ 信息抽取 │ →  │ 分析生成 │ →  │ 审核输出 │ │
+│  │ 公告/新闻│    │ NER/RE  │    │ LLM推理  │    │ 人工审核 │ │
+│  │ 财报数据 │    │ 事件检测 │    │ 模板填充 │    │ 合规检查 │ │
+│  └─────────┘    └─────────┘    └─────────┘    └─────────┘ │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实现细节</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">数据采集</span>：爬取公告、接入Wind/Bloomberg API</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">信息抽取</span>：FinBERT识别财务事件和关键指标</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">分析生成</span>：GPT-4结合行业知识生成分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">质量控制</span>：事实核查、合规审查</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效果评估</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">指标</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">改进前</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">改进后</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">提升</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">研报初稿时间</td><td class="px-3 py-2 text-xs text-slate-400">4小时</td><td class="px-3 py-2 text-xs text-slate-400">30分钟</td><td class="px-3 py-2 text-xs text-slate-400">87.5%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">覆盖公司数</td><td class="px-3 py-2 text-xs text-slate-400">50家</td><td class="px-3 py-2 text-xs text-slate-400">200家</td><td class="px-3 py-2 text-xs text-slate-400">300%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">分析师效率</td><td class="px-3 py-2 text-xs text-slate-400">2篇/天</td><td class="px-3 py-2 text-xs text-slate-400">8篇/天</td><td class="px-3 py-2 text-xs text-slate-400">300%</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">信息遗漏率</td><td class="px-3 py-2 text-xs text-slate-400">15%</td><td class="px-3 py-2 text-xs text-slate-400">3%</td><td class="px-3 py-2 text-xs text-slate-400">80%</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>必须保留人工审核环节</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要持续更新行业知识库</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>幻觉问题需要RAG辅助</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">案</span>
+        <h3 class="text-white font-semibold text-sm">案例二：基于LLM的智能信贷审批助手</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">业务场景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">某银行小微企业贷款审批流程复杂，需要审核大量非标准化材料。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">解决方案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">材料解析</div><div class="text-xs text-slate-400"><span class="text-slate-500">AI能力:</span> 自动识别、结构化</div><div class="text-xs text-slate-400"><span class="text-slate-500">技术实现:</span> OCR + LLM</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信息核验</div><div class="text-xs text-slate-400"><span class="text-slate-500">AI能力:</span> 交叉验证、矛盾检测</div><div class="text-xs text-slate-400"><span class="text-slate-500">技术实现:</span> 知识图谱 + 规则</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险评估</div><div class="text-xs text-slate-400"><span class="text-slate-500">AI能力:</span> 多维度评分</div><div class="text-xs text-slate-400"><span class="text-slate-500">技术实现:</span> ML模型 + LLM解释</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">报告生成</div><div class="text-xs text-slate-400"><span class="text-slate-500">AI能力:</span> 自动生成审批意见</div><div class="text-xs text-slate-400"><span class="text-slate-500">技术实现:</span> LLM + 模板</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">系统效果</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>审批时效：从5天缩短至1天</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>人工审核工作量减少60%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>风险识别准确率提升15%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>客户满意度提升20%</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">风险控制</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>所有AI决策需人工复核</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>建立模型监控和告警机制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>定期进行模型回溯检验</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">金</span>
+        <h3 class="text-white font-semibold text-sm">案例三：金融知识问答机器人</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">为投资者提供7×24小时的金融知识咨询服务。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">技术方案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class FinancialQABot:
+    def __init__(self):
+        self.vector_db = VectorStore()  # 向量数据库
+        self.llm = ChatGPT()             # 大语言模型
+        self.knowledge_base = []         # 金融知识库
+
+    def answer(self, question):
+        # 1. 检索相关知识
+        relevant_docs = self.vector_db.search(question, top_k=5)
+
+        # 2. 构建提示词
+        context = &quot;\n&quot;.join([doc.content for doc in relevant_docs])
+        prompt = f&quot;&quot;&quot;基于以下金融知识回答用户问题。
+
+知识库内容：
+{context}
+
+用户问题：{question}
+
+请准确回答，如果知识库中没有相关信息，请明确说明。&quot;&quot;&quot;
+
+        # 3. 生成回答
+        response = self.llm.generate(prompt)
+
+        # 4. 添加来源引用
+        return self.add_citations(response, relevant_docs)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">知识库构建</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>证券法律法规</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融产品说明书</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>投资者教育材料</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>常见问题FAQ</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效果指标</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">问答准确率</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 92%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">用户满意度</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 4.5/5</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">日均服务量</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 10,000次</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人工转接率</div><div class="text-xs text-slate-400"><span class="text-slate-500">数值:</span> 8%</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q1: Transformer为什么比RNN更适合处理长文本？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 主要有三个原因：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">并行计算</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>RNN必须顺序处理，\(O(n)\)步骤</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Transformer可以并行，\(O(1)\)步骤</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GPU利用率大幅提升</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">长距离依赖</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>RNN通过隐状态传递，信息逐渐衰减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自注意力可以直接连接任意两个位置</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>路径长度从\(O(n)\)降到\(O(1)\)</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">梯度传播</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>RNN存在梯度消失/爆炸问题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Transformer梯度路径更短更稳定</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">但也有代价</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>计算复杂度\(O(n^2)\)（序列长度的平方）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>内存消耗大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要位置编码</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q2: 什么是大模型的"涌现能力"？为什么会出现？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">涌现能力（Emergent Abilities）定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">模型规模超过某个阈值后，突然获得的新能力，在较小规模时不存在。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">典型涌现能力</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">思维链推理</div><div class="text-xs text-slate-400"><span class="text-slate-500">出现规模:</span> >100B</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 分步骤解决复杂问题</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">少样本学习</div><div class="text-xs text-slate-400"><span class="text-slate-500">出现规模:</span> >10B</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 几个例子就能学会新任务</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">代码生成</div><div class="text-xs text-slate-400"><span class="text-slate-500">出现规模:</span> >50B</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 编写正确的程序代码</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数学推理</div><div class="text-xs text-slate-400"><span class="text-slate-500">出现规模:</span> >100B</div><div class="text-xs text-slate-400"><span class="text-slate-500">描述:</span> 解决数学应用题</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">可能的解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">相变理论</span>：类似物理中的相变，量变引起质变</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">能力组合</span>：底层能力累积到足够多，组合出新能力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">度量问题</span>：可能只是我们度量方式的问题</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对金融应用的启示</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选择足够大的模型以获得所需能力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>较小模型可能无法完成复杂金融分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但更大不一定更好，要考虑成本效益</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q3: LLM的"幻觉"问题是什么？如何缓解？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">幻觉（Hallucination）定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">LLM生成看起来合理但实际上错误或不存在的信息。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融场景中的幻觉风险</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公司分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">幻觉表现:</span> 编造不存在的财务数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">危害:</span> 投资决策失误</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">法规咨询</div><div class="text-xs text-slate-400"><span class="text-slate-500">幻觉表现:</span> 引用不存在的法条</div><div class="text-xs text-slate-400"><span class="text-slate-500">危害:</span> 合规风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场预测</div><div class="text-xs text-slate-400"><span class="text-slate-500">幻觉表现:</span> 虚构的历史事件</div><div class="text-xs text-slate-400"><span class="text-slate-500">危害:</span> 错误的推断基础</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">缓解策略</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">检索增强生成（RAG）</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>从可靠数据源检索事实</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>将事实作为上下文提供给LLM</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>大幅降低幻觉率</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">事实核查链</span></span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">LLM生成 → 事实抽取 → 知识库验证 → 标记不一致 → 重新生成</pre></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">置信度估计</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>让模型输出置信度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>低置信度内容需要人工验证</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">温度参数调整</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>降低temperature减少随机性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>牺牲创造性但提高准确性</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用类问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q4: 如何评估一个LLM是否适合特定金融任务？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A: 建议的评估框架：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 能力评估</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">金融知识</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试方法:</span> 金融考试题目</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注指标:</span> 准确率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">推理能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试方法:</span> 复杂分析场景</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注指标:</span> 逻辑正确性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中文能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试方法:</span> 中文金融语料</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注指标:</span> BLEU、相似度</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">指令遵循</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试方法:</span> 格式要求测试</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注指标:</span> 格式准确率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长文本</div><div class="text-xs text-slate-400"><span class="text-slate-500">测试方法:</span> 长文档总结</div><div class="text-xs text-slate-400"><span class="text-slate-500">关注指标:</span> 信息保留率</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. 实用性评估</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">考量因素:</span> API定价、并发限制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">延迟</div><div class="text-xs text-slate-400"><span class="text-slate-500">考量因素:</span> 响应时间、SLA</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">合规</div><div class="text-xs text-slate-400"><span class="text-slate-500">考量因素:</span> 数据存储、隐私保护</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">可用性</div><div class="text-xs text-slate-400"><span class="text-slate-500">考量因素:</span> 服务稳定性、降级策略</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. 评估流程</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">准备测试集 → 多模型测试 → 人工评估 → 成本分析 → 综合决策</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q5: 小公司如何低成本开展AI金融应用？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">策略一：API优先</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>直接使用GPT-4/Claude API</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无需GPU投资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>按量付费，成本可控</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">策略二：开源模型</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>使用LLaMA/Qwen等开源模型</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>云服务GPU租用（如AutoDL、恒源云）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>4090显卡可运行7B-13B模型</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">策略三：分阶段投入</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">POC</div><div class="text-xs text-slate-400"><span class="text-slate-500">投入:</span> ¥5,000-10,000</div><div class="text-xs text-slate-400"><span class="text-slate-500">目标:</span> 验证可行性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">试点</div><div class="text-xs text-slate-400"><span class="text-slate-500">投入:</span> ¥50,000-100,000</div><div class="text-xs text-slate-400"><span class="text-slate-500">目标:</span> 小范围应用</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模化</div><div class="text-xs text-slate-400"><span class="text-slate-500">投入:</span> 根据ROI决定</div><div class="text-xs text-slate-400"><span class="text-slate-500">目标:</span> 全面推广</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">策略四：聚焦场景</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>选择ROI最高的场景切入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>避免大而全的方案</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>快速迭代、小步快跑</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q6: 如何向管理层汇报AI项目价值？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">价值量化框架</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">效率提升</div><div class="text-xs text-slate-400"><span class="text-slate-500">量化指标:</span> 节省工时×人力成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 每年节省100万人力成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入增长</div><div class="text-xs text-slate-400"><span class="text-slate-500">量化指标:</span> 新增收入、转化率提升</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 客户转化率提升5%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">风险降低</div><div class="text-xs text-slate-400"><span class="text-slate-500">量化指标:</span> 损失减少、合规罚款避免</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 欺诈损失下降30%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">客户体验</div><div class="text-xs text-slate-400"><span class="text-slate-500">量化指标:</span> NPS、满意度、留存率</div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 客户满意度提升20%</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">汇报要点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>业务问题而非技术细节</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>具体数字而非泛泛而谈</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>对比竞争对手的做法</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>渐进式投入、分阶段回报</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判性问题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q7: AI会取代金融分析师吗？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">短期（1-3年）</span>：不会</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>AI是工具，增强而非替代</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>复杂判断仍需人类</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管要求人类负责</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">中期（3-5年）</span>：部分替代</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>标准化工作将被自动化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>分析师角色转向AI协作者</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需求总量可能下降</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">长期（5年以上）</span>：深度变革</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工作内容根本改变</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新的职业角色出现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>创造性和判断力更重要</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">分析师的护城河</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>客户关系和信任</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>行业洞察和直觉</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>创造性分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>跨领域整合能力</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q8: 使用LLM进行金融分析的法律风险是什么？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投资建议资质</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 无证提供投资建议</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对措施:</span> 明确声明非投资建议</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数据隐私</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 客户数据用于训练</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对措施:</span> 本地部署、脱敏处理</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">知识产权</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 生成内容的版权</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对措施:</span> 关注各国立法动态</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">虚假陈述</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> AI幻觉导致错误</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对措施:</span> 人工审核、免责声明</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">模型歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 算法偏见</div><div class="text-xs text-slate-400"><span class="text-slate-500">应对措施:</span> 公平性审计</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最佳实践</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>法务部门提前介入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>建立AI使用政策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>保留决策审计轨迹</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>持续关注监管动态</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">Q9: 开源LLM vs 闭源API，金融机构如何选择？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">A:</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">数据安全</div><div class="text-xs text-slate-400"><span class="text-slate-500">开源LLM:</span> 完全可控</div><div class="text-xs text-slate-400"><span class="text-slate-500">闭源API:</span> 依赖供应商</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">定制能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">开源LLM:</span> 可深度定制</div><div class="text-xs text-slate-400"><span class="text-slate-500">闭源API:</span> 有限</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">运维成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">开源LLM:</span> 高（需要团队）</div><div class="text-xs text-slate-400"><span class="text-slate-500">闭源API:</span> 低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">初始投入</div><div class="text-xs text-slate-400"><span class="text-slate-500">开源LLM:</span> 高</div><div class="text-xs text-slate-400"><span class="text-slate-500">闭源API:</span> 低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">能力上限</div><div class="text-xs text-slate-400"><span class="text-slate-500">开源LLM:</span> 受限于自身资源</div><div class="text-xs text-slate-400"><span class="text-slate-500">闭源API:</span> 可获得最强模型</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">合规风险</div><div class="text-xs text-slate-400"><span class="text-slate-500">开源LLM:</span> 可控</div><div class="text-xs text-slate-400"><span class="text-slate-500">闭源API:</span> 需评估</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决策建议</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">大型银行/券商</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐选择:</span> 开源+自研</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 数据敏感、有资源</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中型机构</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐选择:</span> 混合方案</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 平衡成本与安全</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">小型机构/初创</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐选择:</span> 闭源API</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 快速上线、低成本</div></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">基础教材</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">《Attention Is All You Need》</span> - Vaswani et al.</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Transformer原始论文</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理解现代LLM的基础</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">《Deep Learning》</span> - Goodfellow, Bengio, Courville</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>深度学习圣经</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>免费在线阅读</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">《Speech and Language Processing》</span> - Jurafsky & Martin</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>NLP经典教材</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>第三版在线更新</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">金融AI专著</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">《Machine Learning for Asset Managers》</span> - López de Prado</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融ML实践</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>避免常见错误</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">《AI in Finance》</span> - Yves Hilpisch</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Python金融AI实战</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代码丰富</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">在线课程</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">Stanford CS224N</span> - NLP with Deep Learning</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>免费视频和作业</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>斯坦福NLP课程</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">fast.ai</span> - Practical Deep Learning</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实践导向</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>快速上手</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">实践资源</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">HuggingFace</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>模型库、数据集、教程</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>transformers库</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">LangChain文档</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>LLM应用开发框架</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>丰富的示例</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span><span class="text-white font-semibold">OpenAI Cookbook</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GPT最佳实践</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>代码示例</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          AI驱动的投资流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击每个阶段查看详情，观察数据如何从原始信息流转为投资决策</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">数据获取</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">另类数据·API接入</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">信息处理</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">NLP·实体识别</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">决策生成</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">因子·ML预测</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">执行优化</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">算法交易</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">数据获取</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">另类数据·API接入</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 新闻、社交媒体、卫星图像、电商交易数据</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• SEC报告/财报PDF自动解析</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 实时行情API流式接入</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>• 每日处理百万级文档</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">信息处理</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">NLP·实体识别</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 情感分析：市场情绪指数生成</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 实体识别：公司/人物/事件关系图谱</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 文本摘要：长报告压缩为关键信号</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>• 知识图谱构建与更新</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">决策生成</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">因子·ML预测</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• 多因子模型：NLP因子+传统量化因子</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• LLM策略生成：基于推理的交易信号</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• 风险评估：VaR/CVaR实时计算</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>• 人在回路：最终决策由人类审批</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">执行优化</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">算法交易</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• TWAP/VWAP智能拆单</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 市场微结构感知的执行时机</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 滑点最小化与冲击成本控制</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>• 执行报告自动生成</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Scaling Law: 模型涌现能力曲线
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整训练数据质量，观察不同能力的涌现阈值如何变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-sv">c = 5</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 395" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10"><path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern></defs><rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/><line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/><line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/><text x="560" y="365" fill="#64748b" font-size="12">模型参数量(B)</text><text x="42" y="20" fill="#64748b" font-size="12">能力达成率%</text>
+      <line id="comp-1-mk0" x1="0" y1="10" x2="0" y2="340" stroke="#34d399" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+<text id="comp-1-mkl0" x="0" y="8" fill="#34d399" font-size="9" text-anchor="middle" opacity="0.5">10B</text>
+<line id="comp-1-mk1" x1="0" y1="10" x2="0" y2="340" stroke="#60a5fa" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+<text id="comp-1-mkl1" x="0" y="8" fill="#60a5fa" font-size="9" text-anchor="middle" opacity="0.5">50B</text>
+<line id="comp-1-mk2" x1="0" y1="10" x2="0" y2="340" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+<text id="comp-1-mkl2" x="0" y="8" fill="#fbbf24" font-size="9" text-anchor="middle" opacity="0.5">100B</text>
+<line id="comp-1-mk3" x1="0" y1="10" x2="0" y2="340" stroke="#c084fc" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+<text id="comp-1-mkl3" x="0" y="8" fill="#c084fc" font-size="9" text-anchor="middle" opacity="0.5">150B</text>
+
+      <polyline id="comp-1-c0" points="" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline id="comp-1-c1" points="" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline id="comp-1-c2" points="" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline id="comp-1-c3" points="" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <line id="comp-1-vline" x1="70" y1="10" x2="70" y2="340" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+<circle id="comp-1-dot0" cx="70" cy="340" r="5" fill="#34d399" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-dot1" cx="70" cy="340" r="5" fill="#60a5fa" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-dot2" cx="70" cy="340" r="5" fill="#fbbf24" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-dot3" cx="70" cy="340" r="5" fill="#c084fc" stroke="#020617" stroke-width="2"/>
+<circle id="comp-1-gdot" cx="70" cy="340" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+
+      <line x1="80" y1="378" x2="94" y2="378" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/><text x="98" y="381" fill="#34d399" font-size="9">少样本学习</text>
+<line x1="205" y1="378" x2="219" y2="378" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/><text x="223" y="381" fill="#60a5fa" font-size="9">代码生成</text>
+<line x1="330" y1="378" x2="344" y2="378" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/><text x="348" y="381" fill="#fbbf24" font-size="9">思维链推理</text>
+<line x1="455" y1="378" x2="469" y2="378" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round"/><text x="473" y="381" fill="#c084fc" font-size="9">数学推理</text>
+
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">训练数据质量 <span class="text-white font-mono" id="comp-1-sl">c = 5</span></div>
+      <input type="range" id="comp-1-slider" min="1" max="10" value="5" step="1">
+    </div>
+    <div class="mt-3 px-2 grid grid-cols-4 gap-2">
+      <div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">少样本学习</div><div class="font-mono text-sm font-bold" style="color:#34d399" id="comp-1-rv0">&mdash;</div></div>
+<div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">代码生成</div><div class="font-mono text-sm font-bold" style="color:#60a5fa" id="comp-1-rv1">&mdash;</div></div>
+<div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">思维链推理</div><div class="font-mono text-sm font-bold" style="color:#fbbf24" id="comp-1-rv2">&mdash;</div></div>
+<div class="bg-slate-800/50 rounded-lg p-2 text-center"><div class="text-[10px] text-slate-500 mb-0.5">数学推理</div><div class="font-mono text-sm font-bold" style="color:#c084fc" id="comp-1-rv3">&mdash;</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Token成本计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">估算大模型使用成本</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">日处理文档数</label>
+            <input type="number" id="comp-2-docs" value="100" min="0" step="10" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">平均token/文档</label>
+            <input type="number" id="comp-2-tok" value="2000" min="0" step="500" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">价格($/1K tokens)</label>
+            <input type="number" id="comp-2-price" value="0.01" min="0.001" step="0.005" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">成本效率</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">日成本</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">月成本</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">年成本</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">成本等级</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ Cost = \frac{tokens}{1000} \times price\_per\_1k \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 人工智能金融 Chapter 01</div>
+    <div class="mt-2 md:mt-0">下一章：增强检索生成与大模型微调 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'Attention(Q,K,V)', tip: '注意力机制——让模型学会关注最重要的信息'},
+    {match: 'MultiHead', tip: '多头注意力——从多个角度同时关注不同信息'},
+    {match: 'PE_{(pos', tip: '位置编码——告诉模型每个词在句子中的位置'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'O(n)', tip: '线性时间复杂度——处理时间与数据量成正比'},
+    {match: 'O(1)', tip: '常数时间复杂度——不管数据多大处理时间一样'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330,xM=200,yM=100,nP=100;
+  function xc(v){return mx+(v/xM)*pw;}
+  function yc(v){return my+ph-(v/yM)*ph;}
+  var c;
+  function cf0(x){return 100/(1+Math.exp(-(x-10*c/5)*0.5));}
+  function cf1(x){return 100/(1+Math.exp(-(x-50*c/5)*0.1));}
+  function cf2(x){return 100/(1+Math.exp(-(x-100*c/5)*0.08));}
+  function cf3(x){return 100/(1+Math.exp(-(x-150*c/5)*0.06));}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    c=parseFloat(slider.value);var pts,xx,yy,i;
+    
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf0(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c0').setAttribute('points',pts);
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf1(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c1').setAttribute('points',pts);
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf2(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c2').setAttribute('points',pts);
+    pts='';
+    for(i=0;i<=nP;i++){xx=(i/nP)*xM;yy=cf3(xx);
+      yy=Math.max(0,Math.min(yM,yy));pts+=xc(xx)+','+yc(yy);
+      if(i<nP)pts+=' ';}
+    document.getElementById('comp-1-c3').setAttribute('points',pts);
+    
+    var mkx0=xc(10);
+    document.getElementById('comp-1-mk0').setAttribute('x1',mkx0);
+    document.getElementById('comp-1-mk0').setAttribute('x2',mkx0);
+    document.getElementById('comp-1-mkl0').setAttribute('x',mkx0);
+    var mkx1=xc(50);
+    document.getElementById('comp-1-mk1').setAttribute('x1',mkx1);
+    document.getElementById('comp-1-mk1').setAttribute('x2',mkx1);
+    document.getElementById('comp-1-mkl1').setAttribute('x',mkx1);
+    var mkx2=xc(100);
+    document.getElementById('comp-1-mk2').setAttribute('x1',mkx2);
+    document.getElementById('comp-1-mk2').setAttribute('x2',mkx2);
+    document.getElementById('comp-1-mkl2').setAttribute('x',mkx2);
+    var mkx3=xc(150);
+    document.getElementById('comp-1-mk3').setAttribute('x1',mkx3);
+    document.getElementById('comp-1-mk3').setAttribute('x2',mkx3);
+    document.getElementById('comp-1-mkl3').setAttribute('x',mkx3);
+    var sx=xc(c);
+    document.getElementById('comp-1-vline').setAttribute('x1',sx);
+    document.getElementById('comp-1-vline').setAttribute('x2',sx);
+    
+    var v0=Math.max(0,Math.min(yM,cf0(c)));
+    document.getElementById('comp-1-dot0').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot0').setAttribute('cy',yc(v0));
+    document.getElementById('comp-1-rv0').textContent=v0.toFixed(1);
+    var v1=Math.max(0,Math.min(yM,cf1(c)));
+    document.getElementById('comp-1-dot1').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot1').setAttribute('cy',yc(v1));
+    document.getElementById('comp-1-rv1').textContent=v1.toFixed(1);
+    var v2=Math.max(0,Math.min(yM,cf2(c)));
+    document.getElementById('comp-1-dot2').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot2').setAttribute('cy',yc(v2));
+    document.getElementById('comp-1-rv2').textContent=v2.toFixed(1);
+    var v3=Math.max(0,Math.min(yM,cf3(c)));
+    document.getElementById('comp-1-dot3').setAttribute('cx',sx);
+    document.getElementById('comp-1-dot3').setAttribute('cy',yc(v3));
+    document.getElementById('comp-1-rv3').textContent=v3.toFixed(1);
+    document.getElementById('comp-1-gdot').setAttribute('cx',sx);
+    document.getElementById('comp-1-gdot').setAttribute('cy',yc(v0));
+    document.getElementById('comp-1-sl').textContent='c = '+c.toFixed(0)+'';
+    document.getElementById('comp-1-sv').textContent='c = '+c.toFixed(0)+'';
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var docs=parseFloat(document.getElementById('comp-2-docs').value);
+    var tok=parseFloat(document.getElementById('comp-2-tok').value);
+    var price=parseFloat(document.getElementById('comp-2-price').value);
+
+    var daily=docs*tok/1000*price;
+    var monthly=daily*22;
+    var yearly=monthly*12;
+    document.getElementById('comp-2-out0').textContent='$'+daily.toFixed(2);
+    document.getElementById('comp-2-out1').textContent='$'+monthly.toFixed(0);
+    document.getElementById('comp-2-out2').textContent='$'+yearly.toFixed(0);
+    document.getElementById('comp-2-out3').textContent=monthly<100?'低成本':(monthly<1000?'中等':'高成本');
+    // Ring
+    var score=Math.max(0,Math.min(1,1-monthly/2000));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

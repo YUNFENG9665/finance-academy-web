@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汇率机制与国际收支平衡 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 06</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">汇率机制与国际收支平衡</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解开放经济中的汇率决定和国际资本流动</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">平价条件</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">汇率制度</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">汇率基础</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">汇率定义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">名义汇率(E)</span>：两种货币的兑换比率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">实际汇率(RER)</span>：经价格水平调整的汇率</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[RER = E \times \frac{P^*}{P}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E\)：名义汇率（本币/外币）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P^*\)：外国价格水平</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(P\)：本国价格水平</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">汇率标价法</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">采用国家</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">升值表现</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">直接标价</td><td class="px-3 py-2 text-xs text-slate-400">1外币 = X本币</td><td class="px-3 py-2 text-xs text-slate-400">中国、欧洲</td><td class="px-3 py-2 text-xs text-slate-400">数值下降</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">间接标价</td><td class="px-3 py-2 text-xs text-slate-400">1本币 = X外币</td><td class="px-3 py-2 text-xs text-slate-400">英美</td><td class="px-3 py-2 text-xs text-slate-400">数值上升</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">有效汇率</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">名义有效汇率(NEER)</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 贸易加权汇率</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 综合竞争力</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">实际有效汇率(REER)</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 剔除价格后的NEER</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 真实竞争力</div></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NEER = \prod_i E_i^{w_i}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">\(w_i\)为贸易权重。</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">汇率决定理论</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要理论比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">理论</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心思想</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用期限</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">实证表现</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">购买力平价(PPP)</td><td class="px-3 py-2 text-xs text-slate-400">一价定律推广</td><td class="px-3 py-2 text-xs text-slate-400">长期</td><td class="px-3 py-2 text-xs text-slate-400">长期大致成立</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">利率平价(IRP)</td><td class="px-3 py-2 text-xs text-slate-400">套利均衡</td><td class="px-3 py-2 text-xs text-slate-400">短期</td><td class="px-3 py-2 text-xs text-slate-400">较好</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">货币模型</td><td class="px-3 py-2 text-xs text-slate-400">货币供需决定汇率</td><td class="px-3 py-2 text-xs text-slate-400">中长期</td><td class="px-3 py-2 text-xs text-slate-400">一般</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">资产组合模型</td><td class="px-3 py-2 text-xs text-slate-400">资产配置决定汇率</td><td class="px-3 py-2 text-xs text-slate-400">中期</td><td class="px-3 py-2 text-xs text-slate-400">较好</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">汇率超调模型</td><td class="px-3 py-2 text-xs text-slate-400">短期超调</td><td class="px-3 py-2 text-xs text-slate-400">短期动态</td><td class="px-3 py-2 text-xs text-slate-400">较好</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">购买力平价(PPP)</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">绝对PPP</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E = \frac{P}{P^*}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">相对PPP</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\Delta E}{E} \approx \pi - \pi^*\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">本币贬值率约等于国内外通胀差。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">PPP偏离原因</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">贸易成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 运输、关税</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 持久</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">非贸易品</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 服务业不可贸易</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 持久</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场结构</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 定价歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 持久</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价格粘性</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 短期调整不足</div><div class="text-xs text-slate-400"><span class="text-slate-500">持续性:</span> 短期</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">利率平价</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">抛补利率平价(CIP)</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{F-S}{S} \approx i - i^*\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">远期汇率与即期汇率之差等于利差。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">非抛补利率平价(UIP)</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_t[S_{t+1}] - S_t \approx S_t(i - i^*)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">预期贬值率等于利差。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">CIP vs UIP</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CIP</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 远期套利无风险利润</div><div class="text-xs text-slate-400"><span class="text-slate-500">实证:</span> 高度成立（金融危机时偏离）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">UIP</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 即期套利预期无利润</div><div class="text-xs text-slate-400"><span class="text-slate-500">实证:</span> 经常失败（远期溢价之谜）</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">国际收支平衡</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">国际收支恒等式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CA + KA + FA + 储备变动 = 0\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">账户结构详解</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">账户</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">子账户</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">内容</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">经常账户(CA)</td><td class="px-3 py-2 text-xs text-slate-400">贸易差额</td><td class="px-3 py-2 text-xs text-slate-400">商品进出口</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">服务差额</td><td class="px-3 py-2 text-xs text-slate-400">旅游、运输、金融服务</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">初次收入</td><td class="px-3 py-2 text-xs text-slate-400">投资收益、工资</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">二次收入</td><td class="px-3 py-2 text-xs text-slate-400">转移支付、汇款</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">资本账户(KA)</td><td class="px-3 py-2 text-xs text-slate-400">资本转移</td><td class="px-3 py-2 text-xs text-slate-400">债务减免、非生产资产</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">金融账户(FA)</td><td class="px-3 py-2 text-xs text-slate-400">直接投资</td><td class="px-3 py-2 text-xs text-slate-400">控股（>10%）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">证券投资</td><td class="px-3 py-2 text-xs text-slate-400">股票、债券</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">其他投资</td><td class="px-3 py-2 text-xs text-slate-400">贷款、存款</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">储备资产</td><td class="px-3 py-2 text-xs text-slate-400">外汇储备变动</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经常账户与储蓄-投资</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[CA = S - I = (S_p - I) + (T - G)\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[= 私人净储蓄 + 政府净储蓄\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">双赤字假说</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">财政赤字(T-G<0) → 经常账户赤字(CA<0)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">美国双赤字争议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理论支持：政府借贷 → 国内储蓄不足 → 借外国钱</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实证复杂：李嘉图等价、私人储蓄调整</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">开放经济宏观模型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">蒙代尔-弗莱明模型</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">IS-LM扩展到开放经济。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">IS曲线（开放经济）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = C(Y-T) + I(r) + G + NX(Y, Y^*, RER)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">净出口函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NX = NX(RER, Y, Y^*)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\frac{\partial NX}{\partial RER} > 0\)（贬值改善贸易）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\frac{\partial NX}{\partial Y} < 0\)（收入增加进口）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三元悖论（不可能三角）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">        固定汇率
+           /\
+          /  \
+         /    \
+        /  选  \
+       /   二   \
+      /          \
+资本自由流动 ——— 独立货币政策</pre></div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">组合</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">固定汇率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">资本开放</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">独立货币</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">代表</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">A</td><td class="px-3 py-2 text-xs text-slate-400">✓</td><td class="px-3 py-2 text-xs text-slate-400">✓</td><td class="px-3 py-2 text-xs text-slate-400">✗</td><td class="px-3 py-2 text-xs text-slate-400">香港</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">B</td><td class="px-3 py-2 text-xs text-slate-400">✓</td><td class="px-3 py-2 text-xs text-slate-400">✗</td><td class="px-3 py-2 text-xs text-slate-400">✓</td><td class="px-3 py-2 text-xs text-slate-400">中国(传统)</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">C</td><td class="px-3 py-2 text-xs text-slate-400">✗</td><td class="px-3 py-2 text-xs text-slate-400">✓</td><td class="px-3 py-2 text-xs text-slate-400">✓</td><td class="px-3 py-2 text-xs text-slate-400">美国</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">政策有效性</span>（蒙代尔-弗莱明结论）：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">汇率制度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">资本流动</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">货币政策</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">财政政策</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">固定</td><td class="px-3 py-2 text-xs text-slate-400">完全</td><td class="px-3 py-2 text-xs text-slate-400">无效</td><td class="px-3 py-2 text-xs text-slate-400">有效</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">浮动</td><td class="px-3 py-2 text-xs text-slate-400">完全</td><td class="px-3 py-2 text-xs text-slate-400">有效</td><td class="px-3 py-2 text-xs text-slate-400">部分有效</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">汇率制度选择</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要汇率制度谱系</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">制度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">代表</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">自由浮动</td><td class="px-3 py-2 text-xs text-slate-400">市场决定</td><td class="px-3 py-2 text-xs text-slate-400">美元、欧元</td><td class="px-3 py-2 text-xs text-slate-400">灵活但波动大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">管理浮动</td><td class="px-3 py-2 text-xs text-slate-400">央行适度干预</td><td class="px-3 py-2 text-xs text-slate-400">人民币</td><td class="px-3 py-2 text-xs text-slate-400">平衡灵活与稳定</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">爬行钉住</td><td class="px-3 py-2 text-xs text-slate-400">小幅调整</td><td class="px-3 py-2 text-xs text-slate-400">一些新兴市场</td><td class="px-3 py-2 text-xs text-slate-400">渐进调整</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">货币局</td><td class="px-3 py-2 text-xs text-slate-400">硬钉住</td><td class="px-3 py-2 text-xs text-slate-400">港币</td><td class="px-3 py-2 text-xs text-slate-400">高度可信但无灵活性</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">美元化</td><td class="px-3 py-2 text-xs text-slate-400">放弃本币</td><td class="px-3 py-2 text-xs text-slate-400">厄瓜多尔</td><td class="px-3 py-2 text-xs text-slate-400">极端可信</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">最优货币区理论（Mundell）</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">适合固定汇率/货币联盟的条件</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">要素流动性高</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 劳动力自由迁移</div><div class="text-xs text-slate-400"><span class="text-slate-500">欧元区表现:</span> 中等</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">经济开放度高</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 贸易密切</div><div class="text-xs text-slate-400"><span class="text-slate-500">欧元区表现:</span> 高</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">冲击对称性</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 经济周期同步</div><div class="text-xs text-slate-400"><span class="text-slate-500">欧元区表现:</span> 不一致</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财政转移机制</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 联邦预算</div><div class="text-xs text-slate-400"><span class="text-slate-500">欧元区表现:</span> 缺乏</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">价格工资灵活</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 快速调整</div><div class="text-xs text-slate-400"><span class="text-slate-500">欧元区表现:</span> 较低</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">欧元区的问题</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">不满足最优货币区条件 → 外围国家危机（希腊、意大利）</p>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：抛补利率平价(CIP)</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[F - S = S \times \frac{i - i^*}{1 + i^*}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">对数近似</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[f - s \approx i - i^*\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">\(f, s\)为对数汇率。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">CIP套利</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果\(f - s < i - i^*\)：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>借入低息货币</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>即期换成高息货币</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>投资高息资产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>远期锁定汇率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>无风险利润</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">CIP偏离</span>（2008年后出现）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>银行资产负债表约束</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管成本（Basel III）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美元短缺</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：非抛补利率平价(UIP)</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_t[S_{t+1}] - S_t = S_t \times (i - i^*)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">预期贬值率 = 利差</span></p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">远期溢价之谜</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">实际上，高息货币往往升值而非贬值！</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[E_t[S_{t+1}] < S_t(1 + i - i^*)\]（实证）  <span class="text-white font-semibold">可能解释</span>： | 解释 | 机制 | |------|------| | 风险溢价 | 高息货币有额外风险 | | 比索问题 | 小概率大贬值事件 | | 学习效应 | 预期形成不理性 | | 央行干预 | 系统性偏差 | </div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：实际汇率与贸易</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">马歇尔-勒纳条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[|\eta_X| + |\eta_M| > 1\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">出口和进口的价格弹性之和大于1时，贬值改善贸易收支。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">J曲线效应</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">贸易收支
+    │
+    │     ╱
+    │    ╱
+    │───/─────── 长期改善
+    │  /
+    │ ╱
+    │╱
+    └──────────→ 时间
+      ↑
+    贬值时点
+    短期恶化（价格效应先于数量效应）</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">机制</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>短期：价格调整快，数量调整慢 → 进口支出上升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>长期：出口量增加，进口量减少 → 收支改善</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：汇率超调模型（Dornbusch, 1976）</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心机制</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>商品价格粘性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资产市场即时调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>短期汇率超调</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">超调公式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[e_t - \bar{e} = (e_0 - \bar{e})e^{-\theta t}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">货币扩张的动态</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>短期：价格不变，汇率大幅贬值（超调）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>中期：价格上升，汇率升值</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>长期：新均衡，汇率贬值幅度=货币增长</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">汇率
+ │
+ │    超调点
+ │    ·
+ │   ╱ ╲
+ │  ╱   ╲
+ │ ╱     ╲────── 新长期均衡
+ │╱
+ │─────────────── 旧均衡
+ └──────────────→ 时间
+   ↑
+ 货币扩张</pre></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">汇</span>
+        <h3 class="text-white font-semibold text-sm">案例1：人民币汇率改革历程</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">汇率制度演变</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">时期</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">制度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">汇率水平</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">1949-1978</td><td class="px-3 py-2 text-xs text-slate-400">高度管制</td><td class="px-3 py-2 text-xs text-slate-400">多重汇率</td><td class="px-3 py-2 text-xs text-slate-400">计划经济</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">1979-1993</td><td class="px-3 py-2 text-xs text-slate-400">双轨制</td><td class="px-3 py-2 text-xs text-slate-400">官方+调剂</td><td class="px-3 py-2 text-xs text-slate-400">渐进开放</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">1994</td><td class="px-3 py-2 text-xs text-slate-400">汇率并轨</td><td class="px-3 py-2 text-xs text-slate-400">8.7</td><td class="px-3 py-2 text-xs text-slate-400">钉住美元</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2005</td><td class="px-3 py-2 text-xs text-slate-400">汇改启动</td><td class="px-3 py-2 text-xs text-slate-400">8.11→6+</td><td class="px-3 py-2 text-xs text-slate-400">参考一篮子</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2015</td><td class="px-3 py-2 text-xs text-slate-400">"8·11"汇改</td><td class="px-3 py-2 text-xs text-slate-400">一次性贬值</td><td class="px-3 py-2 text-xs text-slate-400">中间价改革</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">现在</td><td class="px-3 py-2 text-xs text-slate-400">有管理浮动</td><td class="px-3 py-2 text-xs text-slate-400">7左右</td><td class="px-3 py-2 text-xs text-slate-400">双向波动</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">人民币是否被低估？</span></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">低估说</div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 巨额贸易顺差</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 经常账户法</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">低估说</div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 大量外汇储备</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 干预证据</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">均衡说</div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> PPP接近</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 购买力平价</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高估说</div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 资本外流压力</div><div class="text-xs text-slate-400"><span class="text-slate-500">方法:</span> 资本流动</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">汇率政策的权衡</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">出口竞争力</div><div class="text-xs text-slate-400"><span class="text-slate-500">偏好汇率:</span> 弱人民币</div><div class="text-xs text-slate-400"><span class="text-slate-500">冲突:</span> vs 进口成本</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">控制通胀</div><div class="text-xs text-slate-400"><span class="text-slate-500">偏好汇率:</span> 强人民币</div><div class="text-xs text-slate-400"><span class="text-slate-500">冲突:</span> vs 出口</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">国际化</div><div class="text-xs text-slate-400"><span class="text-slate-500">偏好汇率:</span> 稳定人民币</div><div class="text-xs text-slate-400"><span class="text-slate-500">冲突:</span> vs 灵活性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资本外流</div><div class="text-xs text-slate-400"><span class="text-slate-500">偏好汇率:</span> 强人民币</div><div class="text-xs text-slate-400"><span class="text-slate-500">冲突:</span> vs 出口</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">金</span>
+        <h3 class="text-white font-semibold text-sm">案例2：1997年亚洲金融危机</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">危机传染机制</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">外部冲击/内部脆弱 → 资本外流 → 汇率压力 → 被迫贬值
+        ↓                              ↓
+    信心崩溃 ← 银行危机 ← 债务危机 ←</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">受危机影响国家</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">国家</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">危机前汇率制度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贬值幅度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">主要脆弱性</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">泰国</td><td class="px-3 py-2 text-xs text-slate-400">钉住美元</td><td class="px-3 py-2 text-xs text-slate-400">50%+</td><td class="px-3 py-2 text-xs text-slate-400">短期外债</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">印尼</td><td class="px-3 py-2 text-xs text-slate-400">管理浮动</td><td class="px-3 py-2 text-xs text-slate-400">80%+</td><td class="px-3 py-2 text-xs text-slate-400">企业外债</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">韩国</td><td class="px-3 py-2 text-xs text-slate-400">管理浮动</td><td class="px-3 py-2 text-xs text-slate-400">50%</td><td class="px-3 py-2 text-xs text-slate-400">短期外债</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">马来西亚</td><td class="px-3 py-2 text-xs text-slate-400">管理浮动</td><td class="px-3 py-2 text-xs text-slate-400">40%</td><td class="px-3 py-2 text-xs text-slate-400">金融开放</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三元悖论的验证</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>试图同时维持：固定汇率 + 资本开放 + 独立货币政策</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：投机攻击成功，被迫贬值</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>固定汇率需要充足储备或资本管制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>短期外债是危险的脆弱性来源</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>汇率灵活性提供缓冲</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>区域传染需要协调应对</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">欧</span>
+        <h3 class="text-white font-semibold text-sm">案例3：欧元区主权债务危机</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">危机背景</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>欧元区内部失衡积累</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>全球金融危机触发</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外围国家债务可持续性质疑</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心问题</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">竞争力分化</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 德国顺差，南欧逆差</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 单一货币无法调整</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财政不协调</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 各国独立财政</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 缺乏财政联盟</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">银行-主权循环</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 相互强化</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 银行持有国债</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">调整机制缺失</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 内部贬值困难</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 工资刚性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>货币联盟需要财政联盟配套</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>最优货币区条件非常重要</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>退出成本高（无有序机制）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>结构改革是唯一出路（无汇率工具）</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">购买力平价为什么在短期内不成立？什么因素导致持续偏离？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：贸易成本、非贸易品、价格粘性</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">什么是"三元悖论"？中国如何应对这个约束？有没有"中间选项"？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：资本管制的有效性、汇率灵活性、货币政策空间</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">J曲线效应如何解释？为什么贬值短期内可能恶化贸易收支？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：价格弹性、调整时滞、合同刚性</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如果美联储加息，人民币会面临什么压力？央行有哪些应对选项？各有什么代价？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：利率平价、资本流动、三元悖论</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">一个小型开放经济体应该选择什么汇率制度？需要考虑哪些因素？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：最优货币区、冲击类型、制度可信度</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何判断一国货币是否被低估？不同方法给出不同结论时怎么办？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：PPP、FEER、外部平衡法</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">数字货币（如Libra/Diem、CBDC）会如何影响传统的汇率制度和国际货币体系？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：货币替代、资本流动、货币主权</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">全球美元主导地位会被挑战吗？人民币国际化的前景和障碍是什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：网络效应、制度要求、地缘政治</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">资本账户完全开放是好事还是坏事？资本管制在现代经济中还有什么作用？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：效率vs稳定、宏观审慎、新兴市场经验</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《国际经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Krugman & Obstfeld</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">标准教材</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《国际宏观经济学基础》</td><td class="px-3 py-2 text-xs text-slate-400">Obstfeld & Rogoff</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">研究生级别</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《国际金融》</td><td class="px-3 py-2 text-xs text-slate-400">Eun & Resnick</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">实务导向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《汇率经济学》</td><td class="px-3 py-2 text-xs text-slate-400">Sarno & Taylor</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">汇率专著</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">论文</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Capital Mobility and Stabilization Policy"</td><td class="px-3 py-2 text-xs text-slate-400">Mundell</td><td class="px-3 py-2 text-xs text-slate-400">1963</td><td class="px-3 py-2 text-xs text-slate-400">三元悖论</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Expectations and Exchange Rate Dynamics"</td><td class="px-3 py-2 text-xs text-slate-400">Dornbusch</td><td class="px-3 py-2 text-xs text-slate-400">1976</td><td class="px-3 py-2 text-xs text-slate-400">汇率超调</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"A Theory of Optimum Currency Areas"</td><td class="px-3 py-2 text-xs text-slate-400">Mundell</td><td class="px-3 py-2 text-xs text-slate-400">1961</td><td class="px-3 py-2 text-xs text-slate-400">最优货币区</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据来源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BIS</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 有效汇率、外汇交易</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 国际标准</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">IMF</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 汇率制度分类、储备</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 官方数据</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">SAFE</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 中国外汇数据</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 官方权威</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">FRED</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 各国汇率时间序列</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 便捷获取</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          国际收支调节机制
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解汇率如何在贸易与资本间寻找均衡</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">贸易流动</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">经常账户</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">资本流动</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">金融账户</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">汇率决定</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">定价理论</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">政策干预</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">央行·制度</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">贸易流动</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">经常账户</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>出口创汇→外汇供给↑→本币升值压力</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>进口用汇→外汇需求↑→本币贬值压力</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>J曲线效应: 贬值短期恶化→长期改善</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">资本流动</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">金融账户</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>利差驱动: 高利率吸引热钱流入</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>风险偏好: 避险情绪→资本回流美元</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>FDI长期稳定，组合投资短期波动大</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">汇率决定</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">定价理论</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>购买力平价PPP: 长期锚定物价比</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>利率平价IRP: 远期汇率=利差调整</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>汇率超调: 短期过度反应后回归</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">政策干预</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">央行·制度</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>固定汇率: 稳定但丧失货币独立性</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>浮动汇率: 灵活但波动可能过大</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>不可能三角: 固定汇率/资本自由/货币独立只能选二</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          外汇市场均衡模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整本国利率，观察汇率变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Q(外汇)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">E(汇率)</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">Dd</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">Sf</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>本国利率 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>汇率E: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>交易量Q: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="1" max="8" value="4" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          购买力平价计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">计算两国之间的理论汇率</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">本国物价指数</label>
+            <input type="number" id="comp-2-pd" value="120" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">外国物价指数</label>
+            <input type="number" id="comp-2-pf" value="100" min="0" step="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">当前名义汇率</label>
+            <input type="number" id="comp-2-ea" value="7.1" min="0.1" step="0.1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">汇率合理度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">PPP汇率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">偏离度</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">币值判断</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">均衡状态</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ E = \frac{P_{domestic}}{P_{foreign}} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 06</div>
+    <div class="mt-2 md:mt-0">下一章：宏观政策工具与效果评估 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'P^*', tip: '均衡价格——供给和需求相等时的市场价格'},
+    {match: 'RER = E \\times \\frac{P^*}{P}', tip: '实际汇率——考虑物价后的真实汇率'},
+    {match: '\\prod', tip: '所有数相乘再开n次方，复利计算用这个更准确'},
+    {match: 'E = \\frac{P}{P^*}', tip: '名义汇率——一单位外币值多少本币'},
+    {match: '\\frac{\\Delta E}{E} \\approx \\pi - \\pi^*', tip: '相对PPP——汇率变化≈两国通胀差'},
+    {match: '\\frac{F-S}{S} \\approx i - i^*', tip: '利率平价——远期升贴水≈两国利差'},
+    {match: 'CA + KA + FA + 储备变动 = 0', tip: '国际收支恒等式——经常+资本+金融账户之和为零'},
+    {match: 'CA = S - I', tip: '经常账户 = 储蓄-投资，存多花少就顺差'},
+    {match: 'Y = C(Y-T) + I(r) + G', tip: 'IS方程——产品市场均衡条件'},
+    {match: 'Y, Y^*)', tip: '潜变量/未观测变量——Tobit/Heckman模型中的隐含连续变量'},
+    {match: '|\\eta_X| + |\\eta_M| > 1', tip: '马歇尔-勒纳条件——贬值改善贸易的前提'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=10;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(9-1-c*0.3)/(0.08+0.07);
+    var eq_y=9-((9-1-c*0.3)/(0.08+0.07))*0.08;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 9-x*0.08;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 9-x*0.08;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 1+x*0.07+c*0.3;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 1+x*0.07+c*0.3;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='i = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='E(汇率)*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='Q(外汇)*='+eq_x.toFixed(1);
+    var r1=eq_y;
+    var r2=eq_x;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var pd=parseFloat(document.getElementById('comp-2-pd').value);
+    var pf=parseFloat(document.getElementById('comp-2-pf').value);
+    var ea=parseFloat(document.getElementById('comp-2-ea').value);
+
+    var ppp=pd/pf;
+    var dev=(ea-ppp)/ppp*100;
+    document.getElementById('comp-2-out0').textContent=ppp.toFixed(2);
+    document.getElementById('comp-2-out1').textContent=dev.toFixed(1)+'%';
+    document.getElementById('comp-2-out2').textContent=dev>0?'本币高估':'本币低估';
+    document.getElementById('comp-2-out3').textContent=Math.abs(dev)<10?'接近均衡':'偏离较大';
+    // Ring
+    var score=Math.max(0,Math.min(1,1-Math.abs(ea-pd/pf)/(pd/pf)/2));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

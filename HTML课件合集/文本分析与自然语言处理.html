@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>远程监督示例：利用股票代码库自动标注 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">AI-Fin</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">案例研究</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">常见问题解答</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 05</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">远程监督示例：利用股票代码库自动标注</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">金融文本数据的分析方法</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">NLP任务</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">分析模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">金融文本数据概述</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融文本的独特性</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">专业术语</span>：财务指标、金融产品、法规术语</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">数字密集</span>：大量财务数据、比率、价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">时效敏感</span>：信息价值随时间快速衰减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">情感隐晦</span>：正面表述可能隐含风险</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">合规表达</span>：公告等有固定格式要求</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要文本来源</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">来源</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">数据量</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">价值</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">公司公告</span></td><td class="px-3 py-2 text-xs text-slate-400">权威、结构化、合规</td><td class="px-3 py-2 text-xs text-slate-400">中等</td><td class="px-3 py-2 text-xs text-slate-400">高（事件驱动）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">研究报告</span></td><td class="px-3 py-2 text-xs text-slate-400">专业、深度分析</td><td class="px-3 py-2 text-xs text-slate-400">中等</td><td class="px-3 py-2 text-xs text-slate-400">高（专家观点）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">财经新闻</span></td><td class="px-3 py-2 text-xs text-slate-400">实时、覆盖广</td><td class="px-3 py-2 text-xs text-slate-400">大</td><td class="px-3 py-2 text-xs text-slate-400">中（信息混杂）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">社交媒体</span></td><td class="px-3 py-2 text-xs text-slate-400">实时、情绪丰富</td><td class="px-3 py-2 text-xs text-slate-400">极大</td><td class="px-3 py-2 text-xs text-slate-400">中（噪声大）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">电话会议</span></td><td class="px-3 py-2 text-xs text-slate-400">管理层语气、问答</td><td class="px-3 py-2 text-xs text-slate-400">小</td><td class="px-3 py-2 text-xs text-slate-400">高（深度信息）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">SEC/交易所文件</span></td><td class="px-3 py-2 text-xs text-slate-400">官方、全面</td><td class="px-3 py-2 text-xs text-slate-400">大</td><td class="px-3 py-2 text-xs text-slate-400">高（合规信息）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">分析师评论</span></td><td class="px-3 py-2 text-xs text-slate-400">专业、有观点</td><td class="px-3 py-2 text-xs text-slate-400">小</td><td class="px-3 py-2 text-xs text-slate-400">高（市场影响）</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">文本预处理</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">中文文本处理</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import jieba
+import jieba.posseg as pseg
+import re
+from collections import Counter
+
+class ChineseTextProcessor:
+    &quot;&quot;&quot;中文金融文本处理器&quot;&quot;&quot;
+
+    def __init__(self):
+        # 加载金融词典
+        self._load_financial_dict()
+        # 加载停用词
+        self.stopwords = self._load_stopwords()
+
+    def _load_financial_dict(self):
+        &quot;&quot;&quot;加载金融专业词典&quot;&quot;&quot;
+        financial_terms = [
+            &#x27;市盈率&#x27;, &#x27;市净率&#x27;, &#x27;资产负债率&#x27;, &#x27;流动比率&#x27;,
+            &#x27;毛利率&#x27;, &#x27;净利率&#x27;, &#x27;ROE&#x27;, &#x27;ROA&#x27;, &#x27;EPS&#x27;,
+            &#x27;利空&#x27;, &#x27;利好&#x27;, &#x27;涨停&#x27;, &#x27;跌停&#x27;, &#x27;龙虎榜&#x27;,
+            &#x27;北向资金&#x27;, &#x27;融资融券&#x27;, &#x27;大宗交易&#x27;, &#x27;减持&#x27;,
+            &#x27;增持&#x27;, &#x27;回购&#x27;, &#x27;配股&#x27;, &#x27;定增&#x27;, &#x27;可转债&#x27;
+        ]
+        for term in financial_terms:
+            jieba.add_word(term)
+
+    def _load_stopwords(self):
+        &quot;&quot;&quot;加载停用词&quot;&quot;&quot;
+        stopwords = set([&#x27;的&#x27;, &#x27;了&#x27;, &#x27;是&#x27;, &#x27;在&#x27;, &#x27;和&#x27;, &#x27;与&#x27;,
+                        &#x27;或&#x27;, &#x27;等&#x27;, &#x27;及&#x27;, &#x27;对于&#x27;, &#x27;关于&#x27;])
+        return stopwords
+
+    def preprocess(self, text):
+        &quot;&quot;&quot;完整预处理流程&quot;&quot;&quot;
+        # 1. 清理文本
+        text = self.clean_text(text)
+        # 2. 分词
+        words = self.tokenize(text)
+        # 3. 去停用词
+        words = self.remove_stopwords(words)
+        return words
+
+    def clean_text(self, text):
+        &quot;&quot;&quot;清理文本&quot;&quot;&quot;
+        # 去除HTML标签
+        text = re.sub(r&#x27;&lt;[^&gt;]+&gt;&#x27;, &#x27;&#x27;, text)
+        # 去除多余空白
+        text = re.sub(r&#x27;\s+&#x27;, &#x27; &#x27;, text)
+        # 保留中文、英文、数字
+        text = re.sub(r&#x27;[^\u4e00-\u9fa5a-zA-Z0-9\.\%\-]&#x27;, &#x27; &#x27;, text)
+        return text.strip()
+
+    def tokenize(self, text, with_pos=False):
+        &quot;&quot;&quot;分词&quot;&quot;&quot;
+        if with_pos:
+            return list(pseg.cut(text))
+        return list(jieba.cut(text))
+
+    def remove_stopwords(self, words):
+        &quot;&quot;&quot;去除停用词&quot;&quot;&quot;
+        return [w for w in words if w not in self.stopwords and len(w) &gt; 1]
+
+    def extract_keywords(self, text, topk=10):
+        &quot;&quot;&quot;提取关键词&quot;&quot;&quot;
+        import jieba.analyse
+        return jieba.analyse.extract_tags(text, topK=topk, withWeight=True)
+
+    def extract_entities(self, text):
+        &quot;&quot;&quot;提取命名实体（简单规则）&quot;&quot;&quot;
+        entities = {
+            &#x27;companies&#x27;: [],
+            &#x27;persons&#x27;: [],
+            &#x27;amounts&#x27;: [],
+            &#x27;dates&#x27;: []
+        }
+
+        # 金额提取
+        amount_pattern = r&#x27;[\d,]+\.?\d*[万亿]?元&#x27;
+        entities[&#x27;amounts&#x27;] = re.findall(amount_pattern, text)
+
+        # 日期提取
+        date_pattern = r&#x27;\d{4}年\d{1,2}月\d{1,2}日|\d{4}-\d{2}-\d{2}&#x27;
+        entities[&#x27;dates&#x27;] = re.findall(date_pattern, text)
+
+        return entities</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">英文文本处理</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import spacy
+
+class EnglishTextProcessor:
+    &quot;&quot;&quot;英文金融文本处理器&quot;&quot;&quot;
+
+    def __init__(self):
+        nltk.download(&#x27;punkt&#x27;, quiet=True)
+        nltk.download(&#x27;stopwords&#x27;, quiet=True)
+        nltk.download(&#x27;wordnet&#x27;, quiet=True)
+
+        self.stop_words = set(stopwords.words(&#x27;english&#x27;))
+        self.lemmatizer = WordNetLemmatizer()
+        self.nlp = spacy.load(&#x27;en_core_web_sm&#x27;)
+
+    def preprocess(self, text):
+        &quot;&quot;&quot;预处理&quot;&quot;&quot;
+        # 小写化
+        text = text.lower()
+        # 分词
+        tokens = word_tokenize(text)
+        # 去停用词和词形还原
+        tokens = [self.lemmatizer.lemmatize(t)
+                  for t in tokens
+                  if t.isalnum() and t not in self.stop_words]
+        return tokens
+
+    def extract_entities_spacy(self, text):
+        &quot;&quot;&quot;使用SpaCy提取命名实体&quot;&quot;&quot;
+        doc = self.nlp(text)
+        entities = {
+            &#x27;ORG&#x27;: [],      # 组织/公司
+            &#x27;PERSON&#x27;: [],   # 人名
+            &#x27;MONEY&#x27;: [],    # 金额
+            &#x27;DATE&#x27;: [],     # 日期
+            &#x27;PERCENT&#x27;: []   # 百分比
+        }
+        for ent in doc.ents:
+            if ent.label_ in entities:
+                entities[ent.label_].append(ent.text)
+        return entities</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">情感分析</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">情感分析方法演进</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">词典法 → 机器学习 → 深度学习 → 预训练模型
+(规则)   (特征工程)  (词向量)   (BERT/FinBERT)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">方法对比</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">方法</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">适用场景</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">词典法</span></td><td class="px-3 py-2 text-xs text-slate-400">可解释、无需训练</td><td class="px-3 py-2 text-xs text-slate-400">覆盖有限、忽略上下文</td><td class="px-3 py-2 text-xs text-slate-400">快速原型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">机器学习</span></td><td class="px-3 py-2 text-xs text-slate-400">效果较好、可定制</td><td class="px-3 py-2 text-xs text-slate-400">需要标注数据</td><td class="px-3 py-2 text-xs text-slate-400">中等数据量</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">深度学习</span></td><td class="px-3 py-2 text-xs text-slate-400">效果好、捕获语义</td><td class="px-3 py-2 text-xs text-slate-400">需要大量数据</td><td class="px-3 py-2 text-xs text-slate-400">大数据场景</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">预训练模型</span></td><td class="px-3 py-2 text-xs text-slate-400">效果最好、少样本</td><td class="px-3 py-2 text-xs text-slate-400">计算成本高</td><td class="px-3 py-2 text-xs text-slate-400">高精度要求</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">词典法</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class DictionarySentiment:
+    &quot;&quot;&quot;基于词典的情感分析&quot;&quot;&quot;
+
+    def __init__(self):
+        # Loughran-McDonald金融情感词典
+        self.positive_words = self._load_lm_positive()
+        self.negative_words = self._load_lm_negative()
+        self.uncertain_words = self._load_lm_uncertain()
+        self.litigious_words = self._load_lm_litigious()
+
+        # 中文金融情感词典
+        self.cn_positive = set([&#x27;利好&#x27;, &#x27;增长&#x27;, &#x27;盈利&#x27;, &#x27;突破&#x27;, &#x27;上涨&#x27;,
+                                &#x27;创新高&#x27;, &#x27;超预期&#x27;, &#x27;业绩靓丽&#x27;, &#x27;强劲&#x27;])
+        self.cn_negative = set([&#x27;利空&#x27;, &#x27;下跌&#x27;, &#x27;亏损&#x27;, &#x27;下滑&#x27;, &#x27;风险&#x27;,
+                                &#x27;暴跌&#x27;, &#x27;违约&#x27;, &#x27;暴雷&#x27;, &#x27;减持&#x27;, &#x27;清仓&#x27;])
+
+    def _load_lm_positive(self):
+        &quot;&quot;&quot;加载LM正面词典&quot;&quot;&quot;
+        # 实际应从文件加载
+        return set([&#x27;achieve&#x27;, &#x27;benefit&#x27;, &#x27;excellent&#x27;, &#x27;gain&#x27;,
+                   &#x27;improve&#x27;, &#x27;positive&#x27;, &#x27;profit&#x27;, &#x27;success&#x27;])
+
+    def _load_lm_negative(self):
+        &quot;&quot;&quot;加载LM负面词典&quot;&quot;&quot;
+        return set([&#x27;adverse&#x27;, &#x27;decline&#x27;, &#x27;deficit&#x27;, &#x27;loss&#x27;,
+                   &#x27;negative&#x27;, &#x27;risk&#x27;, &#x27;weak&#x27;, &#x27;worse&#x27;])
+
+    def analyze(self, text, language=&#x27;en&#x27;):
+        &quot;&quot;&quot;分析文本情感&quot;&quot;&quot;
+        if language == &#x27;en&#x27;:
+            return self._analyze_english(text)
+        else:
+            return self._analyze_chinese(text)
+
+    def _analyze_english(self, text):
+        &quot;&quot;&quot;英文情感分析&quot;&quot;&quot;
+        words = text.lower().split()
+        total = len(words)
+
+        pos_count = sum(1 for w in words if w in self.positive_words)
+        neg_count = sum(1 for w in words if w in self.negative_words)
+        unc_count = sum(1 for w in words if w in self.uncertain_words)
+
+        # 计算情感得分
+        sentiment_score = (pos_count - neg_count) / total if total &gt; 0 else 0
+
+        return {
+            &#x27;sentiment_score&#x27;: sentiment_score,
+            &#x27;positive_ratio&#x27;: pos_count / total if total &gt; 0 else 0,
+            &#x27;negative_ratio&#x27;: neg_count / total if total &gt; 0 else 0,
+            &#x27;uncertainty_ratio&#x27;: unc_count / total if total &gt; 0 else 0,
+            &#x27;classification&#x27;: self._classify(sentiment_score)
+        }
+
+    def _analyze_chinese(self, text):
+        &quot;&quot;&quot;中文情感分析&quot;&quot;&quot;
+        import jieba
+        words = list(jieba.cut(text))
+        total = len(words)
+
+        pos_count = sum(1 for w in words if w in self.cn_positive)
+        neg_count = sum(1 for w in words if w in self.cn_negative)
+
+        sentiment_score = (pos_count - neg_count) / total if total &gt; 0 else 0
+
+        return {
+            &#x27;sentiment_score&#x27;: sentiment_score,
+            &#x27;positive_count&#x27;: pos_count,
+            &#x27;negative_count&#x27;: neg_count,
+            &#x27;classification&#x27;: self._classify(sentiment_score)
+        }
+
+    def _classify(self, score):
+        if score &gt; 0.02:
+            return &#x27;positive&#x27;
+        elif score &lt; -0.02:
+            return &#x27;negative&#x27;
+        else:
+            return &#x27;neutral&#x27;</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">深度学习情感分析</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+class DeepSentimentAnalyzer:
+    &quot;&quot;&quot;基于深度学习的情感分析&quot;&quot;&quot;
+
+    def __init__(self, model_name=&#x27;yiyanghkust/finbert-tone&#x27;):
+        &quot;&quot;&quot;
+        加载预训练模型
+
+        推荐模型:
+        - yiyanghkust/finbert-tone: 金融情感
+        - ProsusAI/finbert: 金融情感
+        - nlptown/bert-base-multilingual-uncased-sentiment: 多语言情感
+        - uer/roberta-base-finetuned-jd-binary-chinese: 中文情感
+        &quot;&quot;&quot;
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        self.model.eval()
+
+        # 标签映射
+        self.label_map = {0: &#x27;negative&#x27;, 1: &#x27;neutral&#x27;, 2: &#x27;positive&#x27;}
+
+    def analyze(self, text):
+        &quot;&quot;&quot;分析单条文本&quot;&quot;&quot;
+        inputs = self.tokenizer(
+            text,
+            return_tensors=&#x27;pt&#x27;,
+            truncation=True,
+            max_length=512,
+            padding=True
+        )
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            probs = torch.softmax(outputs.logits, dim=-1)
+
+        pred_label = torch.argmax(probs, dim=-1).item()
+        confidence = probs[0][pred_label].item()
+
+        return {
+            &#x27;sentiment&#x27;: self.label_map.get(pred_label, &#x27;neutral&#x27;),
+            &#x27;confidence&#x27;: confidence,
+            &#x27;probabilities&#x27;: {
+                &#x27;negative&#x27;: probs[0][0].item(),
+                &#x27;neutral&#x27;: probs[0][1].item(),
+                &#x27;positive&#x27;: probs[0][2].item()
+            }
+        }
+
+    def analyze_batch(self, texts, batch_size=32):
+        &quot;&quot;&quot;批量分析&quot;&quot;&quot;
+        results = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i+batch_size]
+            inputs = self.tokenizer(
+                batch,
+                return_tensors=&#x27;pt&#x27;,
+                truncation=True,
+                max_length=512,
+                padding=True
+            )
+
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)
+
+            for j, prob in enumerate(probs):
+                pred_label = torch.argmax(prob).item()
+                results.append({
+                    &#x27;text&#x27;: batch[j][:50] + &#x27;...&#x27;,
+                    &#x27;sentiment&#x27;: self.label_map.get(pred_label, &#x27;neutral&#x27;),
+                    &#x27;confidence&#x27;: prob[pred_label].item()
+                })
+
+        return results</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">FinBERT金融情感模型</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from transformers import BertTokenizer, BertForSequenceClassification
+import torch
+
+class FinBERTSentiment:
+    &quot;&quot;&quot;FinBERT金融情感分析&quot;&quot;&quot;
+
+    def __init__(self):
+        self.tokenizer = BertTokenizer.from_pretrained(&#x27;yiyanghkust/finbert-tone&#x27;)
+        self.model = BertForSequenceClassification.from_pretrained(&#x27;yiyanghkust/finbert-tone&#x27;)
+        self.labels = [&#x27;positive&#x27;, &#x27;negative&#x27;, &#x27;neutral&#x27;]
+
+    def predict(self, text):
+        &quot;&quot;&quot;预测情感&quot;&quot;&quot;
+        inputs = self.tokenizer(text, return_tensors=&#x27;pt&#x27;, padding=True, truncation=True)
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+
+        probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
+        pred_idx = torch.argmax(probs).item()
+
+        return {
+            &#x27;label&#x27;: self.labels[pred_idx],
+            &#x27;score&#x27;: probs[0][pred_idx].item(),
+            &#x27;all_scores&#x27;: dict(zip(self.labels, probs[0].tolist()))
+        }
+
+    def analyze_earnings_call(self, transcript):
+        &quot;&quot;&quot;分析财报电话会议&quot;&quot;&quot;
+        # 分句
+        sentences = transcript.split(&#x27;.&#x27;)
+        results = []
+
+        for sent in sentences:
+            if len(sent.strip()) &gt; 10:
+                sentiment = self.predict(sent)
+                results.append({
+                    &#x27;sentence&#x27;: sent.strip(),
+                    **sentiment
+                })
+
+        # 汇总统计
+        df = pd.DataFrame(results)
+        summary = {
+            &#x27;total_sentences&#x27;: len(df),
+            &#x27;positive_ratio&#x27;: (df[&#x27;label&#x27;] == &#x27;positive&#x27;).mean(),
+            &#x27;negative_ratio&#x27;: (df[&#x27;label&#x27;] == &#x27;negative&#x27;).mean(),
+            &#x27;avg_confidence&#x27;: df[&#x27;score&#x27;].mean(),
+            &#x27;most_positive&#x27;: df.loc[df[&#x27;score&#x27;].idxmax() if (df[&#x27;label&#x27;] == &#x27;positive&#x27;).any() else 0],
+            &#x27;most_negative&#x27;: df.loc[df[&#x27;score&#x27;].idxmax() if (df[&#x27;label&#x27;] == &#x27;negative&#x27;).any() else 0]
+        }
+
+        return summary, df</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">命名实体识别（NER）</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">金融NER任务</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需要识别的实体类型</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">实体类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">示例</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">应用</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">公司名</span></td><td class="px-3 py-2 text-xs text-slate-400">贵州茅台、Apple Inc</td><td class="px-3 py-2 text-xs text-slate-400">关联分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">人名</span></td><td class="px-3 py-2 text-xs text-slate-400">马化腾、Warren Buffett</td><td class="px-3 py-2 text-xs text-slate-400">管理层分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">金额</span></td><td class="px-3 py-2 text-xs text-slate-400">100亿元、$5 billion</td><td class="px-3 py-2 text-xs text-slate-400">财务分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">日期</span></td><td class="px-3 py-2 text-xs text-slate-400">2024年1月15日</td><td class="px-3 py-2 text-xs text-slate-400">事件时间线</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">百分比</span></td><td class="px-3 py-2 text-xs text-slate-400">增长30%、下跌5%</td><td class="px-3 py-2 text-xs text-slate-400">量化分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">股票代码</span></td><td class="px-3 py-2 text-xs text-slate-400">600519、AAPL</td><td class="px-3 py-2 text-xs text-slate-400">股票关联</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">产品名</span></td><td class="px-3 py-2 text-xs text-slate-400">iPhone、Model 3</td><td class="px-3 py-2 text-xs text-slate-400">产品分析</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">地点</span></td><td class="px-3 py-2 text-xs text-slate-400">上海、New York</td><td class="px-3 py-2 text-xs text-slate-400">地理分析</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">基于规则的NER</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import re
+
+class RuleBasedNER:
+    &quot;&quot;&quot;基于规则的命名实体识别&quot;&quot;&quot;
+
+    def __init__(self):
+        self.patterns = {
+            &#x27;stock_code&#x27;: r&#x27;[036]\d{5}\.[A-Z]{2}|[A-Z]{1,5}&#x27;,
+            &#x27;money_cn&#x27;: r&#x27;[\d,]+\.?\d*[万亿]?元&#x27;,
+            &#x27;money_en&#x27;: r&#x27;\$[\d,]+\.?\d*\s*(million|billion|M|B)?&#x27;,
+            &#x27;percent&#x27;: r&#x27;-?\d+\.?\d*\%&#x27;,
+            &#x27;date_cn&#x27;: r&#x27;\d{4}年\d{1,2}月\d{1,2}日&#x27;,
+            &#x27;date_en&#x27;: r&#x27;\d{4}-\d{2}-\d{2}|\w+ \d{1,2}, \d{4}&#x27;,
+            &#x27;ratio&#x27;: r&#x27;\d+\.?\d*[xX倍]&#x27;
+        }
+
+    def extract(self, text):
+        &quot;&quot;&quot;提取所有实体&quot;&quot;&quot;
+        entities = {}
+        for entity_type, pattern in self.patterns.items():
+            matches = re.findall(pattern, text)
+            if matches:
+                entities[entity_type] = matches
+        return entities
+
+    def extract_company_names(self, text):
+        &quot;&quot;&quot;提取公司名（中文）&quot;&quot;&quot;
+        # 常见公司名后缀
+        suffixes = [&#x27;股份&#x27;, &#x27;集团&#x27;, &#x27;公司&#x27;, &#x27;有限&#x27;, &#x27;控股&#x27;, &#x27;科技&#x27;, &#x27;银行&#x27;, &#x27;证券&#x27;]
+        companies = []
+
+        for suffix in suffixes:
+            # 匹配包含后缀的词组
+            pattern = rf&#x27;[\u4e00-\u9fa5]{{2,10}}{suffix}&#x27;
+            matches = re.findall(pattern, text)
+            companies.extend(matches)
+
+        return list(set(companies))</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">基于深度学习的NER</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from transformers import AutoTokenizer, AutoModelForTokenClassification
+from transformers import pipeline
+
+class DeepNER:
+    &quot;&quot;&quot;基于深度学习的NER&quot;&quot;&quot;
+
+    def __init__(self, model_name=&#x27;uer/roberta-base-finetuned-cluener2020-chinese&#x27;):
+        &quot;&quot;&quot;
+        加载NER模型
+
+        推荐模型:
+        - uer/roberta-base-finetuned-cluener2020-chinese: 中文NER
+        - dslim/bert-base-NER: 英文NER
+        - xlm-roberta-large-finetuned-conll03-english: 多语言NER
+        &quot;&quot;&quot;
+        self.ner_pipeline = pipeline(
+            &#x27;ner&#x27;,
+            model=model_name,
+            tokenizer=model_name,
+            aggregation_strategy=&#x27;simple&#x27;
+        )
+
+    def extract(self, text):
+        &quot;&quot;&quot;提取命名实体&quot;&quot;&quot;
+        results = self.ner_pipeline(text)
+
+        # 整理结果
+        entities = {}
+        for ent in results:
+            entity_type = ent[&#x27;entity_group&#x27;]
+            if entity_type not in entities:
+                entities[entity_type] = []
+            entities[entity_type].append({
+                &#x27;text&#x27;: ent[&#x27;word&#x27;],
+                &#x27;score&#x27;: ent[&#x27;score&#x27;],
+                &#x27;start&#x27;: ent[&#x27;start&#x27;],
+                &#x27;end&#x27;: ent[&#x27;end&#x27;]
+            })
+
+        return entities
+
+    def extract_financial_entities(self, text):
+        &quot;&quot;&quot;提取金融相关实体&quot;&quot;&quot;
+        entities = self.extract(text)
+
+        # 后处理：标准化金额
+        if &#x27;MONEY&#x27; in entities:
+            for ent in entities[&#x27;MONEY&#x27;]:
+                ent[&#x27;normalized&#x27;] = self._normalize_money(ent[&#x27;text&#x27;])
+
+        return entities
+
+    def _normalize_money(self, money_str):
+        &quot;&quot;&quot;标准化金额&quot;&quot;&quot;
+        # 移除逗号
+        clean = money_str.replace(&#x27;,&#x27;, &#x27;&#x27;).replace(&#x27; &#x27;, &#x27;&#x27;)
+
+        # 识别单位
+        multiplier = 1
+        if &#x27;万&#x27; in clean or &#x27;M&#x27; in clean.upper():
+            multiplier = 10000
+        elif &#x27;亿&#x27; in clean or &#x27;B&#x27; in clean.upper():
+            multiplier = 100000000
+
+        # 提取数字
+        numbers = re.findall(r&#x27;[\d.]+&#x27;, clean)
+        if numbers:
+            return float(numbers[0]) * multiplier
+        return None</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">关系抽取</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">金融关系类型</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">投资关系</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> A公司投资B公司</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 产业链分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">控股关系</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> A持有B股份30%</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 股权穿透</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">供应关系</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> A是B的供应商</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 供应链风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">竞争关系</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> A与B是竞争对手</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 竞争分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">高管任职</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> 张三是A公司CEO</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 人物关系</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">并购关系</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">示例:</span> A收购B公司</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 并购事件</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">基于模板的关系抽取</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import re
+
+class TemplateRelationExtractor:
+    &quot;&quot;&quot;基于模板的关系抽取&quot;&quot;&quot;
+
+    def __init__(self):
+        self.templates = {
+            &#x27;investment&#x27;: [
+                r&#x27;([\u4e00-\u9fa5]+)投资([\u4e00-\u9fa5]+)&#x27;,
+                r&#x27;([\u4e00-\u9fa5]+)入股([\u4e00-\u9fa5]+)&#x27;,
+                r&#x27;([\u4e00-\u9fa5]+)参股([\u4e00-\u9fa5]+)&#x27;
+            ],
+            &#x27;acquisition&#x27;: [
+                r&#x27;([\u4e00-\u9fa5]+)收购([\u4e00-\u9fa5]+)&#x27;,
+                r&#x27;([\u4e00-\u9fa5]+)并购([\u4e00-\u9fa5]+)&#x27;,
+                r&#x27;([\u4e00-\u9fa5]+)要约收购([\u4e00-\u9fa5]+)&#x27;
+            ],
+            &#x27;shareholding&#x27;: [
+                r&#x27;([\u4e00-\u9fa5]+)持有([\u4e00-\u9fa5]+)(\d+\.?\d*)[%％]&#x27;,
+                r&#x27;([\u4e00-\u9fa5]+)持股([\u4e00-\u9fa5]+)(\d+\.?\d*)[%％]&#x27;
+            ],
+            &#x27;supply&#x27;: [
+                r&#x27;([\u4e00-\u9fa5]+)是([\u4e00-\u9fa5]+)的供应商&#x27;,
+                r&#x27;([\u4e00-\u9fa5]+)为([\u4e00-\u9fa5]+)供货&#x27;
+            ],
+            &#x27;executive&#x27;: [
+                r&#x27;([\u4e00-\u9fa5]{2,4})担任([\u4e00-\u9fa5]+)(董事长|CEO|总裁|总经理)&#x27;,
+                r&#x27;([\u4e00-\u9fa5]{2,4})任([\u4e00-\u9fa5]+)(董事长|CEO|总裁|总经理)&#x27;
+            ]
+        }
+
+    def extract(self, text):
+        &quot;&quot;&quot;提取所有关系&quot;&quot;&quot;
+        relations = []
+
+        for rel_type, patterns in self.templates.items():
+            for pattern in patterns:
+                matches = re.finditer(pattern, text)
+                for match in matches:
+                    groups = match.groups()
+                    relation = {
+                        &#x27;type&#x27;: rel_type,
+                        &#x27;subject&#x27;: groups[0],
+                        &#x27;object&#x27;: groups[1],
+                        &#x27;text&#x27;: match.group()
+                    }
+                    if len(groups) &gt; 2:
+                        relation[&#x27;value&#x27;] = groups[2]
+                    relations.append(relation)
+
+        return relations</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">基于深度学习的关系抽取</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
+
+class DeepRelationExtractor:
+    &quot;&quot;&quot;基于深度学习的关系抽取&quot;&quot;&quot;
+
+    def __init__(self):
+        # 使用预训练的关系分类模型
+        self.tokenizer = AutoTokenizer.from_pretrained(&#x27;bert-base-chinese&#x27;)
+        # 这里需要微调过的模型，示例使用基础模型
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            &#x27;bert-base-chinese&#x27;,
+            num_labels=10  # 关系类型数
+        )
+        self.relation_labels = [
+            &#x27;investment&#x27;, &#x27;acquisition&#x27;, &#x27;shareholding&#x27;, &#x27;supply&#x27;,
+            &#x27;competition&#x27;, &#x27;executive&#x27;, &#x27;cooperation&#x27;, &#x27;subsidiary&#x27;,
+            &#x27;customer&#x27;, &#x27;other&#x27;
+        ]
+
+    def extract(self, text, entity1, entity2):
+        &quot;&quot;&quot;
+        给定两个实体，判断关系类型
+
+        Args:
+            text: 包含两个实体的文本
+            entity1: 主体实体
+            entity2: 客体实体
+        &quot;&quot;&quot;
+        # 构造输入：[CLS] entity1 [SEP] entity2 [SEP] text [SEP]
+        input_text = f&quot;{entity1} [SEP] {entity2} [SEP] {text}&quot;
+
+        inputs = self.tokenizer(
+            input_text,
+            return_tensors=&#x27;pt&#x27;,
+            truncation=True,
+            max_length=256
+        )
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            probs = torch.softmax(outputs.logits, dim=-1)
+
+        pred_idx = torch.argmax(probs).item()
+
+        return {
+            &#x27;subject&#x27;: entity1,
+            &#x27;object&#x27;: entity2,
+            &#x27;relation&#x27;: self.relation_labels[pred_idx],
+            &#x27;confidence&#x27;: probs[0][pred_idx].item()
+        }</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">文本分类</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">金融文本分类任务</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">主题分类</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">类别:</span> 行业、事件类型</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 信息过滤</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">情感分类</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">类别:</span> 正/负/中性</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 舆情监控</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">风险分类</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">类别:</span> 风险等级</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 风控</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">意图识别</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">类别:</span> 用户查询意图</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 智能客服</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">公告分类</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">类别:</span> 公告类型</div><div class="text-xs text-slate-400"><span class="text-slate-500">应用:</span> 事件监控</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">传统机器学习分类</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import cross_val_score
+import jieba
+
+class TraditionalTextClassifier:
+    &quot;&quot;&quot;传统机器学习文本分类&quot;&quot;&quot;
+
+    def __init__(self, model_type=&#x27;svm&#x27;):
+        self.vectorizer = TfidfVectorizer(
+            tokenizer=self._chinese_tokenizer,
+            max_features=5000,
+            ngram_range=(1, 2)
+        )
+
+        if model_type == &#x27;nb&#x27;:
+            self.classifier = MultinomialNB()
+        elif model_type == &#x27;svm&#x27;:
+            self.classifier = SVC(kernel=&#x27;linear&#x27;, probability=True)
+        elif model_type == &#x27;rf&#x27;:
+            self.classifier = RandomForestClassifier(n_estimators=100)
+
+        self.pipeline = Pipeline([
+            (&#x27;tfidf&#x27;, self.vectorizer),
+            (&#x27;clf&#x27;, self.classifier)
+        ])
+
+    def _chinese_tokenizer(self, text):
+        &quot;&quot;&quot;中文分词器&quot;&quot;&quot;
+        return list(jieba.cut(text))
+
+    def train(self, texts, labels):
+        &quot;&quot;&quot;训练模型&quot;&quot;&quot;
+        self.pipeline.fit(texts, labels)
+
+    def predict(self, text):
+        &quot;&quot;&quot;预测&quot;&quot;&quot;
+        pred = self.pipeline.predict([text])[0]
+        proba = self.pipeline.predict_proba([text])[0]
+        return {
+            &#x27;prediction&#x27;: pred,
+            &#x27;probabilities&#x27;: dict(zip(self.pipeline.classes_, proba))
+        }
+
+    def evaluate(self, texts, labels, cv=5):
+        &quot;&quot;&quot;交叉验证评估&quot;&quot;&quot;
+        scores = cross_val_score(self.pipeline, texts, labels, cv=cv)
+        return {
+            &#x27;mean_accuracy&#x27;: scores.mean(),
+            &#x27;std&#x27;: scores.std()
+        }</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">深度学习文本分类</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from transformers import (
+    AutoTokenizer,
+    AutoModelForSequenceClassification,
+    Trainer,
+    TrainingArguments
+)
+from datasets import Dataset
+import torch
+
+class DeepTextClassifier:
+    &quot;&quot;&quot;基于深度学习的文本分类&quot;&quot;&quot;
+
+    def __init__(self, model_name=&#x27;bert-base-chinese&#x27;, num_labels=5):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            model_name,
+            num_labels=num_labels
+        )
+        self.label_map = {}
+
+    def prepare_data(self, texts, labels):
+        &quot;&quot;&quot;准备训练数据&quot;&quot;&quot;
+        # 构建标签映射
+        unique_labels = list(set(labels))
+        self.label_map = {label: i for i, label in enumerate(unique_labels)}
+        self.reverse_label_map = {i: label for label, i in self.label_map.items()}
+
+        # 转换标签
+        numeric_labels = [self.label_map[l] for l in labels]
+
+        # 创建数据集
+        dataset = Dataset.from_dict({
+            &#x27;text&#x27;: texts,
+            &#x27;label&#x27;: numeric_labels
+        })
+
+        # tokenize
+        def tokenize_function(examples):
+            return self.tokenizer(
+                examples[&#x27;text&#x27;],
+                truncation=True,
+                padding=&#x27;max_length&#x27;,
+                max_length=256
+            )
+
+        tokenized_dataset = dataset.map(tokenize_function, batched=True)
+        return tokenized_dataset
+
+    def train(self, train_texts, train_labels, val_texts=None, val_labels=None):
+        &quot;&quot;&quot;训练模型&quot;&quot;&quot;
+        train_dataset = self.prepare_data(train_texts, train_labels)
+
+        val_dataset = None
+        if val_texts and val_labels:
+            val_dataset = self.prepare_data(val_texts, val_labels)
+
+        training_args = TrainingArguments(
+            output_dir=&#x27;./results&#x27;,
+            num_train_epochs=3,
+            per_device_train_batch_size=16,
+            per_device_eval_batch_size=16,
+            warmup_steps=500,
+            weight_decay=0.01,
+            logging_dir=&#x27;./logs&#x27;,
+            evaluation_strategy=&#x27;epoch&#x27; if val_dataset else &#x27;no&#x27;
+        )
+
+        trainer = Trainer(
+            model=self.model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=val_dataset
+        )
+
+        trainer.train()
+
+    def predict(self, text):
+        &quot;&quot;&quot;预测&quot;&quot;&quot;
+        inputs = self.tokenizer(
+            text,
+            return_tensors=&#x27;pt&#x27;,
+            truncation=True,
+            max_length=256
+        )
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            probs = torch.softmax(outputs.logits, dim=-1)
+
+        pred_idx = torch.argmax(probs).item()
+
+        return {
+            &#x27;prediction&#x27;: self.reverse_label_map[pred_idx],
+            &#x27;confidence&#x27;: probs[0][pred_idx].item(),
+            &#x27;all_probabilities&#x27;: {
+                self.reverse_label_map[i]: prob.item()
+                for i, prob in enumerate(probs[0])
+            }
+        }</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">文本向量化与语义搜索</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">文本嵌入模型</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">from sentence_transformers import SentenceTransformer
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+class TextEmbedding:
+    &quot;&quot;&quot;文本向量化&quot;&quot;&quot;
+
+    def __init__(self, model_name=&#x27;paraphrase-multilingual-MiniLM-L12-v2&#x27;):
+        &quot;&quot;&quot;
+        加载嵌入模型
+
+        推荐模型:
+        - paraphrase-multilingual-MiniLM-L12-v2: 多语言通用
+        - shibing624/text2vec-base-chinese: 中文优化
+        - all-MiniLM-L6-v2: 英文快速
+        - BAAI/bge-large-zh-v1.5: 中文高质量
+        &quot;&quot;&quot;
+        self.model = SentenceTransformer(model_name)
+
+    def encode(self, texts, batch_size=32):
+        &quot;&quot;&quot;编码文本&quot;&quot;&quot;
+        if isinstance(texts, str):
+            texts = [texts]
+        embeddings = self.model.encode(texts, batch_size=batch_size)
+        return embeddings
+
+    def similarity(self, text1, text2):
+        &quot;&quot;&quot;计算文本相似度&quot;&quot;&quot;
+        emb1 = self.encode(text1)
+        emb2 = self.encode(text2)
+        return cosine_similarity([emb1], [emb2])[0][0]
+
+    def semantic_search(self, query, documents, top_k=5):
+        &quot;&quot;&quot;语义搜索&quot;&quot;&quot;
+        query_emb = self.encode(query)
+        doc_embs = self.encode(documents)
+
+        # 计算相似度
+        similarities = cosine_similarity([query_emb], doc_embs)[0]
+
+        # 排序
+        top_indices = np.argsort(similarities)[::-1][:top_k]
+
+        results = []
+        for idx in top_indices:
+            results.append({
+                &#x27;document&#x27;: documents[idx],
+                &#x27;score&#x27;: similarities[idx],
+                &#x27;index&#x27;: idx
+            })
+
+        return results</pre></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">金融文档检索系统</h4>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import faiss
+import numpy as np
+import pickle
+
+class FinancialDocumentRetrieval:
+    &quot;&quot;&quot;金融文档检索系统&quot;&quot;&quot;
+
+    def __init__(self, embedding_model=None):
+        self.embedder = embedding_model or TextEmbedding()
+        self.index = None
+        self.documents = []
+        self.metadata = []
+
+    def build_index(self, documents, metadata=None):
+        &quot;&quot;&quot;构建索引&quot;&quot;&quot;
+        self.documents = documents
+        self.metadata = metadata or [{}] * len(documents)
+
+        # 编码文档
+        embeddings = self.embedder.encode(documents)
+        embeddings = np.array(embeddings).astype(&#x27;float32&#x27;)
+
+        # 构建FAISS索引
+        dimension = embeddings.shape[1]
+        self.index = faiss.IndexFlatIP(dimension)  # 内积相似度
+        faiss.normalize_L2(embeddings)  # L2归一化
+        self.index.add(embeddings)
+
+    def search(self, query, top_k=10):
+        &quot;&quot;&quot;搜索&quot;&quot;&quot;
+        query_emb = self.embedder.encode(query)
+        query_emb = np.array([query_emb]).astype(&#x27;float32&#x27;)
+        faiss.normalize_L2(query_emb)
+
+        scores, indices = self.index.search(query_emb, top_k)
+
+        results = []
+        for score, idx in zip(scores[0], indices[0]):
+            results.append({
+                &#x27;document&#x27;: self.documents[idx],
+                &#x27;score&#x27;: float(score),
+                &#x27;metadata&#x27;: self.metadata[idx]
+            })
+
+        return results
+
+    def save(self, path):
+        &quot;&quot;&quot;保存索引&quot;&quot;&quot;
+        faiss.write_index(self.index, f&quot;{path}/index.faiss&quot;)
+        with open(f&quot;{path}/data.pkl&quot;, &#x27;wb&#x27;) as f:
+            pickle.dump({
+                &#x27;documents&#x27;: self.documents,
+                &#x27;metadata&#x27;: self.metadata
+            }, f)
+
+    def load(self, path):
+        &quot;&quot;&quot;加载索引&quot;&quot;&quot;
+        self.index = faiss.read_index(f&quot;{path}/index.faiss&quot;)
+        with open(f&quot;{path}/data.pkl&quot;, &#x27;rb&#x27;) as f:
+            data = pickle.load(f)
+            self.documents = data[&#x27;documents&#x27;]
+            self.metadata = data[&#x27;metadata&#x27;]</pre></div>
+  </div>
+</section>
+
+
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">TF-IDF</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">词频（TF）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[TF(t, d) = \frac{词t在文档d中出现的次数}{文档d的总词数}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">逆文档频率（IDF）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[IDF(t) = \log\frac{文档总数}{包含词t的文档数 + 1}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">TF-IDF</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[TF\text{-}IDF(t, d) = TF(t, d) \times IDF(t)\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">情感得分</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">词典法情感得分</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Sentiment = \frac{正面词数 - 负面词数}{总词数}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">加权情感得分</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Sentiment_{weighted} = \frac{\sum_i (s_i \times w_i)}{\sum_i w_i}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(s_i\) 为单条情感得分，\(w_i\) 为权重（如转发数、点赞数）</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">文本相似度</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">余弦相似度</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\cos(\theta) = \frac{\vec{A} \cdot \vec{B}}{||\vec{A}|| \times ||\vec{B}||} = \frac{\sum_i A_i B_i}{\sqrt{\sum_i A_i^2} \times \sqrt{\sum_i B_i^2}}\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">注意力机制</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Self-Attention</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Attention(Q, K, V) = softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V\]</div>
+    </div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">案例研究</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">股</span>
+        <h3 class="text-white font-semibold text-sm">案例1：新闻情绪与股票收益预测</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">研究新闻情绪与股票次日收益的关系，构建情绪因子。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">研究设计</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">import pandas as pd
+import numpy as np
+from scipy import stats
+
+class NewsSentimentResearch:
+    &quot;&quot;&quot;新闻情绪研究&quot;&quot;&quot;
+
+    def __init__(self, sentiment_analyzer):
+        self.analyzer = sentiment_analyzer
+
+    def calculate_daily_sentiment(self, news_df, date_col=&#x27;date&#x27;, text_col=&#x27;content&#x27;):
+        &quot;&quot;&quot;计算每日每股情绪得分&quot;&quot;&quot;
+        results = []
+
+        for _, row in news_df.iterrows():
+            sentiment = self.analyzer.analyze(row[text_col])
+            results.append({
+                &#x27;date&#x27;: row[date_col],
+                &#x27;stock_code&#x27;: row[&#x27;stock_code&#x27;],
+                &#x27;sentiment_score&#x27;: sentiment[&#x27;sentiment_score&#x27;],
+                &#x27;news_count&#x27;: 1
+            })
+
+        df = pd.DataFrame(results)
+
+        # 按日期和股票聚合
+        daily_sentiment = df.groupby([&#x27;date&#x27;, &#x27;stock_code&#x27;]).agg({
+            &#x27;sentiment_score&#x27;: &#x27;mean&#x27;,
+            &#x27;news_count&#x27;: &#x27;sum&#x27;
+        }).reset_index()
+
+        return daily_sentiment
+
+    def merge_with_returns(self, sentiment_df, price_df):
+        &quot;&quot;&quot;合并情绪和收益数据&quot;&quot;&quot;
+        # 计算次日收益
+        price_df = price_df.sort_values([&#x27;stock_code&#x27;, &#x27;date&#x27;])
+        price_df[&#x27;next_return&#x27;] = price_df.groupby(&#x27;stock_code&#x27;)[&#x27;close&#x27;].pct_change().shift(-1)
+
+        # 合并
+        merged = sentiment_df.merge(
+            price_df[[&#x27;date&#x27;, &#x27;stock_code&#x27;, &#x27;next_return&#x27;]],
+            on=[&#x27;date&#x27;, &#x27;stock_code&#x27;],
+            how=&#x27;inner&#x27;
+        )
+
+        return merged
+
+    def analyze_sentiment_return_relation(self, merged_df):
+        &quot;&quot;&quot;分析情绪与收益关系&quot;&quot;&quot;
+        # 1. 相关性分析
+        correlation = merged_df[&#x27;sentiment_score&#x27;].corr(merged_df[&#x27;next_return&#x27;])
+
+        # 2. 分组检验
+        # 按情绪分组
+        merged_df[&#x27;sentiment_group&#x27;] = pd.qcut(
+            merged_df[&#x27;sentiment_score&#x27;],
+            q=5,
+            labels=[&#x27;Q1_Neg&#x27;, &#x27;Q2&#x27;, &#x27;Q3&#x27;, &#x27;Q4&#x27;, &#x27;Q5_Pos&#x27;]
+        )
+
+        group_returns = merged_df.groupby(&#x27;sentiment_group&#x27;)[&#x27;next_return&#x27;].mean()
+
+        # 3. T检验：最正面 vs 最负面
+        pos_returns = merged_df[merged_df[&#x27;sentiment_group&#x27;] == &#x27;Q5_Pos&#x27;][&#x27;next_return&#x27;]
+        neg_returns = merged_df[merged_df[&#x27;sentiment_group&#x27;] == &#x27;Q1_Neg&#x27;][&#x27;next_return&#x27;]
+        t_stat, p_value = stats.ttest_ind(pos_returns, neg_returns)
+
+        return {
+            &#x27;correlation&#x27;: correlation,
+            &#x27;group_returns&#x27;: group_returns.to_dict(),
+            &#x27;t_statistic&#x27;: t_stat,
+            &#x27;p_value&#x27;: p_value,
+            &#x27;spread&#x27;: group_returns[&#x27;Q5_Pos&#x27;] - group_returns[&#x27;Q1_Neg&#x27;]
+        }
+
+    def backtest_sentiment_strategy(self, merged_df, top_n=50):
+        &quot;&quot;&quot;回测情绪策略&quot;&quot;&quot;
+        results = []
+
+        for date in merged_df[&#x27;date&#x27;].unique():
+            daily_data = merged_df[merged_df[&#x27;date&#x27;] == date]
+
+            # 选择情绪最正面的股票
+            top_stocks = daily_data.nlargest(top_n, &#x27;sentiment_score&#x27;)
+
+            # 等权组合收益
+            portfolio_return = top_stocks[&#x27;next_return&#x27;].mean()
+
+            results.append({
+                &#x27;date&#x27;: date,
+                &#x27;portfolio_return&#x27;: portfolio_return,
+                &#x27;avg_sentiment&#x27;: top_stocks[&#x27;sentiment_score&#x27;].mean()
+            })
+
+        results_df = pd.DataFrame(results)
+
+        # 计算累计收益
+        results_df[&#x27;cumulative_return&#x27;] = (1 + results_df[&#x27;portfolio_return&#x27;]).cumprod()
+
+        # 计算统计指标
+        annual_return = results_df[&#x27;portfolio_return&#x27;].mean() * 252
+        annual_vol = results_df[&#x27;portfolio_return&#x27;].std() * np.sqrt(252)
+        sharpe = annual_return / annual_vol if annual_vol &gt; 0 else 0
+
+        return {
+            &#x27;daily_returns&#x27;: results_df,
+            &#x27;annual_return&#x27;: annual_return,
+            &#x27;annual_volatility&#x27;: annual_vol,
+            &#x27;sharpe_ratio&#x27;: sharpe
+        }</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">财</span>
+        <h3 class="text-white font-semibold text-sm">案例2：财报电话会议分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">分析上市公司财报电话会议的语气变化，预测业绩表现。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class EarningsCallAnalyzer:
+    &quot;&quot;&quot;财报电话会议分析&quot;&quot;&quot;
+
+    def __init__(self):
+        self.sentiment_analyzer = FinBERTSentiment()
+        self.text_processor = EnglishTextProcessor()
+
+    def analyze_transcript(self, transcript):
+        &quot;&quot;&quot;分析电话会议文本&quot;&quot;&quot;
+        # 分割问答部分
+        sections = self._split_sections(transcript)
+
+        results = {
+            &#x27;prepared_remarks&#x27;: self._analyze_section(sections.get(&#x27;prepared&#x27;, &#x27;&#x27;)),
+            &#x27;qa_section&#x27;: self._analyze_section(sections.get(&#x27;qa&#x27;, &#x27;&#x27;)),
+            &#x27;management_tone&#x27;: None,
+            &#x27;analyst_questions&#x27;: None
+        }
+
+        # 分析管理层语气
+        if &#x27;prepared&#x27; in sections:
+            results[&#x27;management_tone&#x27;] = self._analyze_management_tone(sections[&#x27;prepared&#x27;])
+
+        # 分析分析师问题
+        if &#x27;qa&#x27; in sections:
+            results[&#x27;analyst_questions&#x27;] = self._analyze_analyst_questions(sections[&#x27;qa&#x27;])
+
+        return results
+
+    def _split_sections(self, transcript):
+        &quot;&quot;&quot;分割电话会议各部分&quot;&quot;&quot;
+        sections = {}
+
+        # 简化分割逻辑
+        if &#x27;Q&amp;A&#x27; in transcript or &#x27;Question&#x27; in transcript:
+            parts = transcript.split(&#x27;Q&amp;A&#x27;)
+            if len(parts) &gt;= 2:
+                sections[&#x27;prepared&#x27;] = parts[0]
+                sections[&#x27;qa&#x27;] = parts[1]
+        else:
+            sections[&#x27;prepared&#x27;] = transcript
+
+        return sections
+
+    def _analyze_section(self, text):
+        &quot;&quot;&quot;分析文本段落&quot;&quot;&quot;
+        if not text:
+            return None
+
+        sentences = text.split(&#x27;.&#x27;)
+        sentiments = []
+
+        for sent in sentences:
+            if len(sent.strip()) &gt; 20:
+                result = self.sentiment_analyzer.predict(sent)
+                sentiments.append(result)
+
+        if not sentiments:
+            return None
+
+        # 统计
+        labels = [s[&#x27;label&#x27;] for s in sentiments]
+
+        return {
+            &#x27;total_sentences&#x27;: len(sentiments),
+            &#x27;positive_ratio&#x27;: labels.count(&#x27;positive&#x27;) / len(labels),
+            &#x27;negative_ratio&#x27;: labels.count(&#x27;negative&#x27;) / len(labels),
+            &#x27;avg_confidence&#x27;: np.mean([s[&#x27;score&#x27;] for s in sentiments])
+        }
+
+    def _analyze_management_tone(self, text):
+        &quot;&quot;&quot;分析管理层语气&quot;&quot;&quot;
+        # 关键词分析
+        confidence_words = [&#x27;confident&#x27;, &#x27;strong&#x27;, &#x27;robust&#x27;, &#x27;excellent&#x27;, &#x27;record&#x27;]
+        hedging_words = [&#x27;may&#x27;, &#x27;might&#x27;, &#x27;could&#x27;, &#x27;possibly&#x27;, &#x27;uncertain&#x27;]
+
+        text_lower = text.lower()
+
+        confidence_count = sum(1 for w in confidence_words if w in text_lower)
+        hedging_count = sum(1 for w in hedging_words if w in text_lower)
+
+        return {
+            &#x27;confidence_score&#x27;: confidence_count / (confidence_count + hedging_count + 1),
+            &#x27;confidence_words&#x27;: confidence_count,
+            &#x27;hedging_words&#x27;: hedging_count
+        }
+
+    def _analyze_analyst_questions(self, text):
+        &quot;&quot;&quot;分析分析师问题&quot;&quot;&quot;
+        # 识别问题（以问号结尾）
+        questions = [s.strip() for s in text.split(&#x27;?&#x27;) if len(s.strip()) &gt; 20]
+
+        # 分类问题主题
+        topics = {
+            &#x27;guidance&#x27;: 0,
+            &#x27;margin&#x27;: 0,
+            &#x27;growth&#x27;: 0,
+            &#x27;competition&#x27;: 0,
+            &#x27;other&#x27;: 0
+        }
+
+        for q in questions:
+            q_lower = q.lower()
+            if any(w in q_lower for w in [&#x27;guidance&#x27;, &#x27;outlook&#x27;, &#x27;expect&#x27;]):
+                topics[&#x27;guidance&#x27;] += 1
+            elif any(w in q_lower for w in [&#x27;margin&#x27;, &#x27;profit&#x27;, &#x27;cost&#x27;]):
+                topics[&#x27;margin&#x27;] += 1
+            elif any(w in q_lower for w in [&#x27;growth&#x27;, &#x27;increase&#x27;, &#x27;expand&#x27;]):
+                topics[&#x27;growth&#x27;] += 1
+            elif any(w in q_lower for w in [&#x27;competition&#x27;, &#x27;competitor&#x27;, &#x27;market share&#x27;]):
+                topics[&#x27;competition&#x27;] += 1
+            else:
+                topics[&#x27;other&#x27;] += 1
+
+        return {
+            &#x27;total_questions&#x27;: len(questions),
+            &#x27;topics&#x27;: topics
+        }
+
+    def compare_quarters(self, current_transcript, previous_transcript):
+        &quot;&quot;&quot;对比季度变化&quot;&quot;&quot;
+        current = self.analyze_transcript(current_transcript)
+        previous = self.analyze_transcript(previous_transcript)
+
+        comparison = {}
+
+        if current[&#x27;prepared_remarks&#x27;] and previous[&#x27;prepared_remarks&#x27;]:
+            comparison[&#x27;sentiment_change&#x27;] = (
+                current[&#x27;prepared_remarks&#x27;][&#x27;positive_ratio&#x27;] -
+                previous[&#x27;prepared_remarks&#x27;][&#x27;positive_ratio&#x27;]
+            )
+
+        if current[&#x27;management_tone&#x27;] and previous[&#x27;management_tone&#x27;]:
+            comparison[&#x27;confidence_change&#x27;] = (
+                current[&#x27;management_tone&#x27;][&#x27;confidence_score&#x27;] -
+                previous[&#x27;management_tone&#x27;][&#x27;confidence_score&#x27;]
+            )
+
+        return comparison</pre></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">研</span>
+        <h3 class="text-white font-semibold text-sm">案例3：研报信息抽取系统</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">背景</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">从研究报告中自动抽取关键信息，包括评级、目标价、核心观点等。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class ResearchReportExtractor:
+    &quot;&quot;&quot;研报信息抽取&quot;&quot;&quot;
+
+    def __init__(self):
+        self.ner = DeepNER()
+        self.sentiment = DeepSentimentAnalyzer()
+
+    def extract_report_info(self, report_text):
+        &quot;&quot;&quot;提取研报关键信息&quot;&quot;&quot;
+        result = {
+            &#x27;rating&#x27;: self._extract_rating(report_text),
+            &#x27;target_price&#x27;: self._extract_target_price(report_text),
+            &#x27;key_points&#x27;: self._extract_key_points(report_text),
+            &#x27;risks&#x27;: self._extract_risks(report_text),
+            &#x27;financial_forecasts&#x27;: self._extract_forecasts(report_text),
+            &#x27;sentiment&#x27;: self._analyze_report_sentiment(report_text)
+        }
+
+        return result
+
+    def _extract_rating(self, text):
+        &quot;&quot;&quot;提取投资评级&quot;&quot;&quot;
+        rating_patterns = {
+            &#x27;buy&#x27;: r&#x27;(买入|强烈推荐|推荐|Buy|Strong Buy)&#x27;,
+            &#x27;hold&#x27;: r&#x27;(增持|谨慎推荐|中性|Hold|Neutral)&#x27;,
+            &#x27;sell&#x27;: r&#x27;(减持|卖出|回避|Sell|Underperform)&#x27;
+        }
+
+        for rating, pattern in rating_patterns.items():
+            if re.search(pattern, text, re.IGNORECASE):
+                return rating
+
+        return &#x27;unknown&#x27;
+
+    def _extract_target_price(self, text):
+        &quot;&quot;&quot;提取目标价&quot;&quot;&quot;
+        patterns = [
+            r&#x27;目标价[：:]\s*(\d+\.?\d*)\s*元&#x27;,
+            r&#x27;目标价位?\s*(\d+\.?\d*)\s*元&#x27;,
+            r&#x27;Target Price[：:]\s*\$?(\d+\.?\d*)&#x27;,
+            r&#x27;(\d+\.?\d*)\s*元.*目标价&#x27;
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                return float(match.group(1))
+
+        return None
+
+    def _extract_key_points(self, text):
+        &quot;&quot;&quot;提取核心观点&quot;&quot;&quot;
+        key_points = []
+
+        # 方法1：寻找列表格式的观点
+        list_patterns = [
+            r&#x27;[（\(]?\d[）\)][、.]\s*(.+?)(?=[（\(]?\d[）\)]|$)&#x27;,
+            r&#x27;[•●]\s*(.+?)(?=[•●]|$)&#x27;
+        ]
+
+        for pattern in list_patterns:
+            matches = re.findall(pattern, text)
+            key_points.extend(matches[:5])  # 取前5个
+
+        # 方法2：提取含关键词的句子
+        if not key_points:
+            keywords = [&#x27;核心&#x27;, &#x27;关键&#x27;, &#x27;亮点&#x27;, &#x27;优势&#x27;, &#x27;创新&#x27;]
+            sentences = text.split(&#x27;。&#x27;)
+            for sent in sentences:
+                if any(kw in sent for kw in keywords):
+                    key_points.append(sent.strip())
+
+        return key_points[:5]
+
+    def _extract_risks(self, text):
+        &quot;&quot;&quot;提取风险提示&quot;&quot;&quot;
+        risks = []
+
+        # 定位风险提示部分
+        risk_section_pattern = r&#x27;风险提示[：:](.*?)(?=\n\n|\Z)&#x27;
+        risk_match = re.search(risk_section_pattern, text, re.DOTALL)
+
+        if risk_match:
+            risk_text = risk_match.group(1)
+            # 提取风险点
+            risk_items = re.findall(r&#x27;[（\(]?\d[）\)][、.]\s*(.+?)(?=[（\(]?\d[）\)]|$)&#x27;, risk_text)
+            risks.extend(risk_items)
+
+        if not risks:
+            # 备用方法
+            risk_keywords = [&#x27;风险&#x27;, &#x27;不确定&#x27;, &#x27;挑战&#x27;, &#x27;下滑&#x27;, &#x27;竞争&#x27;]
+            sentences = text.split(&#x27;。&#x27;)
+            for sent in sentences:
+                if any(kw in sent for kw in risk_keywords):
+                    risks.append(sent.strip())
+
+        return risks[:5]
+
+    def _extract_forecasts(self, text):
+        &quot;&quot;&quot;提取财务预测&quot;&quot;&quot;
+        forecasts = {}
+
+        # 收入预测
+        revenue_pattern = r&#x27;预计.*?营[业收].*?(\d+\.?\d*)[亿万]&#x27;
+        revenue_match = re.search(revenue_pattern, text)
+        if revenue_match:
+            forecasts[&#x27;revenue&#x27;] = float(revenue_match.group(1))
+
+        # 利润预测
+        profit_pattern = r&#x27;预计.*?净利润.*?(\d+\.?\d*)[亿万]&#x27;
+        profit_match = re.search(profit_pattern, text)
+        if profit_match:
+            forecasts[&#x27;net_profit&#x27;] = float(profit_match.group(1))
+
+        # EPS预测
+        eps_pattern = r&#x27;EPS.*?(\d+\.?\d*)\s*元&#x27;
+        eps_match = re.search(eps_pattern, text)
+        if eps_match:
+            forecasts[&#x27;eps&#x27;] = float(eps_match.group(1))
+
+        return forecasts
+
+    def _analyze_report_sentiment(self, text):
+        &quot;&quot;&quot;分析研报整体情感&quot;&quot;&quot;
+        # 抽取关键段落
+        key_sections = []
+
+        # 投资建议部分
+        invest_pattern = r&#x27;投资建议[：:](.*?)(?=\n\n|\Z)&#x27;
+        invest_match = re.search(invest_pattern, text, re.DOTALL)
+        if invest_match:
+            key_sections.append(invest_match.group(1)[:500])
+
+        # 核心观点部分
+        core_pattern = r&#x27;核心观点[：:](.*?)(?=\n\n|\Z)&#x27;
+        core_match = re.search(core_pattern, text, re.DOTALL)
+        if core_match:
+            key_sections.append(core_match.group(1)[:500])
+
+        if key_sections:
+            combined_text = &#x27; &#x27;.join(key_sections)
+            return self.sentiment.analyze(combined_text)
+
+        return self.sentiment.analyze(text[:1000])</pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">常见问题解答</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q1: 如何选择适合金融场景的预训练模型？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">英文情感</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐模型:</span> FinBERT</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 专为金融文本训练</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中文情感</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐模型:</span> RoBERTa-wwm</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 中文预训练效果好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中文NER</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐模型:</span> BERT-CRF</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 序列标注任务</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">文本嵌入</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐模型:</span> BGE/Text2Vec</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 中文语义理解强</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">多语言</div><div class="text-xs text-slate-400"><span class="text-slate-500">推荐模型:</span> XLM-RoBERTa</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 跨语言能力</div></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q2: 如何处理金融文本中的专业术语？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">扩展词典</span>：添加金融专业词汇到分词词典</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">领域预训练</span>：在金融语料上继续预训练</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">实体识别</span>：识别并特殊处理专业术语</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">同义词扩展</span>：建立金融术语同义词库</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">financial_synonyms = {
+    &#x27;市盈率&#x27;: [&#x27;PE&#x27;, &#x27;P/E&#x27;, &#x27;市盈倍数&#x27;],
+    &#x27;净资产收益率&#x27;: [&#x27;ROE&#x27;, &#x27;股东权益回报率&#x27;],
+    &#x27;每股收益&#x27;: [&#x27;EPS&#x27;, &#x27;每股盈利&#x27;]
+}</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q3: 如何评估NLP模型在金融场景的效果？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">情感分析</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估指标:</span> Accuracy, F1</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 分类准确性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">NER</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估指标:</span> Precision, Recall, F1</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 实体识别准确性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">关系抽取</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估指标:</span> Precision, Recall</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 关系识别准确性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">文本相似度</div><div class="text-xs text-slate-400"><span class="text-slate-500">评估指标:</span> Spearman相关系数</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 与人工评分相关性</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">金融特有评估</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>情感与收益相关性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>事件预测准确率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>实际投资回报</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q4: 如何处理金融文本中的否定和反讽？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">class NegationHandler:
+    &quot;&quot;&quot;否定处理&quot;&quot;&quot;
+
+    def __init__(self):
+        self.negation_words = [&#x27;不&#x27;, &#x27;没有&#x27;, &#x27;并非&#x27;, &#x27;未&#x27;, &#x27;无&#x27;,
+                               &#x27;not&#x27;, &quot;n&#x27;t&quot;, &#x27;no&#x27;, &#x27;never&#x27;]
+        self.negation_window = 3  # 否定词影响范围
+
+    def handle_negation(self, tokens, sentiments):
+        &quot;&quot;&quot;处理否定词对情感的影响&quot;&quot;&quot;
+        for i, token in enumerate(tokens):
+            if token in self.negation_words:
+                # 翻转窗口内的情感
+                for j in range(i+1, min(i+self.negation_window+1, len(tokens))):
+                    if sentiments[j] == &#x27;positive&#x27;:
+                        sentiments[j] = &#x27;negative&#x27;
+                    elif sentiments[j] == &#x27;negative&#x27;:
+                        sentiments[j] = &#x27;positive&#x27;
+
+        return sentiments</pre></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">Q5: 如何构建金融领域的NER训练数据？</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">答案</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">手工标注</span>：准确但成本高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">远程监督</span>：利用知识库自动标注</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">主动学习</span>：选择难例标注</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">数据增强</span>：同义词替换、回译</span></div></div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><div class="text-xs text-slate-600 mb-2 font-mono">python</div><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">def auto_label_stocks(text, stock_list):
+    labels = [&#x27;O&#x27;] * len(text)
+    for stock_name, stock_code in stock_list:
+        start = text.find(stock_name)
+        if start != -1:
+            labels[start] = &#x27;B-ORG&#x27;
+            for i in range(start+1, start+len(stock_name)):
+                labels[i] = &#x27;I-ORG&#x27;
+    return labels</pre></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">预训练模型</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">FinBERT</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 金融情感</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接:</span> [HuggingFace](https://huggingface.co/yiyanghkust/finbert-tone)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Chinese-BERT</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 中文通用</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接:</span> [HuggingFace](https://huggingface.co/bert-base-chinese)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">BGE</div><div class="text-xs text-slate-400"><span class="text-slate-500">类型:</span> 中文嵌入</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接:</span> [HuggingFace](https://huggingface.co/BAAI/bge-large-zh)</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据集</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Financial PhraseBank</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 金融新闻情感</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 情感分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">SEC-EDGAR</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 美国上市公司文件</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 信息抽取</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">巨潮资讯</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 中国上市公司公告</div><div class="text-xs text-slate-400"><span class="text-slate-500">用途:</span> 事件提取</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">工具库</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">HuggingFace Transformers</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 预训练模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接:</span> [GitHub](https://github.com/huggingface/transformers)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">spaCy</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> NLP工具</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接:</span> [官网](https://spacy.io)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">jieba</div><div class="text-xs text-slate-400"><span class="text-slate-500">功能:</span> 中文分词</div><div class="text-xs text-slate-400"><span class="text-slate-500">链接:</span> [GitHub](https://github.com/fxsjy/jieba)</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          金融NLP分析流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段了解从文本到投资信号的转化过程</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">文本采集</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">新闻·研报·公告</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">文本处理</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">分词·向量化</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">任务分析</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">情感·事件·摘要</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">信号生成</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">因子·预警</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">文本采集</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">新闻·研报·公告</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>新闻源: Reuters/Bloomberg/财经媒体</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>公司公告: 年报/临时公告/管理层讨论</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>社交媒体: 投资者论坛/Twitter/微博</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">文本处理</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">分词·向量化</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>中文分词: jieba/pkuseg金融词典</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>词向量: Word2Vec/BERT/FinBERT</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>TF-IDF: 词语重要性权重计算</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">任务分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">情感·事件·摘要</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>情感分析: 正面/负面/中性三分类</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>事件抽取: 并购/违规/增减持识别</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>文本摘要: 长研报压缩为关键观点</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">信号生成</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">因子·预警</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>情绪因子: 文本情感→多空信号</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>异常检测: 突发舆情→风险预警</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>知识图谱: 实体关系→传导路径预测</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          情感分析概率分布
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击曲线查看不同情感分数的分类结果</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">情感分数</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">概率</text>
+      <line x1="70" y1="0" x2="570" y2="0" stroke="#334155" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.6" id="comp-1-thresh"/>
+      <text id="comp-1-thresh-l" x="575" y="0" fill="#475569" font-size="8">决策边界</text>
+      
+      <line id="comp-1-ec0" x1="70" y1="340" x2="570" y2="10" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 3"/>
+<text id="comp-1-ec0-l" x="575" y="15" fill="#f87171" font-size="10" font-weight="bold">P(负面)</text>
+
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">P(正面)</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="text-xs text-slate-400 mb-2">模型敏感度 <span class="text-white font-mono" id="comp-1-sv">β = 1.5</span></div>
+      <input type="range" id="comp-1-slider" min="0.5" max="3" value="1.5" step="0.1">
+    </div>
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">正面概率</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">情感极性</div>
+        <div class="font-mono text-lg font-bold" style="color:#fbbf24" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">置信度</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          TF-IDF关键词权重计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">计算词语在文档中的重要性</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">词频TF (该词出现次数/总词数)</label>
+            <input type="number" id="comp-2-tf" value="0.05" min="0" step="0.01" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">文档总数N</label>
+            <input type="number" id="comp-2-n" value="10000" min="0" step="1000" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">包含该词的文档数DF</label>
+            <input type="number" id="comp-2-df" value="100" min="0" step="50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">词语重要性</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">TF-IDF值</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">IDF值</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">重要性判断</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">文档频率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ TF\text{-}IDF = TF \times \log\frac{N}{DF} \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 人工智能金融 Chapter 05</div>
+    <div class="mt-2 md:mt-0">下一章：多模态金融数据分析 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'TF(t, d)', tip: '词频——某个词在文档中出现的频率'},
+    {match: 'IDF(t) = \\log', tip: '逆文档频率——越稀有的词越重要'},
+    {match: 'Attention', tip: '注意力机制——让模型动态关注输入中最相关的部分'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=10,yMax=1.2;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=1.5;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return 1/(1+Math.exp(-(x-5)*c));})(0);
+    var y1=(function(x){return 1/(1+Math.exp(-(x-5)*c));})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    var ec0_y0=(function(x){var c=sliderVal;return 1-1/(1+Math.exp(-(x-5)*c));})(0);
+    var ec0_y1=(function(x){var c=sliderVal;return 1-1/(1+Math.exp(-(x-5)*c));})(xMax);
+    var ecl0=document.getElementById('comp-1-ec0');
+    ecl0.setAttribute('x1',xc(0));ecl0.setAttribute('y1',yc(Math.min(Math.max(ec0_y0,0),yMax)));
+    ecl0.setAttribute('x2',xc(xMax));ecl0.setAttribute('y2',yc(Math.max(ec0_y1,0)));
+    
+    var thY=yc(0.5);
+    document.getElementById('comp-1-thresh').setAttribute('y1',thY);
+    document.getElementById('comp-1-thresh').setAttribute('y2',thY);
+    document.getElementById('comp-1-thresh-l').setAttribute('y',thY-3);
+  }
+  drawCurves();
+  
+  var sl=document.getElementById('comp-1-slider');
+  sl.addEventListener('input',function(){
+    sliderVal=parseFloat(sl.value);
+    document.getElementById('comp-1-sv').textContent='β = '+sliderVal.toFixed(1);
+    drawCurves();
+  });
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return 1/(1+Math.exp(-(x-5)*c));})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='P(positive)';
+    document.getElementById('comp-1-m1').textContent=(y>0.5?'正面':'负面').toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='分类结果';
+    document.getElementById('comp-1-m2').textContent=(Math.abs(y-0.5)*2).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='越高越确定';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='情感分数='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='概率='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var tf=parseFloat(document.getElementById('comp-2-tf').value);
+    var n=parseFloat(document.getElementById('comp-2-n').value);
+    var df=parseFloat(document.getElementById('comp-2-df').value);
+
+    var idf=Math.log(n/df);
+    var tfidf=tf*idf;
+    document.getElementById('comp-2-out0').textContent=tfidf.toFixed(4);
+    document.getElementById('comp-2-out1').textContent=idf.toFixed(3);
+    document.getElementById('comp-2-out2').textContent=tfidf>0.1?'高重要性':(tfidf>0.01?'中等':'低重要性');
+    document.getElementById('comp-2-out3').textContent=(df/n*100).toFixed(2)+'%';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,tfidf*5)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

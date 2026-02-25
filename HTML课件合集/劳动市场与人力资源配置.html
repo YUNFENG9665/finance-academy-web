@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>劳动市场与人力资源配置 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Micro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">劳动市场歧视</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">金融行业的人力资</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 06</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">劳动市场与人力资源配置</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">用经济学方法分析劳动供给、工资决定与人力资本投资</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">要素市场</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">工资理论</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">劳动供给决策：工作还是休闲？</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">劳动供给本质上是<span class="text-white font-semibold">时间配置决策</span>：在有限的时间里，如何在工作（获得收入）和闲暇（直接获得效用）之间分配？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本框架</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">效用函数</span>：\(U = U(C, L)\)，其中 \(C\) 是消费，\(L\) 是闲暇</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">时间约束</span>：\(T = H + L\)（总时间 = 工作 + 闲暇）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">预算约束</span>：\(C = w \cdot H + V\)（消费 = 工资收入 + 非劳动收入）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">劳动供给函数的推导</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">通过求解约束优化问题，可以得到劳动供给函数 \(H^* = H(w, V)\)：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\partial H^*/\partial w\) 的符号不确定（取决于替代效应和收入效应的相对大小）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\partial H^*/\partial V < 0\)（非劳动收入增加会减少劳动供给，闲暇是正常品）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工资变化的双重效应</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当工资上涨时，会发生两件事：</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">替代效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> 工资↑ → 劳动↑</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 闲暇的机会成本上升，"闲着太贵了"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> 工资↑ → 劳动↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 更富有了，想享受更多闲暇</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">斯勒茨基方程在劳动供给中的应用</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{\partial H}{\partial w} = \underbrace{\frac{\partial H^c}{\partial w}}_{\text{替代效应(+)}} + \underbrace{H \cdot \frac{\partial H}{\partial V}}_{\text{收入效应(-)}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(H^c\) 是补偿需求函数（保持效用不变时的劳动供给）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">后弯的劳动供给曲线</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">低工资段：替代效应 &gt; 收入效应 → 工资↑ → 劳动↑
+高工资段：收入效应 &gt; 替代效应 → 工资↑ → 劳动↓</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这解释了为什么高收入者可能选择减少工作时间（如医生、律师的部分时间工作）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证数据支持</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国数据显示，过去100年平均工作时间从每周60小时下降到40小时</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高收入国家的工作时间普遍低于低收入国家</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中产阶级的劳动供给弹性通常在0.1-0.3之间</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">生命周期劳动供给</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">人们在年轻时（工资低）多积累，中年（工资最高）多工作，年老时退休。这是跨期替代效应的体现。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">跨期劳动供给模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max \sum_{t=1}^{T} \beta^{t-1} U(C_t, L_t) \quad s.t. \quad \sum_{t=1}^{T} \frac{C_t}{(1+r)^t} = A_0 + \sum_{t=1}^{T} \frac{w_t H_t}{(1+r)^t}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一阶条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{MU_{L_t}}{MU_{C_t}} = w_t\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{MU_{C_t}}{MU_{C_{t+1}}} = \beta(1+r)\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">弗里德曼效应（Frisch弹性）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>保持边际效用不变时的劳动供给弹性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>衡量对暂时性工资变化的反应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对理解经济周期中的劳动供给行为至关重要</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">劳动需求理论：企业的雇佣决策</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短期劳动需求</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在短期内，资本固定，企业选择劳动投入以最大化利润：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max_L \pi = P \cdot F(K, L) - wL - rK\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一阶条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P \cdot MP_L = w\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">即<span class="text-white font-semibold">劳动的边际产品价值（VMP）等于工资</span>。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">劳动需求曲线的性质</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>向下倾斜（边际产品递减）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>曲线位置取决于产品价格和技术水平</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产品需求增加会使劳动需求曲线右移</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">长期劳动需求</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在长期，企业可以调整所有投入要素：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\min_{K,L} wL + rK \quad s.t. \quad F(K,L) = Q\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">成本最小化条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{MP_L}{MP_K} = \frac{w}{r}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">规模效应和替代效应</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">工资变化对劳动需求的影响可分解为：</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">替代效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> 工资↑ → 劳动↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 用资本替代劳动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">方向:</span> 工资↑ → 劳动↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 成本上升导致产出减少</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">长期劳动需求弹性 > 短期劳动需求弹性</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">马歇尔的劳动需求弹性法则</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">劳动需求弹性越大，当：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>产品需求弹性越大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>其他生产要素越容易替代劳动</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>其他生产要素的供给弹性越大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>劳动成本在总成本中的份额越大</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">人力资本理论：教育的经济学</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">人力资本是体现在劳动者身上的、能够提高生产能力的投资成果（教育、培训、健康等）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人力资本的定义与内涵</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Gary Becker（1964）将人力资本定义为"个人拥有的、能够产生经济价值的知识、技能和健康"。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">人力资本的构成：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">正规教育</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 学校教育获得的知识技能</div><div class="text-xs text-slate-400"><span class="text-slate-500">积累方式:</span> 学校、大学</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">在职培训</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 工作中获得的专业技能</div><div class="text-xs text-slate-400"><span class="text-slate-500">积累方式:</span> 企业培训、师徒制</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">非正式学习</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 自学、经验积累</div><div class="text-xs text-slate-400"><span class="text-slate-500">积累方式:</span> 实践、阅读、网络课程</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">健康资本</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 体力和精力</div><div class="text-xs text-slate-400"><span class="text-slate-500">积累方式:</span> 医疗、锻炼、营养</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">社会资本</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 人际关系网络</div><div class="text-xs text-slate-400"><span class="text-slate-500">积累方式:</span> 社交、校友网络</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">教育投资决策</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">教育是一项投资，需要权衡成本与收益：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">学费、书本费</div><div class="text-xs text-slate-400"><span class="text-slate-500">收益:</span> 更高的终身工资</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">机会成本（放弃的工资）</div><div class="text-xs text-slate-400"><span class="text-slate-500">收益:</span> 更好的职业选择</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">努力和时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">收益:</span> 非金钱收益（地位、满足感）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">心理成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">收益:</span> 更低的失业风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">社交成本（延迟进入社会）</div><div class="text-xs text-slate-400"><span class="text-slate-500">收益:</span> 更好的健康和寿命</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">决策规则</span>：当教育的内部回报率 > 贴现率时，应继续接受教育。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">明瑟方程（Mincer Equation）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\ln W = \alpha + \beta_1 S + \beta_2 X + \beta_3 X^2 + \epsilon\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(S\)：受教育年限</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(X\)：工作经验</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\beta_1\)：教育回报率（约8-12%）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(X^2\)：经验的边际回报递减</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">明瑟方程的扩展形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\ln W = \alpha + \beta_1 S + \beta_2 X + \beta_3 X^2 + \gamma_1 Female + \gamma_2 Race + \delta Z + \epsilon\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(Z\) 包括地区、行业、职业等控制变量。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">教育回报率的国际比较</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">教育回报率:</span> 10-12%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 高等教育溢价显著</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国</div><div class="text-xs text-slate-400"><span class="text-slate-500">教育回报率:</span> 8-15%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 近年快速上升</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">西欧</div><div class="text-xs text-slate-400"><span class="text-slate-500">教育回报率:</span> 6-9%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 相对平稳</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">发展中国家</div><div class="text-xs text-slate-400"><span class="text-slate-500">教育回报率:</span> 12-20%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 回报率较高</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证发现</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育回报率在不同国家、不同时期差异较大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>发展中国家通常回报率更高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高等教育回报率近年上升（技能偏向型技术变革）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>女性教育回报率通常高于男性</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">在职培训理论</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Becker区分了两种培训：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">成本承担</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">收益归属</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">通用培训</td><td class="px-3 py-2 text-xs text-slate-400">适用于所有企业的技能</td><td class="px-3 py-2 text-xs text-slate-400">员工（通过接受低工资）</td><td class="px-3 py-2 text-xs text-slate-400">员工</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">专用培训</td><td class="px-3 py-2 text-xs text-slate-400">仅适用于本企业的技能</td><td class="px-3 py-2 text-xs text-slate-400">企业和员工共同</td><td class="px-3 py-2 text-xs text-slate-400">企业和员工共同</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">专用人力资本的含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>员工离职的机会成本增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>企业解雇的成本增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>促进长期雇佣关系</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>解释了日本"终身雇佣制"的经济逻辑</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">信号理论 vs 人力资本理论</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">教育的价值到底是什么？存在两种竞争性解释：</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人力资本理论</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 教育提高生产能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 补贴教育有社会价值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信号理论</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心观点:</span> 教育揭示先天能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 教育可能是浪费（军备竞赛）</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">信号理论（Spence, 1973）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高能力者教育成本低（学得更轻松）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通过获取学历"分离"自己与低能力者</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>均衡中：高能力者读大学，低能力者不读</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育可能没有提高任何人的生产能力！</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">信号模型的正式表述</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设存在两种类型的劳动者：高能力（H）和低能力（L）</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>生产率：\(\theta_H > \theta_L\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育成本：\(c_H < c_L\)（高能力者学习成本低）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">分离均衡条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[e^* \text{满足} \quad \theta_H - c_H \cdot e^* \geq \theta_L \quad \text{且} \quad \theta_L > \theta_H - c_L \cdot e^*\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">&quot;羊皮效应&quot;（Sheepskin Effect）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">证据表明毕业（获得学位）比单纯增加受教育年限带来更大的工资提升：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>完成第12年（高中毕业）vs 第11年的工资差异大于其他相邻年份</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>完成第16年（大学毕业）vs 第15年同样如此</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>这支持了信号理论的解释</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">如何区分两种理论？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>看学历的直接效应 vs 学习内容的效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>研究"羊皮效应"（毕业 vs 辍学的工资差异）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>研究信号价值随时间的衰减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>比较自我雇佣者和受雇者的教育回报率</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">工资决定理论</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">竞争性劳动市场</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[w = VMP_L = P \cdot MP_L\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">工资等于劳动的边际产品价值（边际产出 × 产品价格）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工资决定的多层次分析框架</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">个人层次</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 人力资本、能力、努力</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析方法:</span> 明瑟方程</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">企业层次</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 企业规模、利润、薪酬政策</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析方法:</span> 企业效应分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">行业层次</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 行业竞争、工会、监管</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析方法:</span> 行业工资溢价分析</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">宏观层次</div><div class="text-xs text-slate-400"><span class="text-slate-500">决定因素:</span> 劳动力总供给、技术变革</div><div class="text-xs text-slate-400"><span class="text-slate-500">分析方法:</span> 一般均衡模型</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">工资差异的来源</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">补偿性差异</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 工作条件不同</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 危险工作高薪、夜班补贴</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人力资本差异</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 教育和技能不同</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 医生vs.服务员</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">能力差异</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 先天能力不同</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 顶级运动员</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">效率工资</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 企业主动支付高于市场的工资</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 防止偷懒、降低离职</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 非生产性因素</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 性别、种族歧视</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">租金和准租金</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 稀缺技能、制度性壁垒</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 明星效应、行业牌照</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">补偿性工资差异的详细分析</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">Adam Smith在《国富论》中首次提出，不愉快的工作需要更高的工资来补偿。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">补偿性差异的来源：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">工作危险性</span>：矿工、建筑工人的风险溢价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">工作稳定性</span>：季节性工作的补偿</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">工作时间</span>：夜班、节假日加班费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">地理位置</span>：偏远地区的补贴</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">职业声望</span>：低声望职业的补偿</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">估算&quot;生命价值&quot;</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">通过分析危险工作的工资溢价，可以估算劳动者对生命风险的评价：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[VSL = \frac{\Delta w}{\Delta risk}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">美国研究估计统计生命价值（VSL）约为700-1000万美元。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">技能溢价与技术变革</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">过去40年，技能溢价（高学历与低学历的工资比）显著上升：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1970s</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国大学溢价:</span> 40%</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要原因:</span> 稳定</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1980s</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国大学溢价:</span> 50%</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要原因:</span> 开始上升</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2000s</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国大学溢价:</span> 70%</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要原因:</span> 技术变革加速</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2020s</div><div class="text-xs text-slate-400"><span class="text-slate-500">美国大学溢价:</span> 80%+</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要原因:</span> AI时代来临</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">技能偏向型技术变革（SBTC）理论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新技术与高技能劳动互补</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>新技术替代低技能劳动</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>导致对高技能劳动需求增加，对低技能劳动需求减少</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">劳动市场的不完全性</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">现实劳动市场远非完全竞争：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">信息不对称</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">逆向选择</span>：企业不知道求职者的真实能力 → 试用期、教育信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">道德风险</span>：签约后员工可能偷懒 → 绩效薪酬、效率工资</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场势力</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">买方垄断</span>：单一雇主（如矿业小镇）可以压低工资</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">工会</span>：集体议价提高工资，但可能减少就业</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效率工资理论</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">企业可能<span class="text-white font-semibold">主动</span>支付高于市场出清水平的工资，原因：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>降低离职率（节省招聘和培训成本）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>减少偷懒（失业的代价更高）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>吸引高能力者</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>提高员工士气和忠诚度</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效率工资的四种模型</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">偷懒模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心机制:</span> 高工资增加偷懒被解雇的成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Shapiro-Stiglitz</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">离职模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心机制:</span> 高工资降低离职率</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Salop</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">逆向选择模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心机制:</span> 高工资吸引高能力者</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Weiss</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">公平模型</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心机制:</span> 高工资提升员工士气</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表学者:</span> Akerlof</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">结果</span>：工资高于市场出清 → 劳动供给 > 需求 → 非自愿失业</p>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">劳动市场歧视与不平等</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">歧视的经济学分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">歧视的定义</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当两个具有相同生产率的劳动者因为某些非生产性特征（如性别、种族、年龄）而获得不同的工资或就业机会时，存在劳动市场歧视。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">歧视的类型</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工资歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 同工不同酬</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现形式:</span> 女性工资低于同等男性</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">雇用歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 不平等的录用机会</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现形式:</span> 面试回调率差异</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">职业歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 进入某些职业受限</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现形式:</span> "玻璃天花板"</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人力资本歧视</div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 培训和晋升机会不平等</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现形式:</span> 培训投资差异</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">贝克尔的歧视偏好模型（Becker, 1957）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设雇主对雇用某类劳动者有"厌恶"（歧视系数 \(d\)）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>雇主感知的雇用成本 = \(w(1+d)\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>歧视性雇主只有在被歧视群体工资足够低时才会雇用</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>竞争市场中，歧视性雇主会被淘汰（歧视有成本）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">为什么歧视会持续存在？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>不完全竞争市场</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>消费者歧视（顾客偏好）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>员工歧视（同事偏好）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>统计性歧视（信息不完全）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">统计性歧视</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当雇主无法直接观察个人能力时，可能使用群体平均特征作为信号：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>即使同一群体内个体差异很大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>理性行为也可能导致歧视结果</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例：保险公司对年轻男性收取更高车险费率</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">性别工资差距</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">全球性别工资差距数据</span>（2024年）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">美国</div><div class="text-xs text-slate-400"><span class="text-slate-500">性别工资差距:</span> 17%</div><div class="text-xs text-slate-400"><span class="text-slate-500">趋势:</span> 缓慢缩小</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中国</div><div class="text-xs text-slate-400"><span class="text-slate-500">性别工资差距:</span> 19%</div><div class="text-xs text-slate-400"><span class="text-slate-500">趋势:</span> 近年略有扩大</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">日本</div><div class="text-xs text-slate-400"><span class="text-slate-500">性别工资差距:</span> 22%</div><div class="text-xs text-slate-400"><span class="text-slate-500">趋势:</span> 缓慢缩小</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">北欧国家</div><div class="text-xs text-slate-400"><span class="text-slate-500">性别工资差距:</span> 5-10%</div><div class="text-xs text-slate-400"><span class="text-slate-500">趋势:</span> 最小</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">全球平均</div><div class="text-xs text-slate-400"><span class="text-slate-500">性别工资差距:</span> 20%</div><div class="text-xs text-slate-400"><span class="text-slate-500">趋势:</span> 缓慢缩小</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">性别工资差距的分解</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">使用Oaxaca-Blinder分解方法：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\bar{W}_M - \bar{W}_F = \underbrace{(\bar{X}_M - \bar{X}_F)\hat{\beta}_M}_{\text{可解释部分}} + \underbrace{\bar{X}_F(\hat{\beta}_M - \hat{\beta}_F)}_{\text{不可解释部分（歧视？）}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">研究发现：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>约30-50%的差距可由人力资本、职业选择等因素解释</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>约50-70%的差距无法解释（可能是歧视）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">&quot;母职惩罚&quot;（Motherhood Penalty）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>有孩子的女性工资显著低于无孩子的女性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>有孩子的男性工资反而略高（"父职奖励"）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>每多一个孩子，女性工资下降约5-10%</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">种族与民族工资差距</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">美国黑白工资差距</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>黑人男性工资约为白人男性的73%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>差距在过去50年有所缩小，但近年停滞</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育程度相同时，差距仍然显著</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">原因分析</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>教育质量差异（学校隔离的历史遗留）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>职业隔离</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>就业歧视（审计研究证据）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>社会资本差异</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：劳动供给最优化</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\max_{C,L} U(C,L) \quad s.t. \quad C = w(T-L) + V\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">拉格朗日一阶条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{MU_L}{MU_C} = w\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">经济含义</span>：闲暇与消费之间的边际替代率等于工资率（闲暇的机会成本）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数值例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">假设效用函数 \(U = C^{0.5}L^{0.5}\)，\(T = 16\)小时/天，\(V = 0\)，\(w = 20\)元/小时</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">求解：\(C^* = 160\)元，\(L^* = 8\)小时，\(H^* = 8\)小时</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：教育投资的现值分析</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">设受教育年数为 \(S\)，受教育期间工资为0，教育成本为 \(c\)，工作至 \(T\) 岁：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[NPV = \sum_{t=S+1}^{T} \frac{W_{edu}(t)}{(1+r)^t} - \sum_{t=1}^{S} \frac{c + W_{no}(t)}{(1+r)^t}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">简化条件下的内部回报率</span>（Mincer的推导）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[r \approx \frac{W_{edu} - W_{no}}{S \cdot W_{no}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">数值例子</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">是否应该读研究生？</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>本科毕业起薪：10万/年</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>硕士毕业起薪：15万/年</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>研究生学费：5万/年 × 2年</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>贴现率：5%</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">计算NPV需要考虑：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>研究生期间的机会成本：10万 × 2 = 20万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>研究生学费：5万 × 2 = 10万</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>毕业后30年的工资差异现值</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：买方垄断劳动市场</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">单一雇主面临向上倾斜的劳动供给曲线 \(w = w(L)\)：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">边际要素成本（MFC）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MFC = w + L \cdot \frac{dw}{dL} > w\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">雇用更多劳动不仅要支付新雇员工资，还要给所有现有员工涨薪！</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">最优雇用</span>：\(MFC = VMP_L\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">结果</span>：雇用量低于竞争市场，工资低于竞争市场 → 劳动者被"剥削"</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">买方垄断下的&quot;剥削率&quot;</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\text{剥削率} = \frac{VMP_L - w}{VMP_L}\]</div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：人力资本的资产定价</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">将未来劳动收入视为一项资产：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[H_0 = \sum_{t=1}^{T} \frac{w_t \cdot (1-\tau)}{(1+r)^t}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人力资本的特点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>不可交易（无法卖掉自己的未来收入）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>与实物资本和金融资产的相关性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>影响最优金融资产配置</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人力资本与金融资产配置</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">年轻人的资产配置应该考虑人力资本的特性：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">像债券（收入稳定）</div><div class="text-xs text-slate-400"><span class="text-slate-500">对金融资产配置的影响:</span> 金融资产应多配股票</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">像股票（收入波动大）</div><div class="text-xs text-slate-400"><span class="text-slate-500">对金融资产配置的影响:</span> 金融资产应多配债券</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">与股市正相关</div><div class="text-xs text-slate-400"><span class="text-slate-500">对金融资产配置的影响:</span> 减少股票配置</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">与股市负相关</div><div class="text-xs text-slate-400"><span class="text-slate-500">对金融资产配置的影响:</span> 增加股票配置</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">金融行业的人力资源应用</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">投资银行的薪酬结构</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">典型投行薪酬构成</span>（2024年数据）：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">级别</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">基本工资</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">奖金</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">总薪酬</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">分析师（1年）</td><td class="px-3 py-2 text-xs text-slate-400">\(110K</td><td class="px-3 py-2 text-xs text-slate-400">\)80K</td><td class="px-3 py-2 text-xs text-slate-400">$190K</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">分析师（2年）</td><td class="px-3 py-2 text-xs text-slate-400">\(125K</td><td class="px-3 py-2 text-xs text-slate-400">\)100K</td><td class="px-3 py-2 text-xs text-slate-400">$225K</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">高级分析师</td><td class="px-3 py-2 text-xs text-slate-400">\(140K</td><td class="px-3 py-2 text-xs text-slate-400">\)120K</td><td class="px-3 py-2 text-xs text-slate-400">$260K</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">经理</td><td class="px-3 py-2 text-xs text-slate-400">\(175K</td><td class="px-3 py-2 text-xs text-slate-400">\)150K</td><td class="px-3 py-2 text-xs text-slate-400">$325K</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">副总裁</td><td class="px-3 py-2 text-xs text-slate-400">\(225K</td><td class="px-3 py-2 text-xs text-slate-400">\)225K</td><td class="px-3 py-2 text-xs text-slate-400">$450K</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">董事</td><td class="px-3 py-2 text-xs text-slate-400">\(275K</td><td class="px-3 py-2 text-xs text-slate-400">\)400K</td><td class="px-3 py-2 text-xs text-slate-400">$675K</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">董事总经理</td><td class="px-3 py-2 text-xs text-slate-400">\(400K</td><td class="px-3 py-2 text-xs text-slate-400">\)800K+</td><td class="px-3 py-2 text-xs text-slate-400">$1.2M+</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">高薪酬的经济学解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">人力资本回报</span>：顶尖学历、高强度培训</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">补偿性差异</span>：长工作时间（100小时/周）、高压力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">锦标赛理论</span>：金字塔结构，高薪激励竞争</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">行业租金</span>：金融业的超额利润分享</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">风险分担</span>：高奖金比例与业绩挂钩</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">对冲基金的激励机制</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">&quot;2-20&quot;收费结构</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>2%管理费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>20%业绩提成（超过基准的部分）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基金经理薪酬的经济学分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高业绩提成</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 激励创造alpha</div><div class="text-xs text-slate-400"><span class="text-slate-500">问题:</span> 可能过度冒险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高水位线</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 防止虚增收费</div><div class="text-xs text-slate-400"><span class="text-slate-500">问题:</span> 基金经理可能选择关闭基金</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">共同投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">优势:</span> 利益绑定</div><div class="text-xs text-slate-400"><span class="text-slate-500">问题:</span> 可能不足以防止风险</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">顶级对冲基金经理收入</span>（2023年）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最高年收入超过40亿美元</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>前25名平均收入超过5亿美元</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>体现了极端的"超级明星效应"</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">金融科技对金融就业的影响</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">被替代的岗位</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>交易员（算法交易）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>银行柜员（移动银行）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>信贷审批员（AI信用评分）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>基础研究分析师（量化分析）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">新增的岗位</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>量化分析师</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据科学家</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>合规科技专家</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>AI/ML工程师</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">薪酬变化趋势</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">传统交易员</div><div class="text-xs text-slate-400"><span class="text-slate-500">薪酬变化:</span> 下降</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 被算法替代</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">量化交易员</div><div class="text-xs text-slate-400"><span class="text-slate-500">薪酬变化:</span> 大幅上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 需求激增</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">关系经理</div><div class="text-xs text-slate-400"><span class="text-slate-500">薪酬变化:</span> 稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 难以自动化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">合规人员</div><div class="text-xs text-slate-400"><span class="text-slate-500">薪酬变化:</span> 上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 监管增加</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">私募股权的携带利息</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">携带利息（Carried Interest）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>GP通常获得基金利润的20%</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通常有8%的优先回报率门槛</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>体现了委托代理理论的激励设计</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">争议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>携带利息按资本利得税率征税（较低）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>批评者认为应按普通收入征税</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>支持者认为这是长期投资的激励</span></div></div>
+  </div>
+</section>
+
+
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">股</span>
+        <h3 class="text-white font-semibold text-sm">案例1：科技公司的股权激励</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：硅谷科技公司广泛使用股票期权作为薪酬组成部分。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经济学分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">股权激励的功能：
+  1. 解决代理问题：员工利益与股东利益绑定
+  2. 筛选作用：吸引风险偏好、相信公司前景的人
+  3. 现金流约束：初创企业现金有限
+  4. 留人作用：分期归属（vesting）</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">潜在问题</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">过度冒险</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 期权有下行保护（最多归零）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">操纵财报</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 为了行权价格</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">稀释股权</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 对现有股东不公平</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">锁定效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> "金手铐"限制人才流动</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">案例数据</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Google上市前给予员工大量期权，创造了数百个百万富翁</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Meta的RSU（限制性股票单位）在2022年公司股价下跌时导致员工财富大幅缩水</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>期权vs RSU的选择反映了不同的风险分担安排</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">高</span>
+        <h3 class="text-white font-semibold text-sm">案例2：高考与人力资本投资</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：高考是中国最重要的人力资本信号机制。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经济学视角</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">人力资本视角：
+  - 高考促进知识积累
+  - 教育提高生产能力
+
+信号视角：
+  - 高考揭示能力和毅力
+  - 教育是&quot;能力的证书&quot;
+  - 可能存在过度教育（学历军备竞赛）</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策问题</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育回报率是否反映人力资本增加？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>扩招是否降低了信号价值？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何平衡效率（人才选拔）与公平（机会均等）？</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">实证数据</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高中</div><div class="text-xs text-slate-400"><span class="text-slate-500">月薪中位数（2024年）:</span> 5,000元</div><div class="text-xs text-slate-400"><span class="text-slate-500">就业率:</span> 90%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">大专</div><div class="text-xs text-slate-400"><span class="text-slate-500">月薪中位数（2024年）:</span> 6,500元</div><div class="text-xs text-slate-400"><span class="text-slate-500">就业率:</span> 92%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">本科</div><div class="text-xs text-slate-400"><span class="text-slate-500">月薪中位数（2024年）:</span> 8,500元</div><div class="text-xs text-slate-400"><span class="text-slate-500">就业率:</span> 94%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">硕士</div><div class="text-xs text-slate-400"><span class="text-slate-500">月薪中位数（2024年）:</span> 12,000元</div><div class="text-xs text-slate-400"><span class="text-slate-500">就业率:</span> 96%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">博士</div><div class="text-xs text-slate-400"><span class="text-slate-500">月薪中位数（2024年）:</span> 16,000元</div><div class="text-xs text-slate-400"><span class="text-slate-500">就业率:</span> 98%</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">零</span>
+        <h3 class="text-white font-semibold text-sm">案例3：零工经济与劳动关系</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：Uber、滴滴、美团等平台重塑了劳动市场。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统雇佣 vs 零工经济</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">劳动关系</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统雇佣:</span> 长期雇佣合同</div><div class="text-xs text-slate-400"><span class="text-slate-500">零工经济:</span> 独立承包商</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">社会保障</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统雇佣:</span> 雇主缴纳社保</div><div class="text-xs text-slate-400"><span class="text-slate-500">零工经济:</span> 自己负责</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">工作时间</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统雇佣:</span> 固定</div><div class="text-xs text-slate-400"><span class="text-slate-500">零工经济:</span> 灵活</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">收入稳定性</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统雇佣:</span> 高</div><div class="text-xs text-slate-400"><span class="text-slate-500">零工经济:</span> 低</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">监督方式</div><div class="text-xs text-slate-400"><span class="text-slate-500">传统雇佣:</span> 层级管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">零工经济:</span> 算法管理</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经济学争议</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>灵活性收益 vs 保障缺失</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>平台是否利用买方垄断压低报酬？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>算法管理是否存在歧视？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何为零工经济设计社会保障？</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">全球零工经济数据</span>（2024年）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>全球零工劳动者超过3亿人</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国约36%的劳动者参与零工经济</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国外卖骑手超过1000万人</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">AI</span>
+        <h3 class="text-white font-semibold text-sm">案例4：AI时代的劳动市场重构</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">哪些工作最容易被AI替代？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">高风险岗位：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据录入员</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>电话销售</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>基础会计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>简单法律助理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>制造业流水线工人</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">低风险岗位：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>心理咨询师</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>创意设计师</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高端销售</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>医疗护理</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育培训</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">新兴岗位</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>AI训练师</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>提示工程师</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>人机协作专家</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>AI伦理官</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据标注管理</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s6" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题（用于深度思考和 NotebookLM 生成对话）</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么高工资者可能选择减少工作时间？请用收入效应和替代效应解释"后弯的劳动供给曲线"。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">教育的价值到底是"人力资本积累"还是"能力信号"？这两种理论有什么不同的政策含义？如何设计实证研究来区分它们？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">效率工资理论如何解释失业的存在？为什么企业不愿意降低工资来雇用更多人？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">解释马歇尔的劳动需求弹性法则。为什么劳动成本占总成本比例越高，劳动需求弹性越大？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">假设政府大幅提高最低工资，对不同技能水平的劳动者会有什么不同影响？为什么实证研究对最低工资的就业效应结论不一致？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">为什么投资银行和咨询公司的薪酬如此之高？这是补偿性差异、人力资本回报，还是行业租金？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">从人力资本角度，年轻人应该如何规划自己的教育投资？是否应该读研？出国留学的回报率如何？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">分析性别工资差距的成因。哪些是可以通过政策干预的，哪些是市场自然形成的？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">AI自动化会如何改变劳动市场？哪些职业最危险？"技术性失业"是暂时的还是长期的？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span><span class="text-white font-semibold">大学学历是否正在贬值？"学历通胀"背后的经济学逻辑是什么？社会应该如何应对？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">11.</span><span><span class="text-white font-semibold">零工经济是劳动市场的进步还是退步？平台经济对劳动者权益有何影响？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">跨学科联系类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">12.</span><span><span class="text-white font-semibold">从金融角度看，人力资本是一项什么样的"资产"？它如何影响年轻人的金融资产配置决策？为什么年轻人应该多配置股票？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">13.</span><span><span class="text-white font-semibold">锦标赛理论如何解释高管薪酬？这种薪酬结构是有效率的吗？</span></span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s7" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Borjas《劳动经济学》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 标准教材，实证丰富</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Cahuc & Zylberberg《劳动经济学》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 理论深入，数学严谨</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Ehrenberg & Smith《现代劳动经济学》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 美国数据，政策导向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Acemoglu & Autor《劳动经济学讲义》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> MIT公开课，前沿理论</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Becker, G. (1964). "Human Capital"</span> - 人力资本理论奠基之作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Spence, M. (1973). "Job Market Signaling"</span> - 信号理论经典</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Mincer, J. (1974). "Schooling, Experience, and Earnings"</span> - 明瑟方程</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Shapiro & Stiglitz (1984). "Equilibrium Unemployment"</span> - 效率工资理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Card & Krueger (1994). "Minimum Wages and Employment"</span> - 最低工资实证研究</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Goldin (2014). "A Grand Gender Convergence"</span> - 性别工资差距研究</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">数据资源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">PSID</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖范围:</span> 美国家庭面板</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 50年+追踪数据</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">NLSY</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖范围:</span> 美国青年追踪</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 人力资本研究</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CFPS</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖范围:</span> 中国家庭面板</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 中国数据</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">CHIP</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖范围:</span> 中国收入调查</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 收入分配研究</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">O*NET</div><div class="text-xs text-slate-400"><span class="text-slate-500">覆盖范围:</span> 职业信息</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 技能需求分析</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">在线课程</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">MIT OCW: Labor Economics</span> - Daron Acemoglu</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Coursera: 劳动经济学</span> - 北京大学</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">edX: Economics of Work</span> - 哈佛大学</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《为什么工资不下降》- 日本经济长期停滞的劳动市场视角</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《21世纪资本论》(Piketty) - 劳动收入与资本收入的分配</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《人工智能时代的工作》- AI对劳动市场的影响</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《第二次机器革命》- 技术变革与就业</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《零工经济》- 平台劳动的未来</span></div></div>
+  </div>
+</section>
+
+<section id="s8" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">学习方法建议</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">理论学习路径</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第一阶段：基础概念（1-2周）</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>理解劳动供给和需求的基本框架</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>掌握人力资本理论的核心思想</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>了解工资决定的基本机制</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第二阶段：深入分析（2-3周）</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>学习效率工资、信号理论等高级理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>理解劳动市场不完全性的各种表现</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>掌握工资差异分解方法</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第三阶段：应用实践（2-3周）</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>阅读实证研究论文</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>使用数据进行简单分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>结合金融行业案例深化理解</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">实证技能培养</h3>
+    <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">必备技能</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>回归分析（OLS、面板数据）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>因果推断（工具变量、断点回归）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据处理（Stata、R、Python）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">练习项目</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>使用CHIP数据估计中国的教育回报率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>分解性别工资差距</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>分析最低工资调整的影响</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="s11" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">自我评估测试</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>解释为什么劳动供给曲线可能后弯。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>什么是效率工资？企业为什么愿意支付高于市场出清的工资？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>区分人力资本理论和信号理论对教育价值的解释。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>什么是统计性歧视？它与偏好性歧视有何不同？</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">计算题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span>假设某人当前年薪10万，考虑读2年全日制MBA，学费每年15万。MBA毕业后年薪可达20万。假设工作30年后退休，贴现率为5%，请计算读MBA的净现值。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span>使用明瑟方程 \(\ln W = 2 + 0.1S + 0.05X - 0.001X^2\)，计算：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>受教育年限增加1年的工资增长百分比</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工作经验为10年时，经验的边际回报率</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span>分析最低工资上调对快餐业就业的可能影响。考虑：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>完全竞争劳动市场</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>买方垄断劳动市场</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>动态调整过程</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span>从人力资本理论角度，解释为什么金融行业薪酬普遍较高。</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">应用题</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span>作为一名大学毕业生，如何运用本章学到的理论来规划自己的职业发展？考虑：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>是否继续深造</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何选择第一份工作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如何积累人力资本</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span>分析AI技术发展对不同职业的影响，并提出个人应对策略。</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          人力资本投资决策链
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解教育投资如何转化为工资溢价</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">投资决策</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">教育·培训</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">市场匹配</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">搜寻·议价</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">收益测量</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">明瑟方程</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">不平等</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">差距·政策</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">投资决策</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">教育·培训</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>教育投资的机会成本: 放弃的工资收入</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>人力资本理论: 教育提高生产率→工资↑</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>信号理论: 教育筛选能力而非提升能力</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">市场匹配</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">搜寻·议价</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>工资刚性导致非出清的劳动市场</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>效率工资: 高于均衡工资以激励努力</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>内部劳动力市场vs外部劳动力市场</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">收益测量</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">明瑟方程</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>lnW=α+βₛS+β₁X+β₂X²</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>βₛ≈8%: 多一年教育→工资↑8%</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>经验回报递减: β₂<0</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">不平等</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">差距·政策</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>技能溢价扩大: 技术变革偏向高技能</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>性别工资差距: 歧视+职业隔离+中断</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>最低工资: 保护底层但可能减少就业</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          人力资本投资回报模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整教育年限，观察工资变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">L(劳动量)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">W(工资)</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">Ld</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">Ls</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>教育年限溢价 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>均衡工资: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>就业量: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="0" max="20" value="10" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          明瑟收益率计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">估算教育投资的收益率</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">受教育年限</label>
+            <input type="number" id="comp-2-s" value="16" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">工作经验(年)</label>
+            <input type="number" id="comp-2-x" value="10" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">基础月薪(元)</label>
+            <input type="number" id="comp-2-w0" value="3000" min="0" step="500" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">人力资本</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">预测月薪</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">教育回报率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">经验回报率</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">薪资倍数</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ \ln W = \alpha + \beta_s S + \beta_1 X + \beta_2 X^2 \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 微观经济学 Chapter 06</div>
+    <div class="mt-2 md:mt-0">下一章：前沿微观理论专题研究 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'C = w \\cdot H + V', tip: '劳动者预算约束——消费=工资×工时+非劳动收入'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'c_H < c_L', tip: '高效率类型成本低于低效率类型——信息不对称下的逆向选择条件'},
+    {match: '\\ln W = ', tip: '明塞尔工资方程——工资对数与教育年限和经验线性相关'},
+    {match: '\\sum_{t=1}', tip: '把每年的现金流都折现到今天然后加起来'},
+    {match: 'P \\cdot MP_L = w', tip: '竞争性劳动市场——企业雇人直到劳动边际产值等于工资'},
+    {match: '\\frac{MP_L}{MP_K} = \\frac{w}{r}', tip: '成本最小化条件——劳动和资本的边际产出比等于价格比'},
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\epsilon', tip: '误差项——模型无法解释的部分'},
+    {match: 'VMP_L = P \\cdot MP_L', tip: '劳动边际价值产品——工人多产一单位产品能卖多少钱'},
+    {match: 'VSL = \\frac{\\Delta w}{\\Delta risk}', tip: '统计生命价值——人们愿意为降低死亡风险接受多少工资差'},
+    {match: '\\bar{X}', tip: '所有数加起来除以个数，就是平均数'},
+    {match: 'NPV = ', tip: '把未来所有现金流折算到今天值多少钱，正数=值得投资'},
+    {match: 'MFC = w + L \\cdot \\frac{dw}{dL}', tip: '买方垄断边际要素成本——多雇一人不仅付新人工资还要给老员工涨薪'},
+    {match: 'H_0 = ', tip: '原假设(零假设)——需要检验是否成立的假设'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=50;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(45+c*0.5-5)/(0.35+0.25);
+    var eq_y=45-((45+c*0.5-5)/(0.35+0.25))*0.35+c*0.5;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 45-x*0.35+c*0.5;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 45-x*0.35+c*0.5;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 5+x*0.25;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 5+x*0.25;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='Edu = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='W(工资)*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='L(劳动量)*='+eq_x.toFixed(1);
+    var r1=eq_y;
+    var r2=eq_x;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var s=parseFloat(document.getElementById('comp-2-s').value);
+    var x=parseFloat(document.getElementById('comp-2-x').value);
+    var w0=parseFloat(document.getElementById('comp-2-w0').value);
+
+    var bs=0.08; var b1=0.03; var b2=-0.0005;
+    var lnw=Math.log(w0)+bs*(s-9)+b1*x+b2*x*x;
+    var w=Math.exp(lnw);
+    var marginal=bs*100;
+    document.getElementById('comp-2-out0').textContent=w.toFixed(0);
+    document.getElementById('comp-2-out1').textContent=marginal.toFixed(0)+'%';
+    document.getElementById('comp-2-out2').textContent=((b1+2*b2*x)*100).toFixed(1)+'%';
+    document.getElementById('comp-2-out3').textContent=(w/w0).toFixed(1)+'x';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.min(1,Math.exp(0.08*(s-9)+0.03*x-0.0005*x*x)/10)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

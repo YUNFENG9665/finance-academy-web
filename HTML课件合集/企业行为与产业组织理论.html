@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业行为与产业组织理论 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Micro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s2" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">博弈论在产业组织</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">反垄断政策</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 05</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">企业行为与产业组织理论</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">分析不同市场结构下企业的行为与竞争策略</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">市场结构</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">博弈模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">企业的本质：为什么存在企业？</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">这是科斯（Ronald Coase）在1937年提出的经典问题。如果市场那么有效，为什么不是所有交易都在市场中发生？为什么需要企业这种"计划"组织？</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">科斯的答案</span>：市场交易有成本！</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">搜寻成本</span>：找到交易对手</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">谈判成本</span>：协商价格和条款</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">执行成本</span>：监督履约</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">企业通过内部的层级协调，可以节省这些交易成本。但企业内部协调也有成本（官僚成本、激励问题）。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">企业边界的决定</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[企业规模扩张，直到：内部协调的边际成本 = 市场交易的边际成本\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">威廉姆森的扩展</span>：资产专用性</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当投资是专用的（只对特定交易有价值），市场交易会产生"套牢"问题——交易对手可能趁机敲竹杠。这时纵向整合更有效率。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">企业理论的历史演进</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">理论阶段</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">代表人物</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">核心观点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">新古典企业理论</td><td class="px-3 py-2 text-xs text-slate-400">马歇尔</td><td class="px-3 py-2 text-xs text-slate-400">企业是"黑箱"生产函数</td><td class="px-3 py-2 text-xs text-slate-400">奠定分析基础</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">交易成本理论</td><td class="px-3 py-2 text-xs text-slate-400">科斯、威廉姆森</td><td class="px-3 py-2 text-xs text-slate-400">企业是节约交易成本的制度安排</td><td class="px-3 py-2 text-xs text-slate-400">解释企业边界</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">产权理论</td><td class="px-3 py-2 text-xs text-slate-400">阿尔钦、德姆塞茨</td><td class="px-3 py-2 text-xs text-slate-400">企业是一组合约的联结</td><td class="px-3 py-2 text-xs text-slate-400">解释企业治理</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">代理理论</td><td class="px-3 py-2 text-xs text-slate-400">詹森、麦克林</td><td class="px-3 py-2 text-xs text-slate-400">企业内部存在委托-代理问题</td><td class="px-3 py-2 text-xs text-slate-400">解释激励机制</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">资源基础观</td><td class="px-3 py-2 text-xs text-slate-400">潘罗斯、巴尼</td><td class="px-3 py-2 text-xs text-slate-400">企业是资源和能力的集合</td><td class="px-3 py-2 text-xs text-slate-400">解释竞争优势</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">演化理论</td><td class="px-3 py-2 text-xs text-slate-400">纳尔逊、温特</td><td class="px-3 py-2 text-xs text-slate-400">企业是惯例的存储器</td><td class="px-3 py-2 text-xs text-slate-400">解释创新动态</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">交易成本的深入分析</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">交易成本的构成</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">交易成本
+├── 事前成本
+│   ├── 搜寻成本：寻找交易对手的时间和资源
+│   ├── 信息成本：获取价格、质量等信息
+│   └── 谈判成本：协商合同条款
+└── 事后成本
+    ├── 监督成本：确保合同执行
+    ├── 执行成本：处理违约和纠纷
+    └── 适应成本：应对意外情况的调整</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">影响交易成本的因素</span>（威廉姆森框架）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">资产专用性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 投资只对特定交易有价值</div><div class="text-xs text-slate-400"><span class="text-slate-500">对企业边界的影响:</span> 专用性越高，越倾向内部化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">交易不确定性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 未来状态难以预测</div><div class="text-xs text-slate-400"><span class="text-slate-500">对企业边界的影响:</span> 不确定性越高，越倾向内部化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">交易频率</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 交易发生的频繁程度</div><div class="text-xs text-slate-400"><span class="text-slate-500">对企业边界的影响:</span> 频率越高，越值得建立内部组织</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">有限理性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 人无法完全预见所有情况</div><div class="text-xs text-slate-400"><span class="text-slate-500">对企业边界的影响:</span> 理性越有限，合同越不完备</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">机会主义</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 以欺诈手段追求自利</div><div class="text-xs text-slate-400"><span class="text-slate-500">对企业边界的影响:</span> 机会主义越严重，越需要治理机制</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资产专用性的类型</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">场地专用性</span>：设施位置与特定交易相关（如供应商建在客户旁边）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">物质资产专用性</span>：设备专门为特定客户设计</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">人力资产专用性</span>：员工具有针对特定企业的专门知识</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">专项资产</span>：为特定交易进行的投资（如定制模具）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">品牌专用性</span>：品牌价值与特定交易关联</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">时间专用性</span>：产品价值与时间高度相关（如生鲜产品）</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">企业纵向边界的决策</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">Make or Buy 决策框架</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">                    低资产专用性              高资产专用性
+                    ─────────────────────────────────────────
+低交易频率    │    市场交易              三方治理（仲裁）
+                    │    (竞标采购)
+                    ─────────────────────────────────────────
+高交易频率    │    双边治理              统一治理（纵向整合）
+                    │    (长期合同)            (自制)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">纵向整合的收益</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>消除套牢问题</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>更好的协调和质量控制</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>保护专有信息和技术</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>减少交易成本</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">纵向整合的成本</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>失去市场激励（内部供应商无竞争压力）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>官僚成本增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>丧失规模经济（外部供应商可服务多个客户）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>战略灵活性下降</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">市场结构的光谱</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">市场结构不是非黑即白，而是一个连续的光谱：</p>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特征</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">完全竞争</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">垄断竞争</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">寡头垄断</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">完全垄断</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">厂商数量</td><td class="px-3 py-2 text-xs text-slate-400">无数</td><td class="px-3 py-2 text-xs text-slate-400">很多</td><td class="px-3 py-2 text-xs text-slate-400">少数</td><td class="px-3 py-2 text-xs text-slate-400">一家</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">产品差异</td><td class="px-3 py-2 text-xs text-slate-400">完全同质</td><td class="px-3 py-2 text-xs text-slate-400">有差异</td><td class="px-3 py-2 text-xs text-slate-400">同质或有差异</td><td class="px-3 py-2 text-xs text-slate-400">唯一</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">进入壁垒</td><td class="px-3 py-2 text-xs text-slate-400">无</td><td class="px-3 py-2 text-xs text-slate-400">很低</td><td class="px-3 py-2 text-xs text-slate-400">显著</td><td class="px-3 py-2 text-xs text-slate-400">极高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">定价能力</td><td class="px-3 py-2 text-xs text-slate-400">无（价格接受者）</td><td class="px-3 py-2 text-xs text-slate-400">有限</td><td class="px-3 py-2 text-xs text-slate-400">显著</td><td class="px-3 py-2 text-xs text-slate-400">完全</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">例子</td><td class="px-3 py-2 text-xs text-slate-400">农产品、外汇</td><td class="px-3 py-2 text-xs text-slate-400">餐饮、服装</td><td class="px-3 py-2 text-xs text-slate-400">汽车、手机</td><td class="px-3 py-2 text-xs text-slate-400">公用事业</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">市场结构为什么重要？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>决定企业的定价能力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>影响市场效率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>是反垄断政策的基础</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">市场结构的决定因素</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">决定市场结构的关键因素</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因素类别</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">具体因素</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作用机制</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">供给侧因素</span></td><td class="px-3 py-2 text-xs text-slate-400">规模经济</td><td class="px-3 py-2 text-xs text-slate-400">大企业成本优势，限制企业数量</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">范围经济</td><td class="px-3 py-2 text-xs text-slate-400">多产品企业更有效率</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">学习曲线</td><td class="px-3 py-2 text-xs text-slate-400">先入者累积经验优势</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">资本需求</td><td class="px-3 py-2 text-xs text-slate-400">高资本门槛阻止进入</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">需求侧因素</span></td><td class="px-3 py-2 text-xs text-slate-400">市场规模</td><td class="px-3 py-2 text-xs text-slate-400">小市场难以容纳多家企业</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">产品差异化</td><td class="px-3 py-2 text-xs text-slate-400">减轻价格竞争强度</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">网络效应</td><td class="px-3 py-2 text-xs text-slate-400">用户规模优势自我强化</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">转换成本</td><td class="px-3 py-2 text-xs text-slate-400">锁定现有客户</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">制度因素</span></td><td class="px-3 py-2 text-xs text-slate-400">专利保护</td><td class="px-3 py-2 text-xs text-slate-400">合法垄断期限</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">政府许可</td><td class="px-3 py-2 text-xs text-slate-400">限制进入者数量</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">反垄断执法</td><td class="px-3 py-2 text-xs text-slate-400">影响合并和竞争行为</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">规模经济与市场结构的关系</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">最小有效规模（MES）与市场需求的比值决定了市场可容纳的企业数量：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[企业数量上限 \approx \frac{市场总需求}{MES}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当 MES 相对于市场需求较大时，市场自然趋向寡头或垄断。</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">市场界定方法</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">SSNIP测试</span>（假定垄断者测试）：</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">如果一个假定的垄断者可以持续地（1年以上）将价格提高5-10%，而仍能盈利，则该产品构成一个独立市场。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场界定的两个维度</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">产品市场</span>：哪些产品是相互替代的？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">地理市场</span>：竞争在什么地理范围内发生？</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">需求替代性的测度</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">交叉价格弹性</span>：\(E_{xy} = \frac{\Delta Q_x / Q_x}{\Delta P_y / P_y}\)</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E_{xy} > 0\)：替代品</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E_{xy} < 0\)：互补品</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(E_{xy}\) 越大：替代程度越高</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">完全竞争市场：效率的基准</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">完全竞争市场是一个理想化的基准，满足以下条件：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>无数买卖双方（都是价格接受者）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产品完全同质（无差异化）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>完全信息</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自由进入退出</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短期均衡</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">企业利润最大化条件：\(MR = MC\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在完全竞争下：\(P = MR\)（需求曲线水平）</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">因此：\(P = MC\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">长期均衡</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果存在经济利润 → 新企业进入 → 价格下降</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果存在经济亏损 → 企业退出 → 价格上升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最终：\(P = MC = AC_{min}\)（零经济利润）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">效率性质</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">配置效率</span>：\(P = MC\)，消费者支付的等于社会生产成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">生产效率</span>：在AC最低点生产，无X非效率</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">完全竞争企业的供给决策</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">短期供给曲线</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>当 \(P \geq AVC_{min}\) 时，供给曲线为 MC 曲线</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>当 \(P < AVC_{min}\) 时，停止生产（关门点）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">长期供给曲线</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>当 \(P \geq AC_{min}\) 时，供给曲线为长期 MC 曲线</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>当 \(P < AC_{min}\) 时，退出市场</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">行业长期供给曲线的形状</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本不变行业</div><div class="text-xs text-slate-400"><span class="text-slate-500">供给曲线形状:</span> 水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 要素价格不受行业扩张影响</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本递增行业</div><div class="text-xs text-slate-400"><span class="text-slate-500">供给曲线形状:</span> 向上倾斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 行业扩张推高要素价格</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">成本递减行业</div><div class="text-xs text-slate-400"><span class="text-slate-500">供给曲线形状:</span> 向下倾斜</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 行业扩张带来外部经济</div></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">垄断市场：市场势力的极端</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">垄断的来源：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">自然垄断</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 规模经济使一家最有效</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 电网、自来水</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">法律垄断</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 专利、特许权</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 新药、公用事业</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资源控制</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 独占关键资源</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 早期铝业、钻石</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">网络效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 用户越多价值越大</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 社交平台</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">垄断定价</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">关键区别：垄断者面对向下倾斜的需求曲线，因此：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MR = P + Q \cdot \frac{dP}{dQ} = P(1 - \frac{1}{|E_d|}) < P\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">边际收益小于价格！这意味着多卖一单位既增加收入（多卖了一单位），又减少收入（所有单位都要降价）。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">利润最大化</span>：\(MR = MC\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">结果</span>：\(P > MC\)，产量低于社会最优，产生无谓损失</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">为什么垄断者不在非弹性区间定价？</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在 \(|E_d| < 1\) 时，\(MR < 0\)，降低产量可以增加收入同时降低成本！</p>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">价格歧视：垄断者的利润提取策略</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三种价格歧视类型</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">机制</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">条件</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">例子</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">一级价格歧视</span></td><td class="px-3 py-2 text-xs text-slate-400">对每单位收取消费者愿意支付的最高价格</td><td class="px-3 py-2 text-xs text-slate-400">知道每个消费者的保留价格</td><td class="px-3 py-2 text-xs text-slate-400">拍卖、一对一谈判</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">二级价格歧视</span></td><td class="px-3 py-2 text-xs text-slate-400">根据购买数量或质量差异定价</td><td class="px-3 py-2 text-xs text-slate-400">消费者自我选择</td><td class="px-3 py-2 text-xs text-slate-400">数量折扣、版本定价</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">三级价格歧视</span></td><td class="px-3 py-2 text-xs text-slate-400">对不同群体收取不同价格</td><td class="px-3 py-2 text-xs text-slate-400">能够识别和分割群体</td><td class="px-3 py-2 text-xs text-slate-400">学生票、老年折扣</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">二级价格歧视的典型策略</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">两部定价</span>（Two-Part Tariff）：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>固定费用（会员费） + 边际使用费</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例如：健身房会员费 + 单次课程费</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">数量折扣</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>买得越多单价越低</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例如：批发价 vs 零售价</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">版本定价</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>提供高低档产品，让消费者自选</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例如：软件的专业版 vs 家庭版</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">捆绑销售</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>将多个产品打包销售</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例如：Office套件、有线电视频道包</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">三级价格歧视的最优定价</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{P_1 - MC}{P_1} = \frac{1}{|E_1|}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{P_2 - MC}{P_2} = \frac{1}{|E_2|}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">弹性低的群体支付更高价格！</p>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">寡头市场与博弈论</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1">寡头市场的核心是<span class="text-white font-semibold">策略互动</span>：我的最优决策取决于对手的决策。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">古诺模型（产量竞争）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>假设：两家企业同时选择产量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>均衡：纳什均衡，各自在给定对方产量下最优</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：产量介于完全竞争和垄断之间</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">伯特兰模型（价格竞争）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>假设：两家企业同时选择价格，产品同质</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>均衡：价格竞争到 \(P = MC\)！</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>悖论：只有两家企业却达到完全竞争结果</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">两个模型为何结论相反？</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>古诺：产量是战略变量，一旦选定难以调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>伯特兰：价格是战略变量，可以快速调整</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>现实取决于行业特点</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">卡特尔与串谋</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">企业有激励合作（联合垄断利润最大），但也有激励欺骗（单方面增产可获更多）。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>卡特尔不稳定（囚徒困境）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>OPEC是著名的卡特尔，但经常面临成员欺骗</span></div></div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：利润最大化的一般条件</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\pi = TR - TC = P(Q) \cdot Q - C(Q)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一阶条件：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\frac{d\pi}{dQ} = MR - MC = 0\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\Rightarrow MR = MC\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">这是所有市场结构下企业最优决策的通用条件！</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：勒纳指数（Lerner Index）——垄断势力的度量</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[L = \frac{P - MC}{P} = \frac{1}{|E_d|}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(L = 0\)：完全竞争（\(P = MC\)）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(L\) 越大：垄断势力越强</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>与需求弹性成反比：弹性越低，垄断势力越大</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">应用</span>：反垄断机构用勒纳指数评估市场势力</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：古诺双寡头均衡</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">设市场需求：\(P = a - bQ\)，\(Q = q_1 + q_2\)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">两厂商成本相同：\(C_i = c \cdot q_i\)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反应函数</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[q_1^* = \frac{a - c - bq_2}{2b} = \frac{a-c}{2b} - \frac{q_2}{2}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">纳什均衡</span>（对称情形）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[q_1^* = q_2^* = \frac{a - c}{3b}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Q^* = \frac{2(a-c)}{3b}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[P^* = \frac{a + 2c}{3}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">与其他市场结构比较</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">市场结构</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">总产量</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">价格</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">效率</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">完全竞争</td><td class="px-3 py-2 text-xs text-slate-400">\((a-c)/b\)</td><td class="px-3 py-2 text-xs text-slate-400">\(c\)</td><td class="px-3 py-2 text-xs text-slate-400">最高</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">古诺双寡头</td><td class="px-3 py-2 text-xs text-slate-400">\(2(a-c)/3b\)</td><td class="px-3 py-2 text-xs text-slate-400">\((a+2c)/3\)</td><td class="px-3 py-2 text-xs text-slate-400">中等</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">垄断</td><td class="px-3 py-2 text-xs text-slate-400">\((a-c)/2b\)</td><td class="px-3 py-2 text-xs text-slate-400">\((a+c)/2\)</td><td class="px-3 py-2 text-xs text-slate-400">最低</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：HHI指数（市场集中度）</h3>
+      </div>
+      <div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[HHI = \sum_{i=1}^{n} s_i^2 \times 10000\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(s_i\) 是第 \(i\) 个厂商的市场份额（0-1）。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">反垄断标准</span>（美国DOJ/FTC）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">< 1500</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场类型:</span> 低集中度</div><div class="text-xs text-slate-400"><span class="text-slate-500">并购审查态度:</span> 一般不干预</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1500-2500</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场类型:</span> 中等集中</div><div class="text-xs text-slate-400"><span class="text-slate-500">并购审查态度:</span> 关注</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">> 2500</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场类型:</span> 高集中度</div><div class="text-xs text-slate-400"><span class="text-slate-500">并购审查态度:</span> 严格审查</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">模型5：斯塔克伯格模型（序贯博弈）</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1">领导者先选择产量，追随者观察后选择。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">领导者的优势</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[q_L = \frac{a-c}{2b}\]（领导者产量 = 垄断产量） \[q_F = \frac{a-c}{4b}\]（追随者产量较少）  <span class="text-white font-semibold">先行者优势的来源</span>：承诺效应——先行者的产量选择成为"既成事实"。 </div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">6</div>
+        <h3 class="text-white font-semibold">模型6：伯特兰模型的扩展</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">产品差异化的伯特兰模型</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当产品存在差异化时，价格竞争不会导致价格等于边际成本。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">设需求函数：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[q_1 = a - bp_1 + dp_2\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(d > 0\) 表示产品的替代程度。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">均衡价格</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[p^* = \frac{a + c(b-d)}{2b - d}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">当 \(d \to b\)（产品趋于同质）时，\(p^* \to c\)（伯特兰悖论）</p>
+    </div>
+  </div>
+</section>
+
+<section id="s2" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">博弈论在产业组织中的应用</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">博弈论基础框架</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">博弈的基本要素</h4>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">参与者（Players）</span>：做出决策的主体</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">策略（Strategies）</span>：每个参与者可选择的行动方案</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">支付（Payoffs）</span>：各策略组合下每个参与者的收益</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">博弈类型分类</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">分类维度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">产业组织应用</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">信息完备性</td><td class="px-3 py-2 text-xs text-slate-400">完全信息博弈</td><td class="px-3 py-2 text-xs text-slate-400">所有参与者知道博弈结构</td><td class="px-3 py-2 text-xs text-slate-400">古诺、伯特兰模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">不完全信息博弈</td><td class="px-3 py-2 text-xs text-slate-400">存在私人信息</td><td class="px-3 py-2 text-xs text-slate-400">拍卖、信号博弈</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">行动顺序</td><td class="px-3 py-2 text-xs text-slate-400">同时博弈</td><td class="px-3 py-2 text-xs text-slate-400">参与者同时选择</td><td class="px-3 py-2 text-xs text-slate-400">古诺模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">序贯博弈</td><td class="px-3 py-2 text-xs text-slate-400">有先后顺序</td><td class="px-3 py-2 text-xs text-slate-400">斯塔克伯格模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">重复性</td><td class="px-3 py-2 text-xs text-slate-400">一次性博弈</td><td class="px-3 py-2 text-xs text-slate-400">只进行一次</td><td class="px-3 py-2 text-xs text-slate-400">单次定价决策</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">重复博弈</td><td class="px-3 py-2 text-xs text-slate-400">多次进行</td><td class="px-3 py-2 text-xs text-slate-400">长期价格竞争</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">经典博弈在产业组织中的应用</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">囚徒困境与卡特尔稳定性</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经典囚徒困境</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">企业A合作</div><div class="text-xs text-slate-400"><span class="text-slate-500">企业B合作:</span> (5, 5)</div><div class="text-xs text-slate-400"><span class="text-slate-500">企业B欺骗:</span> (0, 8)</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">企业A欺骗</div><div class="text-xs text-slate-400"><span class="text-slate-500">企业B合作:</span> (8, 0)</div><div class="text-xs text-slate-400"><span class="text-slate-500">企业B欺骗:</span> (2, 2)</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">纳什均衡</span>：（欺骗，欺骗），收益 (2, 2)</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">帕累托最优</span>：（合作，合作），收益 (5, 5)</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">卡特尔面临的困境</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>集体最优：限产提价，联合利润最大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>个体激励：偷偷增产，攫取更多利润</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>结果：卡特尔内在不稳定</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">重复博弈与默契串谋</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">无限重复博弈</span>：当博弈无限次重复时，合作可以持续。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">触发策略（Trigger Strategy）</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>开始时合作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>一旦对方欺骗，永远惩罚（以牙还牙策略的极端版本）</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">合作条件</span>（民间定理）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\delta \geq \frac{欺骗收益 - 合作收益}{欺骗收益 - 惩罚收益}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">其中 \(\delta\) 是贴现因子。未来越重要（\(\delta\) 越大），越容易维持合作。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">促进默契串谋的因素</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">企业数量少</div><div class="text-xs text-slate-400"><span class="text-slate-500">作用机制:</span> 更容易协调和监督</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">市场需求稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">作用机制:</span> 减少欺骗的机会</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">信息透明</div><div class="text-xs text-slate-400"><span class="text-slate-500">作用机制:</span> 更容易发现欺骗行为</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">进入壁垒高</div><div class="text-xs text-slate-400"><span class="text-slate-500">作用机制:</span> 利润可长期维持</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">产品同质</div><div class="text-xs text-slate-400"><span class="text-slate-500">作用机制:</span> 价格信号清晰</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">多市场接触</div><div class="text-xs text-slate-400"><span class="text-slate-500">作用机制:</span> 增加惩罚机会</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">进入阻止博弈</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">进入阻止策略类型</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">限制性定价（Limit Pricing）</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>在位者设定低价，使潜在进入者预期无利可图</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但存在信誉问题：进入后真的会保持低价吗？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">过度投资（Capacity Expansion）</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>建立过剩产能，威胁进入者将面临价格战</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>斯潘斯-迪克西特模型（Spence-Dixit Model）</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">品牌增殖（Brand Proliferation）</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>推出多种产品填满产品空间</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>减少进入者的差异化机会</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例如：早餐麦片行业</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">提高转换成本</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>通过忠诚计划、专用设备等锁定客户</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>例如：航空常旅客计划</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">进入博弈的扩展形式</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">                    在位者
+                    /    \
+               威胁进入    不威胁
+                 /
+            潜在进入者
+              /    \
+           进入    不进入
+            /         \
+       在位者          (垄断利润, 0)
+       /    \
+    容纳    打击
+    /         \
+(双头利润)  (亏损, 亏损)</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键洞见</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果打击是不可置信的威胁（打击后在位者也亏损），则进入阻止策略可能无效</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需要通过<span class="text-white font-semibold">承诺机制</span>（如不可逆投资）使威胁可置信</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">信号博弈与信息不对称</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">教育信号模型（斯宾塞模型）</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在劳动市场中，教育可能不增加生产力，但可以传递能力信号。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">应用于产业组织</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">质量信号</span>：高价格可能传递高质量信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">广告信号</span>：大量广告投入表明对产品有信心</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">担保信号</span>：更长的保修期传递产品可靠性</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">掠夺性定价的信号解释</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">掠夺性定价</span>：在位者以低于成本的价格销售，试图驱逐竞争对手。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">传统观点</span>：掠夺性定价是非理性的（牺牲短期利润换取不确定的长期垄断）</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">信号解释</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>掠夺性定价传递"我是低成本企业"的信号</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>迫使高成本进入者退出</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>Milgrom-Roberts 模型</span></div></div>
+  </div>
+</section>
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">反垄断政策与规制经济学</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">反垄断政策的经济学基础</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">反垄断的目标</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">消费者福利</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内涵:</span> 低价格、高质量、多选择</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在冲突:</span> 可能与生产效率冲突</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">经济效率</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内涵:</span> 配置效率和生产效率</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在冲突:</span> 静态效率 vs 动态效率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">公平竞争</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内涵:</span> 保护竞争过程本身</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在冲突:</span> 可能牺牲效率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">创新激励</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">内涵:</span> 鼓励研发和新产品</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在冲突:</span> 与静态效率的权衡</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">反垄断的主要领域</h4>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">合并控制</span>：审查可能减少竞争的企业合并</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">反竞争协议</span>：禁止价格固定、市场分割等</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">滥用市场支配地位</span>：禁止掠夺性定价、拒绝交易等</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">纵向限制</span>：审查独家交易、搭售、转售价格维持</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">主要反竞争行为分析</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">横向协议（Horizontal Agreements）</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">行为类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">定义</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">危害程度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">法律态度</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">价格固定</span></td><td class="px-3 py-2 text-xs text-slate-400">竞争者协商统一价格</td><td class="px-3 py-2 text-xs text-slate-400">极高</td><td class="px-3 py-2 text-xs text-slate-400">本身违法</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">产量限制</span></td><td class="px-3 py-2 text-xs text-slate-400">协商限制各自产量</td><td class="px-3 py-2 text-xs text-slate-400">极高</td><td class="px-3 py-2 text-xs text-slate-400">本身违法</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">市场分割</span></td><td class="px-3 py-2 text-xs text-slate-400">按地区或客户瓜分市场</td><td class="px-3 py-2 text-xs text-slate-400">极高</td><td class="px-3 py-2 text-xs text-slate-400">本身违法</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">联合抵制</span></td><td class="px-3 py-2 text-xs text-slate-400">集体拒绝与某方交易</td><td class="px-3 py-2 text-xs text-slate-400">高</td><td class="px-3 py-2 text-xs text-slate-400">通常违法</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">信息交换</span></td><td class="px-3 py-2 text-xs text-slate-400">分享敏感商业信息</td><td class="px-3 py-2 text-xs text-slate-400">中等</td><td class="px-3 py-2 text-xs text-slate-400">需具体分析</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">纵向限制（Vertical Restraints）</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">纵向限制的双面性</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">独家交易</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在效率:</span> 鼓励分销商投资、防止搭便车</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在危害:</span> 封锁市场、提高进入壁垒</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">搭售</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在效率:</span> 质量保证、便利性</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在危害:</span> 延伸市场势力、价格歧视</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">转售价格维持</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在效率:</span> 防止搭便车、保护品牌形象</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在危害:</span> 便利上游或下游串谋</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">地域限制</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在效率:</span> 防止分销商间搭便车</div><div class="text-xs text-slate-400"><span class="text-slate-500">潜在危害:</span> 减少品牌内竞争</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">芝加哥学派 vs 后芝加哥学派</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">芝加哥学派</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">对纵向限制的态度:</span> 宽容</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心论点:</span> "单一垄断利润"定理：垄断者无法通过纵向限制增加利润</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">后芝加哥学派</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">对纵向限制的态度:</span> 谨慎</div><div class="text-xs text-slate-400"><span class="text-slate-500">核心论点:</span> 信息不对称、策略行为可能导致纵向限制损害竞争</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">单边行为（Unilateral Conduct）</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">滥用市场支配地位的典型形式</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">掠夺性定价</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>定义：以低于成本的价格销售，意图驱逐竞争对手</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>法律标准：Areeda-Turner规则（价格低于平均可变成本）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>争议：掠夺者自身也亏损，理性吗？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">价格歧视</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>鲁宾逊-帕特曼法（美国）限制某些价格歧视</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需区分：竞争性价格歧视 vs 反竞争性价格歧视</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">拒绝交易与必要设施原则</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>垄断者是否有义务向竞争对手提供关键投入？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>必要设施原则：极少数情况下可能需要强制开放</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">搭售与捆绑</span>：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>将市场势力从一个市场延伸到另一个市场</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>微软案例：将IE浏览器与Windows捆绑</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">合并审查框架</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">合并类型与竞争效应</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">横向合并</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 竞争对手之间</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要竞争关切:</span> 减少竞争者数量、便利串谋</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">纵向合并</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 上下游企业</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要竞争关切:</span> 封锁竞争对手、提高进入壁垒</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">混合合并</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">定义:</span> 不相关业务</div><div class="text-xs text-slate-400"><span class="text-slate-500">主要竞争关切:</span> 范围经济、潜在竞争消除</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">横向合并分析框架</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">单边效应</span>：合并后企业提价的能力</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场份额和HHI变化</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产品替代程度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>需求弹性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>剩余竞争者的反应能力</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">协调效应</span>：合并是否便利默契串谋</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场透明度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产品同质性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>企业对称性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>惩罚机制</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">效率抗辩</span>：合并带来的成本节约</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>必须是合并特有的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>必须是可验证的</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>必须传递给消费者</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">进入考量</span>：进入是否足以约束合并后实体</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>进入是否及时？（通常2年内）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>进入是否可能？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>进入是否充分？</span></div></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">自然垄断与规制</h3>
+    <h4 class="text-white font-semibold text-sm mt-4 mb-2">自然垄断的特征</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">自然垄断的条件</span>：规模经济显著，平均成本在相关产量范围内持续下降。</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[AC(Q) > AC(Q_1 + Q_2 + ... + Q_n)\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">一家企业服务整个市场成本最低。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">典型自然垄断行业</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>电力输配（不含发电）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自来水供应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>天然气管网</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>铁路基础设施</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">自然垄断的规制方式</h4>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">规制方式</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">机制</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">优点</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">缺点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">成本加成规制</span></td><td class="px-3 py-2 text-xs text-slate-400">允许成本 + 合理回报</td><td class="px-3 py-2 text-xs text-slate-400">简单透明</td><td class="px-3 py-2 text-xs text-slate-400">无成本控制激励（Averch-Johnson效应）</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">价格上限规制</span></td><td class="px-3 py-2 text-xs text-slate-400">设定价格上限，定期调整</td><td class="px-3 py-2 text-xs text-slate-400">成本控制激励</td><td class="px-3 py-2 text-xs text-slate-400">信息要求高、可能损害质量</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">标尺竞争</span></td><td class="px-3 py-2 text-xs text-slate-400">与类似企业业绩比较</td><td class="px-3 py-2 text-xs text-slate-400">利用比较信息</td><td class="px-3 py-2 text-xs text-slate-400">需要可比企业</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400"><span class="text-white font-semibold">特许权竞标</span></td><td class="px-3 py-2 text-xs text-slate-400">竞标独家经营权</td><td class="px-3 py-2 text-xs text-slate-400">市场机制引入竞争</td><td class="px-3 py-2 text-xs text-slate-400">合同不完备问题</td></tr></tbody></table></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">Averch-Johnson效应</h4>
+<p class="text-sm text-slate-400 leading-relaxed my-1">在收益率规制下，企业有过度投资的激励：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果允许的回报率高于资本成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>企业倾向于使用过多资本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>导致生产效率损失</span></div></div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">金融行业的产业组织</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">银行业市场结构</h3>
+      </div>
+      <h4 class="text-white font-semibold text-sm mt-4 mb-2">银行业的特殊性</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">高度规制</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 进入壁垒高、竞争受限</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">系统性风险</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 竞争与稳定的权衡</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">信息不对称</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 关系型银行的价值</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">规模与范围经济</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 大型银行的成本优势</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">网络效应</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">影响:</span> 支付系统、ATM网络</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">银行业集中度演变</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">全球银行业整合趋势</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>1990年代以来大规模并购</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>金融危机后"大而不能倒"问题凸显</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>各国采取不同的结构性改革（沃尔克规则、围栏银行等）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">银行业HHI特点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>全国层面集中度不高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>地方市场集中度可能很高</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>产品市场界定影响判断</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">银行竞争与金融稳定</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">竞争-稳定权衡假说</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">竞争损害稳定</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 竞争侵蚀利润率，促使冒险；减少特许权价值，降低审慎激励</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 限制竞争、保护利润</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">竞争促进稳定</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">论据:</span> 垄断利润导致道德风险；"大而不能倒"问题</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策含义:</span> 促进竞争、限制规模</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">实证证据</span>：关系复杂，取决于具体制度环境</p>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">证券业市场结构</h3>
+      </div>
+      <h4 class="text-white font-semibold text-sm mt-4 mb-2">投资银行业的竞争格局</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">行业特点</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高度集中（尤其是大型交易）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>声誉和关系至关重要</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>进入壁垒高（资本、人才、关系）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>周期性强</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">主要业务的集中度差异</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">大型IPO承销</div><div class="text-xs text-slate-400"><span class="text-slate-500">集中度:</span> 极高</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争特点:</span> 少数顶级投行主导</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">债券承销</div><div class="text-xs text-slate-400"><span class="text-slate-500">集中度:</span> 高</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争特点:</span> 关系和定价能力重要</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">M&A顾问</div><div class="text-xs text-slate-400"><span class="text-slate-500">集中度:</span> 高</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争特点:</span> 声誉和专业知识关键</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">零售经纪</div><div class="text-xs text-slate-400"><span class="text-slate-500">集中度:</span> 中等</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争特点:</span> 价格竞争激烈</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资产管理</div><div class="text-xs text-slate-400"><span class="text-slate-500">集中度:</span> 分散</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争特点:</span> 产品差异化明显</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">交易所与交易平台竞争</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">传统交易所的垄断地位受到挑战</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>替代交易系统（ATS）兴起</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>暗池交易增加</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>高频交易改变市场结构</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管推动交易平台竞争</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">网络效应与流动性聚集</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>交易平台具有显著网络效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>流动性吸引流动性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但技术进步降低了聚集的必要性</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">保险业市场结构</h3>
+      </div>
+      <h4 class="text-white font-semibold text-sm mt-4 mb-2">保险市场的竞争特点</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">产品差异化</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 保单条款、服务质量差异</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">信息不对称</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 逆向选择、道德风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">规模经济有限</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 中小保险公司可生存</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">地域性</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 许多保险市场具有地方性质</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">规制影响</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 费率规制、偿付能力监管</div></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">保险业集中度</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">按险种差异</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人寿保险</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场结构:</span> 中等集中</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 品牌、规模经济</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">财产保险</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场结构:</span> 较分散</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 地方性、专业化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">健康保险</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场结构:</span> 高度集中</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 网络效应（医疗网络）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">再保险</div><div class="text-xs text-slate-400"><span class="text-slate-500">市场结构:</span> 高度集中</div><div class="text-xs text-slate-400"><span class="text-slate-500">原因:</span> 资本需求、风险分散</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">金融科技对行业结构的影响</h3>
+      </div>
+      <h4 class="text-white font-semibold text-sm mt-4 mb-2">金融科技的竞争效应</h4>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">降低进入壁垒</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>技术降低了基础设施成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>API开放银行降低客户获取成本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>云服务减少IT投资需求</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">网络效应与新垄断</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>支付平台（支付宝、微信支付）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>数据优势形成新壁垒</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>"超级App"生态系统</span></div></div>
+<h4 class="text-white font-semibold text-sm mt-4 mb-2">金融科技监管挑战</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">监管套利</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 金融科技公司可能规避传统金融监管</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">数据垄断</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 数据优势可能形成新的市场势力</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">系统性风险</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 大型科技公司进入金融的风险</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">消费者保护</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 算法定价、数据隐私问题</div></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s6" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">互</span>
+        <h3 class="text-white font-semibold text-sm">案例1：互联网平台的&quot;赢家通吃&quot;</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：为什么Facebook、微信、淘宝能形成准垄断地位？</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">经济学分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">传统垄断来源：
+  - 规模经济（汽车、钢铁）
+  - 资源控制（石油）
+  - 法律壁垒（专利）
+
+平台垄断的新机制：
+  - 网络效应：用户越多 → 平台价值越大 → 吸引更多用户
+  - 数据壁垒：越多用户 → 越多数据 → 算法越好 → 更难挑战
+  - 多归属成本：用户习惯、社交关系难以迁移
+  - 双边市场：同时锁定买家和卖家</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反垄断挑战</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场如何界定？（社交网络 vs 广告市场？）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>免费服务如何评估消费者福利？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>创新与垄断的权衡</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">油</span>
+        <h3 class="text-white font-semibold text-sm">案例2：OPEC与石油定价</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：OPEC是世界上最著名的卡特尔，控制全球约40%石油供给。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">博弈分析</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">集体理性：限产提价 → 联合利润最大化
+个体理性：偷偷增产 → 在高价下获得更多收入
+结果：卡特尔内在不稳定（囚徒困境）</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">历史经验</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>1973年石油危机：OPEC成功协调，油价暴涨</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>2014-2016年：沙特发动价格战，拒绝减产</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>2020年新冠：需求暴跌+俄沙价格战 → 油价跌至负值</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">关键洞见</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>成员异质性削弱卡特尔（沙特 vs 委内瑞拉的成本不同）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>外部竞争削弱卡特尔（页岩油革命）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>卡特尔需要惩罚机制（但难以执行）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">航</span>
+        <h3 class="text-white font-semibold text-sm">案例3：航空业的竞争格局</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：航空业呈现寡头结构，全球主要航空联盟主导市场。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">市场结构特征</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">高固定成本</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 飞机、航线网络、品牌投入</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模经济</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 枢纽网络效率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">进入壁垒</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 机场时刻、航权、资本需求</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">差异化</div><div class="text-xs text-slate-400"><span class="text-slate-500">具体表现:</span> 服务质量、航线网络、常旅客计划</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">竞争策略</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>联盟（星空、天合、寰宇）：代码共享、网络互补</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>低成本航空挑战：西南航空、瑞安航空模式</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>价格歧视：收益管理、动态定价</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">科</span>
+        <h3 class="text-white font-semibold text-sm">案例4：科技巨头的&quot;杀手收购&quot;</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：Google、Facebook、Amazon等频繁收购初创企业。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收购动机分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">消除潜在竞争</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 收购可能成长为竞争对手的企业</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> Facebook收购Instagram、WhatsApp</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">获取技术/人才</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 快速获得创新能力</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> Google收购DeepMind</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">数据协同</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 扩大数据收集范围</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> 各类App收购</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">平台完善</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 补充生态系统</div><div class="text-xs text-slate-400"><span class="text-slate-500">例子:</span> Amazon收购Whole Foods</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">反垄断关切</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>传统合并审查侧重当前竞争</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>难以预判初创企业的未来潜力</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>对创新生态的长期影响</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策回应</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>加强对科技并购的审查</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>讨论举证责任倒置</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>考虑拆分大型科技公司</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">制</span>
+        <h3 class="text-white font-semibold text-sm">案例5：制药行业的专利策略</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：制药行业依赖专利保护创新激励，但也存在策略性行为。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">专利丛林与常青策略</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">专利策略
+├── 专利丛林（Patent Thicket）
+│   └── 围绕核心药物申请大量相关专利
+├── 常青策略（Evergreening）
+│   ├── 轻微修改配方申请新专利
+│   ├── 新适应症专利
+│   └── 剂型专利
+├── 反向支付和解（Pay-for-Delay）
+│   └── 向仿制药企业支付费用延迟进入
+└── 授权仿制药
+    └── 在专利到期前授权仿制</pre></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">竞争与创新的权衡</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>专利保护激励创新投入</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>过长的专利保护减少消费者福利</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>策略性专利行为可能扭曲激励</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-sm font-bold">电</span>
+        <h3 class="text-white font-semibold text-sm">案例6：电商平台的竞争策略</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">背景</span>：亚马逊、阿里巴巴等电商平台的市场势力引发关注。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">平台策略分析</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">最惠国条款</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 要求卖家在平台上提供最低价</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争效应:</span> 阻止平台间价格竞争</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">自营品牌</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 平台推出与卖家竞争的自有产品</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争效应:</span> 利用数据优势、潜在利益冲突</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">搜索排名</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 控制产品展示顺序</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争效应:</span> 可能优待自营或付费商家</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">捆绑服务</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 将物流、支付等服务捆绑</div><div class="text-xs text-slate-400"><span class="text-slate-500">竞争效应:</span> 提高卖家转换成本</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">监管回应</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>欧盟Digital Markets Act</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国反垄断诉讼</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>中国平台经济反垄断指南</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s7" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题（用于深度思考和 NotebookLM 生成对话）</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么完全竞争市场的长期均衡是零经济利润？这意味着企业不赚钱吗？请区分经济利润和会计利润。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">垄断厂商为什么不在需求曲线的非弹性区间定价？请用边际收益的公式解释。</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">古诺模型和伯特兰模型的结论为何截然不同？现实中哪个模型更适用？这取决于什么行业特征？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">解释科斯定理中企业边界的决定：为什么企业不会无限扩张？也不会完全依赖市场？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">什么是资产专用性？它如何影响企业的"自制还是外购"决策？请举例说明。</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">如何判断一个行业是否应该进行反垄断审查？HHI指数有什么局限性？除了市场份额，还应该考虑什么因素？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">为什么科技公司（如谷歌、微软、Meta）频繁收购初创企业？这种"杀手收购"(killer acquisition)对创新有什么影响？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">OPEC为什么难以维持高油价？请用卡特尔稳定性理论分析。页岩油革命如何改变了博弈格局？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">银行业存在"竞争与稳定的权衡"吗？请分析两种对立观点的论据。金融危机后的监管改革如何处理这一权衡？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">10.</span><span><span class="text-white font-semibold">平台经济中的"最惠国条款"（MFN）有什么效率和反竞争效应？为什么各国监管机构对此态度不同？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">11.</span><span><span class="text-white font-semibold">垄断一定是坏事吗？专利制度创造的"合法垄断"有什么积极作用？如何在创新激励和竞争效率之间取得平衡？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">12.</span><span><span class="text-white font-semibold">平台经济时代，传统产业组织理论需要做哪些修正？网络效应、双边市场、零边际成本如何改变竞争分析？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">13.</span><span><span class="text-white font-semibold">芝加哥学派认为纵向限制通常是效率导向的，后芝加哥学派则更为谨慎。在数字经济背景下，哪种观点更有说服力？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">14.</span><span><span class="text-white font-semibold">自然垄断应该如何规制？比较不同规制方式的优缺点。为什么许多国家在电信、电力等行业引入竞争？</span></span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">跨学科联系类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">15.</span><span><span class="text-white font-semibold">波特五力模型与产业组织理论有什么关系？作为投资者，如何用市场结构分析评估公司的长期竞争地位和估值？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">16.</span><span><span class="text-white font-semibold">公司治理与产业组织有什么联系？市场竞争是否可以替代公司治理机制作为约束管理层的手段？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">17.</span><span><span class="text-white font-semibold">行为经济学对产业组织理论有什么启示？消费者的有限理性如何影响企业的定价和竞争策略？</span></span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s8" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Tirole《产业组织理论》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 领域圣经，诺奖得主著作</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Carlton & Perloff《现代产业组织》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 实证导向，案例丰富</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">曼昆《经济学原理》第13-17章</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 入门友好</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Cabral《产业组织导论》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 博弈论应用清晰</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Church & Ware《Industrial Organization》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 战略视角，免费在线</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Belleflamme & Peitz《Industrial Organization: Markets and Strategies》</div><div class="text-xs text-slate-400"><span class="text-slate-500">难度:</span> </div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 现代方法，含平台经济</div></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文与著作</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Coase, R. (1937). "The Nature of the Firm"</span> - 企业理论的开山之作</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Porter, M. (1979). "How Competitive Forces Shape Strategy"</span> - 五力模型</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Williamson, O. "Markets and Hierarchies"</span> - 交易成本经济学</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Stigler, G. (1964). "A Theory of Oligopoly"</span> - 卡特尔稳定性理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Bain, J. (1956). "Barriers to New Competition"</span> - 进入壁垒理论</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Rochet & Tirole (2003). "Platform Competition in Two-Sided Markets"</span> - 双边市场理论</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">规制与反垄断资源</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Viscusi, Harrington & Vernon《Economics of Regulation and Antitrust》</span> - 规制经济学经典</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Posner《Antitrust Law》</span> - 芝加哥学派反垄断观点</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">Hovenkamp《Federal Antitrust Policy》</span> - 美国反垄断法律与经济分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span><span class="text-white font-semibold">OECD Competition Committee Publications</span> - 各国竞争政策比较</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">延伸阅读</h3>
+    <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《竞争战略》(Porter) - 管理学经典</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《创新者的窘境》(Christensen) - 颠覆性创新</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《平台革命》 - 平台经济分析</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《注意力商人》(Tim Wu) - 平台经济的批判视角</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《The Curse of Bigness》(Tim Wu) - 反垄断历史与现状</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>《Capitalism without Capital》- 无形资产经济学</span></div></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">在线课程与资源</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">MIT Industrial Organization</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> MIT OCW</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 研究生水平，免费</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Competition Policy</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> edX/Berkeley</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 反垄断政策导向</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Platform Strategy</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> HBS Online</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 平台经济实战</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">各国竞争管理机构网站</div><div class="text-xs text-slate-400"><span class="text-slate-500">平台:</span> -</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 真实案例、政策文件</div></div></div>
+  </div>
+</section>
+
+<section id="s9" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">学习方法指南</h2>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">学习路径建议</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第一阶段：基础概念（5-8小时）</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">1. 企业理论
+   └── 科斯的交易成本理论
+   └── 威廉姆森的资产专用性
+   └── 企业边界决定
+
+2. 市场结构基础
+   └── 完全竞争的效率性质
+   └── 垄断的定价与福利损失
+   └── 四种市场结构的比较</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第二阶段：博弈论应用（6-8小时）</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">1. 寡头竞争模型
+   └── 古诺模型的均衡求解
+   └── 伯特兰模型与伯特兰悖论
+   └── 斯塔克伯格模型与先行者优势
+
+2. 动态博弈
+   └── 重复博弈与串谋
+   └── 进入阻止策略
+   └── 信号博弈</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第三阶段：反垄断与规制（5-6小时）</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">1. 反垄断分析
+   └── 市场界定方法
+   └── 市场势力评估
+   └── 合并审查框架
+
+2. 规制经济学
+   └── 自然垄断规制
+   └── 各种规制方式比较</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">第四阶段：专题深入（4-5小时）</span></p>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">1. 行业应用
+   └── 金融行业产业组织
+   └── 平台经济与数字市场
+   └── 真实案例分析</pre></div>
+  </div>
+  <div class="card reveal mt-4">
+    <h3 class="text-white font-semibold mb-3">有效学习技巧</h3>
+    <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">1. 模型对比法</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">将不同模型放在一起比较：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>古诺 vs 伯特兰：为什么结论相反？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>垄断 vs 完全竞争：福利差异从何而来？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>静态博弈 vs 动态博弈：承诺如何改变结果？</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">2. 案例映射法</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">每学习一个理论概念，立即寻找现实案例：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资产专用性 → 汽车供应链</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>网络效应 → 社交平台</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>卡特尔 → OPEC</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">3. 数学推导与直觉理解结合</span></p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>先理解直觉（为什么会这样？）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>再掌握数学推导（如何精确表达？）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>最后验证数学结论与直觉一致</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">4. 政策视角思考</span></p>
+<p class="text-sm text-slate-400 leading-relaxed my-1">思考每个理论的政策含义：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>这种市场失灵需要政府干预吗？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>什么样的干预是有效的？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>干预可能带来什么意外后果？</span></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="s12" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">自我评估测验</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">基础概念题</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">企业边界</span>：某汽车制造商考虑是否应该收购其主要座椅供应商。请用交易成本理论分析这一决策。应该考虑哪些因素？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">市场结构识别</span>：智能手机操作系统市场（iOS、Android）属于什么市场结构？列出支持你判断的证据。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">垄断定价</span>：如果垄断者面对的需求弹性为2，边际成本为10元，最优价格是多少？请推导。</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型应用题</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">古诺均衡</span>：市场需求为 \(P = 100 - Q\)，两家成本相同的企业进行古诺竞争，边际成本 \(MC = 10\)。求：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>各企业的产量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>市场价格</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>各企业利润</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>与垄断和完全竞争结果比较</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">卡特尔稳定性</span>：假设两家企业可以选择"合作"（限产）或"欺骗"（增产）。合作时各获利100万，双方欺骗时各获利40万，一方欺骗另一方合作时欺骗者获利150万、合作者获利20万。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>这是什么类型的博弈？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>纳什均衡是什么？</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>如果博弈重复进行，合作能否维持？需要什么条件？</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">案例分析题</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">平台竞争</span>：某外卖平台要求餐厅签订"最惠国条款"，保证在该平台上的价格不高于其他平台。分析这一做法的：</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能的效率理由</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>可能的反竞争效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>监管机构应如何看待？</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">合并审查</span>：两家银行计划合并，合并后将占全国存款市场15%的份额，但在某些地方市场将占40%以上。作为反垄断分析师，你会关注哪些问题？</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">政策讨论题</h3>
+      </div>
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">创新与垄断</span>：有人认为"对垄断企业的反垄断可能损害创新激励"。你同意吗？请分析专利保护、动态效率和静态效率之间的关系。</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">平台规制</span>：数字平台（如社交媒体、电商平台）应该受到怎样的规制？传统反垄断工具是否足够？需要什么新的监管框架？</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          市场结构分析流程
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解不同市场结构下的企业行为</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">结构识别</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">HHI·进入壁垒</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">行为分析</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">定价·产量</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">绩效评估</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">效率·福利</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">监管策略</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">反垄断</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">结构识别</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">HHI·进入壁垒</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>完全竞争: 大量企业+同质产品+自由进出</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>垄断竞争: 差异化产品+低进入壁垒</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>寡头垄断: 少数企业+战略互动+高壁垒</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">行为分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">定价·产量</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>价格接受者(竞争) vs 价格制定者(垄断)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>古诺模型: 产量竞争达到纳什均衡</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>伯特兰模型: 价格竞争→接近完全竞争</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">绩效评估</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">效率·福利</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>垄断利润=超额利润→资源配置扭曲</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>X非效率: 缺乏竞争压力导致成本膨胀</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>动态效率: 垄断利润可为创新提供资金</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">监管策略</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">反垄断</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>横向合并审查: HHI变化作为判断标准</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>纵向约束: 排他协议/搭售的竞争效应</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>数字平台: 网络效应下的反垄断新挑战</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          垄断vs完全竞争模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">拖动滑块调整市场集中度，观察价格与产量变化</p>
+      </div>
+      <div class="text-right font-mono text-sm">
+        <span class="text-emerald-400" id="comp-1-v1"></span>
+        <span class="text-slate-600 mx-1">|</span>
+        <span class="text-blue-400" id="comp-1-v2"></span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">Q</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">P</text>
+      
+      <line id="comp-1-c1" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c1l" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">D</text>
+      <line id="comp-1-c2" x1="70" y1="340" x2="570" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-c2l" x="575" y="15" fill="#fbbf24" font-size="11" font-weight="bold">MC</text>
+      <line id="comp-1-dh" x1="70" y1="200" x2="300" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <line id="comp-1-dv" x1="300" y1="200" x2="300" y2="340" stroke="#10b981" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+      <circle id="comp-1-pt" cx="300" cy="200" r="5" fill="#10b981" class="eq-dot"/>
+      <circle id="comp-1-glow" cx="300" cy="200" r="5" fill="#10b981" opacity="0.3">
+        <animate attributeName="r" values="5;14;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text id="comp-1-lp" x="55" y="200" fill="#10b981" font-size="10" text-anchor="end" font-weight="bold" font-family="monospace"></text>
+      <text id="comp-1-lq" x="300" y="356" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold" font-family="monospace"></text>
+    </svg>
+    <div class="mt-4 px-2">
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+        <span>市场集中度 <span class="text-white font-mono" id="comp-1-sl"></span></span>
+        <div class="flex gap-4">
+          <span>价格: <span class="text-emerald-400 font-mono" id="comp-1-r1"></span></span>
+          <span>产量: <span class="text-amber-400 font-mono" id="comp-1-r2"></span></span>
+        </div>
+      </div>
+      <input type="range" id="comp-1-slider" min="0" max="100" value="50" step="0.5">
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          赫芬达尔指数(HHI)计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">输入前N家企业市场份额，计算市场集中度</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">企业1市占率 (%)</label>
+            <input type="number" id="comp-2-s1" value="40" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">企业2市占率 (%)</label>
+            <input type="number" id="comp-2-s2" value="25" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">企业3市占率 (%)</label>
+            <input type="number" id="comp-2-s3" value="15" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">其余企业合计 (%)</label>
+            <input type="number" id="comp-2-s4" value="20" min="0" step="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">竞争程度</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">HHI指数</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">等价企业数</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">集中度判断</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">市场结构</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ HHI = \sum_{i=1}^{n} s_i^2 \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 微观经济学 Chapter 05</div>
+    <div class="mt-2 md:mt-0">下一章：劳动市场与人力资源配置 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: 'E_{xy} = \\frac{\\Delta Q_x', tip: '交叉弹性——B商品价格变化对A商品需求量的影响'},
+    {match: 'E_{xy} > 0', tip: '正交叉弹性——两种商品是替代品'},
+    {match: 'E_{xy} < 0', tip: '负交叉弹性——两种商品是互补品'},
+    {match: 'MR = MC', tip: '多卖一件赚的钱=多做一件花的钱，到这个点利润最大'},
+    {match: 'P = MC', tip: '完全竞争均衡——价格等于边际成本'},
+    {match: 'P \\geq AVC_{min}', tip: '短期停业点——价格低于最低可变成本时应停产'},
+    {match: 'P \\geq AC_{min}', tip: '长期均衡——价格等于最低平均成本，零经济利润'},
+    {match: '|E_d| < 1', tip: '缺乏弹性——涨价总收入反而增加'},
+    {match: 'P = a - bQ', tip: '线性反需求函数——价格随数量增加而下降'},
+    {match: 'Q = q_1 + q_2', tip: '市场总产量——各企业产量之和'},
+    {match: 'd > 0', tip: '供给斜率为正——价格越高供给越多'},
+    {match: 'P = 100 - Q', tip: '需求曲线——总市场容量100，每多卖一单位价格降1'},
+    {match: 'MR = P + Q \\cdot \\frac{dP}{dQ}', tip: '边际收益展开——多卖一单位的收入含价格下降效应'},
+    {match: '\\pi = TR - TC', tip: '利润 = 总收入-总成本'},
+    {match: '\\frac{d\\pi}{dQ} = MR - MC = 0', tip: '利润最大化一阶条件——边际收益等于边际成本'},
+    {match: 'L = \\frac{P - MC}{P}', tip: '勒纳指数——加价幅度越大，垄断力量越强'},
+    {match: 'q_1^* = q_2^* = \\frac{a - c}{3b}', tip: '古诺均衡——双寡头各生产(a-c)/3b，合计2/3竞争产量'},
+    {match: 'Q^* = ', tip: '均衡数量——均衡价格下的市场交易量'},
+    {match: 'P^* = ', tip: '均衡价格——供给和需求相等时的市场价格'},
+    {match: 'HHI = \\sum_{i=1}^{n} s_i^2', tip: 'HHI指数——各企业市场份额平方和，越大越垄断'},
+    {match: 'q_L = \\frac{a-c}{2b}', tip: '斯塔克伯格领导者产量——先行者拿一半竞争产量'},
+    {match: 'q_F = \\frac{a-c}{4b}', tip: '斯塔克伯格跟随者产量——后行者只拿1/4竞争产量'},
+    {match: 'q_1 = a - bp_1 + dp_2', tip: '伯特兰竞争需求——自己降价和对手涨价都增加销量'},
+    {match: '\\delta \\geq \\frac{欺骗收益', tip: '卡特尔稳定条件——折现因子够大(足够在乎未来)合谋才能维持'},
+    {match: 'AC(Q) > AC(Q_1', tip: '自然垄断——一家生产比多家生产成本低'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=60;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  var slider=document.getElementById('comp-1-slider');
+  function update(){
+    var c=parseFloat(slider.value);
+    var eq_x=(50-10)/(0.5+0.15)*(100-c)/100;
+    var eq_y=50-((50-10)/(0.5+0.15)*(100-c)/100)*0.5;
+    if(eq_x<0)eq_x=0;
+    var px=xc(eq_x),py=yc(eq_y);
+    // Curve 1 endpoints
+    var c1x0=0,c1y0_v=(function(x){return 50-x*0.5;})(0);
+    var c1x1=xMax,c1y1_v=(function(x){return 50-x*0.5;})(xMax);
+    var c1=document.getElementById('comp-1-c1');
+    c1.setAttribute('x1',xc(c1x0));c1.setAttribute('y1',yc(Math.min(Math.max(c1y0_v,0),yMax)));
+    c1.setAttribute('x2',xc(c1x1));c1.setAttribute('y2',yc(Math.max(c1y1_v,0)));
+    // Curve 2 endpoints
+    var c2x0=0,c2y0_v=(function(x){return 10+x*0.15;})(0);
+    var c2x1=xMax,c2y1_v=(function(x){return 10+x*0.15;})(xMax);
+    var c2=document.getElementById('comp-1-c2');
+    c2.setAttribute('x1',xc(c2x0));c2.setAttribute('y1',yc(Math.min(Math.max(c2y0_v,0),yMax)));
+    c2.setAttribute('x2',xc(c2x1));c2.setAttribute('y2',yc(Math.min(Math.max(c2y1_v,0),yMax)));
+    document.getElementById('comp-1-c2l').setAttribute('x',xc(c2x1)+8);
+    document.getElementById('comp-1-c2l').setAttribute('y',yc(Math.min(c2y1_v,yMax))-4);
+    // Equilibrium
+    var pt=document.getElementById('comp-1-pt');
+    pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var glow=document.getElementById('comp-1-glow');
+    glow.setAttribute('cx',px);glow.setAttribute('cy',py);
+    document.getElementById('comp-1-dh').setAttribute('y1',py);
+    document.getElementById('comp-1-dh').setAttribute('y2',py);
+    document.getElementById('comp-1-dh').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('x1',px);
+    document.getElementById('comp-1-dv').setAttribute('x2',px);
+    document.getElementById('comp-1-dv').setAttribute('y1',py);
+    document.getElementById('comp-1-lp').setAttribute('y',py+4);
+    document.getElementById('comp-1-lp').textContent=eq_y.toFixed(1);
+    document.getElementById('comp-1-lq').setAttribute('x',px);
+    document.getElementById('comp-1-lq').textContent=eq_x.toFixed(1);
+    
+    document.getElementById('comp-1-sl').textContent='HHI = '+c.toFixed(1);
+    document.getElementById('comp-1-v1').textContent='P*='+eq_y.toFixed(1);
+    document.getElementById('comp-1-v2').textContent='Q*='+eq_x.toFixed(1);
+    var r1=eq_y;
+    var r2=eq_x;
+    document.getElementById('comp-1-r1').textContent=r1.toFixed(0);
+    document.getElementById('comp-1-r2').textContent=r2.toFixed(0);
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var s1=parseFloat(document.getElementById('comp-2-s1').value);
+    var s2=parseFloat(document.getElementById('comp-2-s2').value);
+    var s3=parseFloat(document.getElementById('comp-2-s3').value);
+    var s4=parseFloat(document.getElementById('comp-2-s4').value);
+
+    var hhi=s1*s1+s2*s2+s3*s3+s4*s4;
+    var n=10000/hhi;
+    document.getElementById('comp-2-out0').textContent=hhi.toFixed(0);
+    document.getElementById('comp-2-out1').textContent=n.toFixed(1);
+    document.getElementById('comp-2-out2').textContent=hhi>2500?'高度集中':(hhi>1500?'中度集中':'竞争性');
+    document.getElementById('comp-2-out3').textContent=hhi>2500?'垄断风险':(hhi>1500?'寡头市场':'健康竞争');
+    // Ring
+    var score=Math.max(0,Math.min(1,1-hhi/10000));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

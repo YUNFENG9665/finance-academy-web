@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>经济增长理论与实证研究 | 认知重力场</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: {
+    sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Segoe UI','Roboto','sans-serif'],
+    mono: ['SF Mono','Menlo','Monaco','Consolas','monospace']
+  }}}
+}
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #020617; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 15% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 20%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.glass { background: rgba(2,6,23,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(30,41,59,0.6); }
+.card { background: rgba(15,23,42,0.75); border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; transition: all 0.35s ease; }
+.card:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 40px rgba(16,185,129,0.07); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+.btn-press { transition: transform 0.1s; }
+.btn-press:active { transform: scale(0.95); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #10b981; }
+details summary { cursor: pointer; list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '\25B8  '; color: #10b981; }
+details[open] summary::before { content: '\25BE  '; }
+.katex { color: #e2e8f0 !important; }
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #10b981; transition: width 0.3s; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.ftip { position: relative; cursor: help; transition: background 0.2s; border-radius: 6px; }
+.ftip:hover { background: rgba(16,185,129,0.05); }
+.ftip::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(8,12,28,0.98);
+  border: 1px solid rgba(16,185,129,0.35); border-radius: 12px;
+  padding: 12px 16px; font-size: 13px; font-family: -apple-system,sans-serif;
+  color: #e2e8f0; white-space: normal; width: max-content; max-width: 320px;
+  line-height: 1.7; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease; z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55); text-align: left; font-weight: normal;
+}
+.ftip::before {
+  content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: rgba(16,185,129,0.35); opacity: 0;
+  transition: opacity 0.25s; z-index: 101; pointer-events: none;
+}
+.ftip:hover::after, .ftip.show::after { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ftip:hover::before, .ftip.show::before { opacity: 1; }
+@keyframes tip-hint { 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50%{ box-shadow: 0 0 0 4px rgba(16,185,129,0.15); } }
+.ftip-hint { animation: tip-hint 1.5s ease-in-out 3; border-radius: 6px; }
+.formula-hint { text-align: center; font-size: 11px; color: #475569; padding: 6px 0 0; transition: opacity 1s; }
+
+@keyframes eq-pulse { 0%,100%{ r: 5; opacity: 0.3; } 50%{ r: 14; opacity: 0; } }
+.eq-dot { filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  background: #1e293b; border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: #10b981; cursor: pointer;
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: #10b981;
+  cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+</style>
+</head>
+<body class="text-slate-300 font-sans antialiased">
+
+<!-- NAV -->
+<nav class="glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8">
+  <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+    <div class="flex items-center gap-2 text-sm font-semibold text-white tracking-wide">
+      <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <span class="hidden sm:inline">Macro</span>
+    </div>
+    <div class="flex items-center gap-1 md:gap-4 text-xs md:text-sm overflow-x-auto">
+      <a href="#s0" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心概念</a>
+      <a href="#s1" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">模型与公式</a>
+      <a href="#s3" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">实务应用</a>
+      <a href="#s4" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">核心问题</a>
+      <a href="#lab" class="nav-link text-slate-400 hover:text-white px-2 py-1 whitespace-nowrap">Lab</a>
+    </div>
+    <div class="hidden lg:block text-xs text-slate-500 tracking-widest whitespace-nowrap">认知重力场 &middot; 金融实验室</div>
+  </div>
+</nav>
+
+<header class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+  <div class="reveal">
+    <span class="tag bg-emerald-500/10 text-emerald-400 mb-4">CHAPTER 05</span>
+    <h1 class="text-3xl md:text-5xl font-bold text-white mt-3 tracking-tight leading-tight">经济增长理论与实证研究</h1>
+    <p class="text-slate-400 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">理解长期经济增长的源泉和决定因素</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+      <div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">6</div><div class="text-xs text-slate-500 mt-1">增长事实</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">4</div><div class="text-xs text-slate-500 mt-1">核心模型</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">3</div><div class="text-xs text-slate-500 mt-1">实务案例</div></div><div class="card text-center py-4"><div class="text-2xl font-bold text-emerald-400 font-mono">2</div><div class="text-xs text-slate-500 mt-1">交互实验</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="s0" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心概念</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">增长的事实与谜题</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">卡尔多事实</span>（Stylized Facts of Growth）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 人均产出持续增长</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论含义:</span> 技术进步是核心</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 资本/产出比(K/Y)大致稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论含义:</span> 平衡增长路径</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">3</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 资本/劳动比(K/L)持续上升</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论含义:</span> 资本深化</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">4</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 资本回报率大致稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论含义:</span> 利率无趋势</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">5</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 劳动和资本收入份额大致稳定</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论含义:</span> 柯布-道格拉斯生产函数</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">6</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 增长率跨国差异巨大</div><div class="text-xs text-slate-400"><span class="text-slate-500">理论含义:</span> 收敛问题</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">增长奇迹与灾难</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">类型</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">代表</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">人均GDP增长率</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">奇迹</td><td class="px-3 py-2 text-xs text-slate-400">日本（1950-73）</td><td class="px-3 py-2 text-xs text-slate-400">8%+</td><td class="px-3 py-2 text-xs text-slate-400">追赶型增长</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">奇迹</td><td class="px-3 py-2 text-xs text-slate-400">亚洲四小龙</td><td class="px-3 py-2 text-xs text-slate-400">6-8%</td><td class="px-3 py-2 text-xs text-slate-400">出口导向</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">奇迹</td><td class="px-3 py-2 text-xs text-slate-400">中国（1978-今）</td><td class="px-3 py-2 text-xs text-slate-400">8%+</td><td class="px-3 py-2 text-xs text-slate-400">规模最大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">灾难</td><td class="px-3 py-2 text-xs text-slate-400">撒哈拉以南非洲</td><td class="px-3 py-2 text-xs text-slate-400">负增长</td><td class="px-3 py-2 text-xs text-slate-400">制度失败</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">灾难</td><td class="px-3 py-2 text-xs text-slate-400">拉美部分国家</td><td class="px-3 py-2 text-xs text-slate-400">停滞</td><td class="px-3 py-2 text-xs text-slate-400">中等收入陷阱</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">大分流</span>：为什么西方率先工业化？</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>地理论：Diamond《枪炮、病菌与钢铁》</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>制度论：Acemoglu《国家为什么会失败》</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>文化论：Weber《新教伦理与资本主义精神》</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">索洛增长模型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">基本假设</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>规模报酬不变</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资本边际产品递减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>储蓄率外生</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>技术进步外生</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">生产函数</span>（柯布-道格拉斯）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = F(K, AL) = K^\alpha (AL)^{1-\alpha}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(A\)：技术水平（劳动增进型）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\alpha\)：资本收入份额（约0.3-0.4）</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人均有效劳动单位变量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[y = \frac{Y}{AL}, \quad k = \frac{K}{AL}\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[y = k^\alpha\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资本积累方程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\dot{K} = sY - \delta K\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人均有效劳动单位的资本动态</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\dot{k} = sf(k) - (n + g + \delta)k\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(s\)：储蓄率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(n\)：人口增长率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(g\)：技术进步率</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\delta\)：折旧率</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳态条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[sf(k^*) = (n + g + \delta)k^*\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳态资本存量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[k^* = \left(\frac{s}{n+g+\delta}\right)^{\frac{1}{1-\alpha}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">索洛模型的关键结论</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">储蓄率只影响水平</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 不影响长期增长率</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策启示:</span> 储蓄政策有限</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">长期增长=技术进步</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> g决定人均产出增长</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策启示:</span> 创新是关键</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">条件收敛</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 穷国增长更快（给定参数）</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策启示:</span> 追赶可能</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">边际产品递减</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 资本积累回报下降</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策启示:</span> 不能只靠投资</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">内生增长理论</h3>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">AK模型</span>（最简内生增长）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = AK\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>没有边际产出递减</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>增长可以永续</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>储蓄率影响长期增长率</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">增长率</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[g = sA - \delta\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">AK模型的微观基础</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(K\)包含人力资本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>学习效应（Learning by Doing）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>知识溢出</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">R&D模型</span>（Romer, 1990）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = A \cdot L_Y\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\dot{A} = \delta A \cdot L_A\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">核心思想</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">知识非竞争性</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 一人使用不妨碍他人</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 可以无限扩散</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">知识部分排他性</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 专利提供激励</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 需要产权保护</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">研发投入内生</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 企业选择研发投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 政策可以影响增长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">规模效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">内容:</span> 更多研究者→更快增长</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 人口规模重要</div></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">人力资本模型</span>（Lucas, 1988）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = K^\alpha (uHL)^{1-\alpha}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(H\)：人力资本</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(u\)：工作时间比例</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">人力资本积累</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\dot{H} = \phi(1-u)H\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">投入学习的时间越多，人力资本增长越快。</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">政策含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>教育补贴有长期增长效应</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>人力资本投资的社会回报可能高于私人回报</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">增长核算</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">索洛余值（全要素生产率TFP）</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">从生产函数取对数并微分：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[g_Y = \alpha g_K + (1-\alpha)g_L + g_A\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">TFP增长（索洛余值）</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[g_A = g_Y - \alpha g_K - (1-\alpha)g_L\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1">TFP是"我们无知的度量"——衡量产出增长中不能被投入增长解释的部分。</p>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">增长核算示例</span>（美国1948-2019）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资本积累</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 1.2%</div><div class="text-xs text-slate-400"><span class="text-slate-500">占比:</span> 35%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">劳动投入</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 0.8%</div><div class="text-xs text-slate-400"><span class="text-slate-500">占比:</span> 23%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">TFP</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 1.4%</div><div class="text-xs text-slate-400"><span class="text-slate-500">占比:</span> 42%</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1"><span class="text-white font-semibold">总增长</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> <span class="text-white font-semibold">3.4%</span></div><div class="text-xs text-slate-400"><span class="text-slate-500">占比:</span> <span class="text-white font-semibold">100%</span></div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">东亚增长之争</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">汗水论</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表:</span> Krugman, Young</div><div class="text-xs text-slate-400"><span class="text-slate-500">论点:</span> 投入驱动，TFP贡献小</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">灵感论</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表:</span> 反对派</div><div class="text-xs text-slate-400"><span class="text-slate-500">论点:</span> TFP也重要，测量有问题</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">综合观</div><div class="text-xs text-slate-400"><span class="text-slate-500">代表:</span> 当前共识</div><div class="text-xs text-slate-400"><span class="text-slate-500">论点:</span> 两者都重要，阶段不同</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 text-sm font-bold">5</div>
+        <h3 class="text-white font-semibold">增长的决定因素</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">跨国增长回归的发现</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因素</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">影响</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">证据强度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">因果识别</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">初始人力资本</td><td class="px-3 py-2 text-xs text-slate-400">强正相关</td><td class="px-3 py-2 text-xs text-slate-400">强</td><td class="px-3 py-2 text-xs text-slate-400">较好</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">制度质量</td><td class="px-3 py-2 text-xs text-slate-400">强正相关</td><td class="px-3 py-2 text-xs text-slate-400">强</td><td class="px-3 py-2 text-xs text-slate-400">挑战大</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">贸易开放度</td><td class="px-3 py-2 text-xs text-slate-400">正相关</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">争议</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">地理因素</td><td class="px-3 py-2 text-xs text-slate-400">间接影响</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">外生性强</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">金融发展</td><td class="px-3 py-2 text-xs text-slate-400">正相关</td><td class="px-3 py-2 text-xs text-slate-400">中</td><td class="px-3 py-2 text-xs text-slate-400">内生性问题</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">文化因素</td><td class="px-3 py-2 text-xs text-slate-400">争议</td><td class="px-3 py-2 text-xs text-slate-400">弱</td><td class="px-3 py-2 text-xs text-slate-400">难以测量</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">制度与增长</span>（Acemoglu, Johnson, Robinson）：</p>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">包容性制度 vs 攫取性制度</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">产权</div><div class="text-xs text-slate-400"><span class="text-slate-500">包容性:</span> 保护私有产权</div><div class="text-xs text-slate-400"><span class="text-slate-500">攫取性:</span> 不安全，易被剥夺</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">竞争</div><div class="text-xs text-slate-400"><span class="text-slate-500">包容性:</span> 自由进入</div><div class="text-xs text-slate-400"><span class="text-slate-500">攫取性:</span> 垄断和特权</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">法治</div><div class="text-xs text-slate-400"><span class="text-slate-500">包容性:</span> 规则面前人人平等</div><div class="text-xs text-slate-400"><span class="text-slate-500">攫取性:</span> 选择性执法</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">政治</div><div class="text-xs text-slate-400"><span class="text-slate-500">包容性:</span> 权力分散、问责</div><div class="text-xs text-slate-400"><span class="text-slate-500">攫取性:</span> 权力集中、无约束</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">增长效应</div><div class="text-xs text-slate-400"><span class="text-slate-500">包容性:</span> 鼓励创新和投资</div><div class="text-xs text-slate-400"><span class="text-slate-500">攫取性:</span> 抑制发展</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">殖民遗产的长期影响</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>欧洲人定居地区 → 建立包容性制度 → 长期繁荣</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>资源开采地区 → 建立攫取性制度 → 长期落后</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>工具变量：殖民者死亡率 → 定居倾向 → 制度类型</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s1" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">关键模型与公式</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">1</div>
+        <h3 class="text-white font-semibold">模型1：索洛模型稳态分析</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳态资本存量</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[k^* = \left(\frac{s}{n+g+\delta}\right)^{\frac{1}{1-\alpha}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳态产出</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[y^* = (k^*)^\alpha = \left(\frac{s}{n+g+\delta}\right)^{\frac{\alpha}{1-\alpha}}\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳态增长率</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Y/L（人均产出）</div><div class="text-xs text-slate-400"><span class="text-slate-500">稳态增长率:</span> g</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">K/L（人均资本）</div><div class="text-xs text-slate-400"><span class="text-slate-500">稳态增长率:</span> g</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Y（总产出）</div><div class="text-xs text-slate-400"><span class="text-slate-500">稳态增长率:</span> n + g</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">K（总资本）</div><div class="text-xs text-slate-400"><span class="text-slate-500">稳态增长率:</span> n + g</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">y = Y/AL</div><div class="text-xs text-slate-400"><span class="text-slate-500">稳态增长率:</span> 0</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">k = K/AL</div><div class="text-xs text-slate-400"><span class="text-slate-500">稳态增长率:</span> 0</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">参数变化的影响</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">参数变化</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">稳态水平</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">转移增长</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">长期增长率</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">s↑</td><td class="px-3 py-2 text-xs text-slate-400">↑</td><td class="px-3 py-2 text-xs text-slate-400">暂时加速</td><td class="px-3 py-2 text-xs text-slate-400">不变</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">n↑</td><td class="px-3 py-2 text-xs text-slate-400">↓</td><td class="px-3 py-2 text-xs text-slate-400">暂时减速</td><td class="px-3 py-2 text-xs text-slate-400">不变</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">g↑</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">—</td><td class="px-3 py-2 text-xs text-slate-400">↑</td></tr></tbody></table></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">2</div>
+        <h3 class="text-white font-semibold">模型2：黄金律储蓄率</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">消费最大化的稳态条件</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[f'(k^{gold}) = n + g + \delta\]</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[MPK = 折旧+增长\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">黄金律储蓄率</span>（柯布-道格拉斯）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[s^{gold} = \alpha\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">含义</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>储蓄率 = 资本收入份额时消费最大</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>美国实际储蓄率约20%，低于黄金律（约35%）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>意味着美国"消费过多"</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">动态效率</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(s < s^{gold}\)：动态有效（减少储蓄降低长期消费）</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(s > s^{gold}\)：动态无效（可以"免费午餐"）</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">3</div>
+        <h3 class="text-white font-semibold">模型3：条件收敛</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">收敛方程</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[g_y = \lambda(\ln y^* - \ln y_0)\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\lambda\)：收敛速度</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(y^*\)：稳态人均产出</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(y_0\)：初始人均产出</span></div></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">收敛速度</span>（索洛模型预测）：</p>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[\lambda = (1-\alpha)(n + g + \delta) \approx 2\%/年\]</div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">无条件收敛 vs 条件收敛</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">无条件</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 穷国比富国增长快</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据:</span> 全球样本不支持</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">条件</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 控制其他因素后，穷国收敛</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据:</span> 数据支持</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">俱乐部收敛</div><div class="text-xs text-slate-400"><span class="text-slate-500">含义:</span> 相似国家组内收敛</div><div class="text-xs text-slate-400"><span class="text-slate-500">证据:</span> 数据支持</div></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-sm font-bold">4</div>
+        <h3 class="text-white font-semibold">模型4：曼昆-罗默-韦尔扩展</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">加入人力资本的索洛模型</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[Y = K^\alpha H^\beta (AL)^{1-\alpha-\beta}\]</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(H\)：人力资本存量</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>\(\alpha + \beta < 1\)：边际产品递减</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">稳态</div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center my-3">\[y^* = \left(\frac{s_k}{n+g+\delta}\right)^{\frac{\alpha}{1-\alpha-\beta}} \left(\frac{s_h}{n+g+\delta}\right)^{\frac{\beta}{1-\alpha-\beta}}\]</div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">贡献</span>：更好地解释跨国收入差异。</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原始索洛模型：解释约50%的收入差异</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>MRW扩展：解释约80%的收入差异</span></div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="s3" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">实务应用</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">中</span>
+        <h3 class="text-white font-semibold text-sm">案例1：中国经济增长奇迹与转型</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">增长阶段</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">时期</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">平均增速</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">主要驱动力</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">1978-2000</td><td class="px-3 py-2 text-xs text-slate-400">~10%</td><td class="px-3 py-2 text-xs text-slate-400">制度改革+劳动转移</td><td class="px-3 py-2 text-xs text-slate-400">效率提升</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2001-2010</td><td class="px-3 py-2 text-xs text-slate-400">~10%</td><td class="px-3 py-2 text-xs text-slate-400">入世+投资+出口</td><td class="px-3 py-2 text-xs text-slate-400">规模扩张</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2011-2019</td><td class="px-3 py-2 text-xs text-slate-400">~7%</td><td class="px-3 py-2 text-xs text-slate-400">投资+消费</td><td class="px-3 py-2 text-xs text-slate-400">结构转型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">2020-今</td><td class="px-3 py-2 text-xs text-slate-400">~5%</td><td class="px-3 py-2 text-xs text-slate-400">创新+消费</td><td class="px-3 py-2 text-xs text-slate-400">新常态</td></tr></tbody></table></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">增长核算分解</span>（1978-2019）：</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资本积累</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~50%</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 高投资率</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">劳动投入</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~15%</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 人口红利</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人力资本</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~10%</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 教育普及</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">TFP</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献估计:</span> ~25%</div><div class="text-xs text-slate-400"><span class="text-slate-500">说明:</span> 效率改进</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">转型挑战</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人口老龄化</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 劳动力减少</div><div class="text-xs text-slate-400"><span class="text-slate-500">增长含义:</span> 潜在增长率↓</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">投资回报递减</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 资本边际产品↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">增长含义:</span> 投资驱动难以持续</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">中等收入陷阱</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 追赶红利消失</div><div class="text-xs text-slate-400"><span class="text-slate-500">增长含义:</span> 需要创新驱动</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">外部环境</div><div class="text-xs text-slate-400"><span class="text-slate-500">表现:</span> 去全球化压力</div><div class="text-xs text-slate-400"><span class="text-slate-500">增长含义:</span> 出口引擎减弱</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">跨越中等收入陷阱的要素</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>制度质量提升</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>创新能力培育</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>人力资本升级</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>产业结构优化</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 text-sm font-bold">日</span>
+        <h3 class="text-white font-semibold text-sm">案例2：日本&quot;失去的三十年&quot;</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">增长轨迹</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1950-1973</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均增速:</span> 9.3%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 经济奇迹</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1974-1990</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均增速:</span> 4.2%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 稳定增长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">1991-2000</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均增速:</span> 1.1%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 失去的十年</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">2001-2019</div><div class="text-xs text-slate-400"><span class="text-slate-500">平均增速:</span> 0.8%</div><div class="text-xs text-slate-400"><span class="text-slate-500">特点:</span> 长期停滞</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">停滞原因</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">资产泡沫破裂</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 资产负债表衰退</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策应对:</span> 财政刺激</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">人口老龄化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 劳动力减少、消费下降</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策应对:</span> 移民政策（有限）</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">僵尸企业</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 资源错配、生产率↓</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策应对:</span> 结构改革</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">通缩预期</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 推迟消费、实际利率高</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策应对:</span> 量化宽松</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">制度僵化</div><div class="text-xs text-slate-400"><span class="text-slate-500">机制:</span> 创新不足</div><div class="text-xs text-slate-400"><span class="text-slate-500">政策应对:</span> 规制改革</div></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">日本经验的教训</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span>资产泡沫的长期代价</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span>人口结构的重要性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span>结构改革的必要性</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span>货币政策的局限性</span></div></div>
+    </div>
+    <div class="card reveal">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 text-sm font-bold">非</span>
+        <h3 class="text-white font-semibold text-sm">案例3：非洲的增长挑战</h3>
+      </div>
+      <div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">非洲增长悖论</div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>自然资源丰富</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>但长期增长缓慢</span></div></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">制度假说的验证</div>
+<div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">国家</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">制度质量</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">增长表现</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">说明</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">博茨瓦纳</td><td class="px-3 py-2 text-xs text-slate-400">较好</td><td class="px-3 py-2 text-xs text-slate-400">持续增长</td><td class="px-3 py-2 text-xs text-slate-400">钻石收入管理好</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">尼日利亚</td><td class="px-3 py-2 text-xs text-slate-400">较差</td><td class="px-3 py-2 text-xs text-slate-400">波动大</td><td class="px-3 py-2 text-xs text-slate-400">石油诅咒</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">刚果(金)</td><td class="px-3 py-2 text-xs text-slate-400">很差</td><td class="px-3 py-2 text-xs text-slate-400">负增长</td><td class="px-3 py-2 text-xs text-slate-400">内战、攫取</td></tr></tbody></table></div>
+<div class="text-emerald-400 text-xs font-semibold tracking-wider mt-4 mb-2">资源诅咒机制</div>
+<div class="bg-slate-800/50 rounded-lg p-3 my-3 overflow-x-auto"><pre class="text-xs text-slate-400 font-mono leading-relaxed whitespace-pre">自然资源丰富 → 易于攫取 → 攫取性制度 → 抑制其他部门
+      ↓                              ↓
+ 寻租活动多                      去工业化
+      ↓                              ↓
+ 制度进一步恶化 ← 资源收入波动 ← 经济脆弱</pre></div>
+<p class="text-sm text-slate-400 leading-relaxed my-1"><span class="text-white font-semibold">近年非洲复兴</span>（2000-2019）：</p>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>部分国家年增速5%+</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>原因：制度改善、大宗商品繁荣、技术扩散</span></div><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>挑战：可持续性、分配不均、基础设施</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">核心问题</h2>
+  </div>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">概念理解类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">1.</span><span><span class="text-white font-semibold">为什么索洛模型认为储蓄率不能影响长期增长率？这个结论的政策含义是什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：边际产出递减、稳态分析、技术进步</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">2.</span><span><span class="text-white font-semibold">内生增长理论与索洛模型的本质区别是什么？对政策有什么不同启示？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：边际产出、知识溢出、政策空间</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">3.</span><span><span class="text-white font-semibold">什么是"条件收敛"？为什么穷国不一定能追上富国？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：稳态差异、制度因素、人力资本</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">分析应用类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">4.</span><span><span class="text-white font-semibold">如果一个国家想提高长期增长率，应该投资于物质资本还是人力资本？为什么？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：索洛vs内生增长、溢出效应、投资回报</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">5.</span><span><span class="text-white font-semibold">如何评估中国经济增长的可持续性？面临哪些挑战？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：投资回报递减、人口老龄化、创新能力</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">6.</span><span><span class="text-white font-semibold">为什么制度被认为是增长的根本原因？如何识别制度与增长的因果关系？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：内生性问题、历史工具变量、自然实验</span></div></div>
+    </div>
+  </details>
+  <details class="card reveal mt-3">
+    <summary class="text-sm text-white font-semibold">批判思维类</summary>
+    <div class="mt-4 text-sm text-slate-400 space-y-2">
+      <div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">7.</span><span><span class="text-white font-semibold">GDP增长是否等于福利改善？增长的代价是什么？如何衡量"好的增长"？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：环境、不平等、幸福感、可持续发展</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">8.</span><span><span class="text-white font-semibold">AI时代，人类劳动的作用会如何变化？这对增长理论有何影响？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：技术失业、人力资本、分配</span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-400 font-mono text-xs mt-0.5 shrink-0">9.</span><span><span class="text-white font-semibold">为什么有些国家能够跨越中等收入陷阱（如韩国），而有些不能（如巴西）？</span></span></div></div>
+<div class="space-y-1 my-2"><div class="flex items-start gap-2 text-sm text-slate-400"><span class="text-emerald-500 mt-1 shrink-0">&bull;</span><span>思考方向：制度、教育、创新、产业政策</span></div></div>
+    </div>
+  </details>
+</section>
+
+<section id="s5" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">推荐资源</h2>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典教材</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">教材</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">难度</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">特点</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《经济增长》</td><td class="px-3 py-2 text-xs text-slate-400">Barro & Sala-i-Martin</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">增长理论圣经</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《现代经济增长导论》</td><td class="px-3 py-2 text-xs text-slate-400">Acemoglu</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">最新进展，制度视角</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《经济增长的迷雾》</td><td class="px-3 py-2 text-xs text-slate-400">Easterly</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">发展视角，政策批判</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">《繁荣与贫困》</td><td class="px-3 py-2 text-xs text-slate-400">Acemoglu & Robinson</td><td class="px-3 py-2 text-xs text-slate-400"></td><td class="px-3 py-2 text-xs text-slate-400">通俗读物，制度论</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">经典论文</h3>
+    <div class="overflow-x-auto my-3 rounded-lg border border-slate-800">
+<table class="w-full"><thead class="bg-slate-800/50"><tr><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">论文</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">作者</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">年份</th><th class="px-3 py-2 text-left text-xs font-semibold text-emerald-400 whitespace-nowrap">贡献</th></tr></thead><tbody><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"A Contribution to the Theory of Economic Growth"</td><td class="px-3 py-2 text-xs text-slate-400">Solow</td><td class="px-3 py-2 text-xs text-slate-400">1956</td><td class="px-3 py-2 text-xs text-slate-400">新古典增长模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Endogenous Technological Change"</td><td class="px-3 py-2 text-xs text-slate-400">Romer</td><td class="px-3 py-2 text-xs text-slate-400">1990</td><td class="px-3 py-2 text-xs text-slate-400">内生增长R&D模型</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"Colonial Origins of Comparative Development"</td><td class="px-3 py-2 text-xs text-slate-400">AJR</td><td class="px-3 py-2 text-xs text-slate-400">2001</td><td class="px-3 py-2 text-xs text-slate-400">制度与增长因果</td></tr><tr class="border-t border-slate-800/50"><td class="px-3 py-2 text-xs text-slate-400">"A Contribution to the Empirics of Economic Growth"</td><td class="px-3 py-2 text-xs text-slate-400">MRW</td><td class="px-3 py-2 text-xs text-slate-400">1992</td><td class="px-3 py-2 text-xs text-slate-400">人力资本扩展</td></tr></tbody></table></div>
+  </div>
+  <div class="card reveal mt-3">
+    <h3 class="text-white font-semibold text-sm mb-3">诺贝尔奖相关</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3"><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Solow</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 1987</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 经济增长理论</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Lucas</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 1995</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 人力资本与增长</div></div><div class="bg-slate-800/40 rounded-lg p-3"><div class="text-white text-sm font-semibold mb-1">Romer, Nordhaus</div><div class="text-xs text-slate-400"><span class="text-slate-500">年份:</span> 2018</div><div class="text-xs text-slate-400"><span class="text-slate-500">贡献:</span> 内生增长、气候变化</div></div></div>
+  </div>
+</section>
+
+
+
+
+
+<section id="lab" class="px-4 md:px-8 py-12 max-w-7xl mx-auto">
+  <div class="reveal">
+    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Interactive Lab</h2>
+    <p class="text-sm text-slate-400 mb-6">动手实验 · 拖动滑块或点击图表探索金融规律</p>
+  </div>
+  <div class="grid md:grid-cols-1 gap-6">
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-3 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          经济增长的源泉与路径
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击阶段理解从要素投入到持续增长的逻辑链</p>
+      </div>
+      <div class="text-xs font-mono text-slate-500" id="comp-0-hint">
+        点击阶段查看详情
+      </div>
+    </div>
+    <svg id="comp-0-svg" viewBox="0 0 600 144" class="w-full h-auto">
+      <line x1="132" y1="68" x2="162" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="162,64 168,68 162,72" fill="#334155"/>
+<line x1="282" y1="68" x2="312" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="312,64 318,68 312,72" fill="#334155"/>
+<line x1="432" y1="68" x2="462" y2="68" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+<polygon points="462,64 468,68 462,72" fill="#334155"/>
+
+      <rect id="comp-0-box0" x="20" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#60a5fa" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="75" cy="46" r="13" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+<text x="75" y="51" fill="#60a5fa" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">1</text>
+<text x="75" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">要素积累</text>
+<text x="75" y="92" fill="#64748b" font-size="8" text-anchor="middle">资本·劳动</text>
+<rect id="comp-0-box1" x="170" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#34d399" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="225" cy="46" r="13" fill="none" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+<text x="225" y="51" fill="#34d399" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">2</text>
+<text x="225" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">技术进步</text>
+<text x="225" y="92" fill="#64748b" font-size="8" text-anchor="middle">全要素生产率</text>
+<rect id="comp-0-box2" x="320" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#fbbf24" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="375" cy="46" r="13" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+<text x="375" y="51" fill="#fbbf24" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">3</text>
+<text x="375" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">增长核算</text>
+<text x="375" y="92" fill="#64748b" font-size="8" text-anchor="middle">分解与诊断</text>
+<rect id="comp-0-box3" x="470" y="20" width="110" height="96" rx="12" fill="rgba(15,23,42,0.8)" stroke="#c084fc" stroke-width="1.5" style="cursor:pointer;transition:stroke-width 0.3s,fill 0.3s;"/>
+<circle cx="525" cy="46" r="13" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.4"/>
+<text x="525" y="51" fill="#c084fc" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace">4</text>
+<text x="525" y="76" fill="white" font-size="11" text-anchor="middle" font-weight="600">收敛分析</text>
+<text x="525" y="92" fill="#64748b" font-size="8" text-anchor="middle">追赶与分化</text>
+
+      <circle id="comp-0-glow" cx="75" cy="68" r="5" fill="#10b981" opacity="0.3"><animate attributeName="r" values="5;13;5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/></circle>
+<circle id="comp-0-pt" cx="75" cy="68" r="5" fill="#10b981"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+
+      <rect x="75" y="130" width="450" height="3" rx="1.5" fill="#1e293b"/>
+<rect id="comp-0-prog" x="75" y="130" width="0" height="3" rx="1.5" fill="#10b981" style="transition:width 0.5s;"/>
+<circle id="comp-0-pdot0" cx="75" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot1" cx="225" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot2" cx="375" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+<circle id="comp-0-pdot3" cx="525" cy="131" r="4" fill="#1e293b" stroke="#334155" stroke-width="1" style="transition:fill 0.3s;"/>
+
+    </svg>
+    <div id="comp-0-details" class="mt-3 px-3 py-3 bg-slate-800/30 rounded-lg"
+         style="display:none">
+      <div id="comp-0-det0" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#60a5fa"></span><span class="text-white font-semibold text-sm">要素积累</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">资本·劳动</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>资本深化: 储蓄→投资→人均资本↑</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>劳动力增长: 人口红利与刘易斯拐点</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#60a5fa" class="mt-0.5 text-[10px]">&#9654;</span><span>边际收益递减: 纯投资驱动不可持续</span></div>
+</div></div>
+<div id="comp-0-det1" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#34d399"></span><span class="text-white font-semibold text-sm">技术进步</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">全要素生产率</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>索洛残差: 增长中无法被要素解释的部分</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>内生增长: R&D投入→知识溢出→持续增长</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#34d399" class="mt-0.5 text-[10px]">&#9654;</span><span>制度质量: 产权保护激励创新投资</span></div>
+</div></div>
+<div id="comp-0-det2" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#fbbf24"></span><span class="text-white font-semibold text-sm">增长核算</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">分解与诊断</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>gY = gA + α·gK + (1-α)·gL</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>中国: 资本贡献>60%，TFP贡献偏低</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#fbbf24" class="mt-0.5 text-[10px]">&#9654;</span><span>发达国家: TFP贡献占50%以上</span></div>
+</div></div>
+<div id="comp-0-det3" style="display:none"><div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full" style="background:#c084fc"></span><span class="text-white font-semibold text-sm">收敛分析</span><span class="text-slate-600 mx-1">|</span><span class="text-xs text-slate-500">追赶与分化</span></div><div class="space-y-1.5"><div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>条件收敛: 穷国增长更快(条件相似时)</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>增长陷阱: 中等收入国家的结构困境</span></div>
+<div class="flex items-start gap-2 text-xs text-slate-400"><span style="color:#c084fc" class="mt-0.5 text-[10px]">&#9654;</span><span>开放经济加速技术扩散与收敛</span></div>
+</div></div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3); padding: 1rem;">
+    <div class="flex items-center justify-between mb-4 px-2">
+      <div>
+        <h3 class="text-white font-semibold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          索洛增长模型模拟器
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">点击查看不同资本水平下的产出与投资</p>
+      </div>
+      <div class="text-right font-mono text-sm" id="comp-1-info">
+        <span class="text-slate-500 text-xs">点击曲线开始实验</span>
+      </div>
+    </div>
+    <svg id="comp-1-svg" viewBox="0 0 600 400" class="w-full h-auto bg-slate-900/50 rounded-lg cursor-crosshair">
+      <defs><pattern id="comp-1-grid" width="50" height="33" patternUnits="userSpaceOnUse" x="70" y="10">
+        <path d="M 50 0 L 0 0 0 33" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect x="70" y="10" width="500" height="330" fill="url(#comp-1-grid)" opacity="0.5"/>
+      <line x1="70" y1="340" x2="570" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <line x1="70" y1="10" x2="70" y2="340" stroke="#334155" stroke-width="1.5"/>
+      <text x="560" y="365" fill="#64748b" font-size="12">k(人均资本)</text>
+      <text x="42" y="20" fill="#64748b" font-size="12">y(人均产出)</text>
+      
+      
+      <line id="comp-1-ec0" x1="70" y1="340" x2="570" y2="10" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-dasharray="0"/>
+<text id="comp-1-ec0-l" x="575" y="15" fill="#60a5fa" font-size="10" font-weight="bold">sy</text>
+<line id="comp-1-ec1" x1="70" y1="340" x2="570" y2="10" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
+<text id="comp-1-ec1-l" x="575" y="15" fill="#f87171" font-size="10" font-weight="bold">δk</text>
+
+      <line id="comp-1-curve" x1="70" y1="10" x2="570" y2="340" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="comp-1-cl" x="575" y="335" fill="#34d399" font-size="11" font-weight="bold">y=k^α</text>
+      <circle id="comp-1-pt" cx="-10" cy="-10" r="6" fill="#34d399" stroke="#020617" stroke-width="2" style="display:none"/>
+      <text id="comp-1-plbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+      <text id="comp-1-qlbl" x="0" y="0" fill="#34d399" font-size="10" font-weight="bold" font-family="monospace" style="display:none"></text>
+    </svg>
+    
+    <div class="mt-3 px-2 grid grid-cols-3 gap-3 text-center" id="comp-1-readout" style="display:none">
+      <div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">人均产出y</div>
+        <div class="font-mono text-lg font-bold" style="color:#34d399" id="comp-1-m0">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m0s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">储蓄sy</div>
+        <div class="font-mono text-lg font-bold" style="color:#60a5fa" id="comp-1-m1">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m1s">&mdash;</div>
+      </div>
+<div class="bg-slate-800/50 rounded-lg p-3">
+        <div class="text-xs text-slate-500 mb-1">折旧δk</div>
+        <div class="font-mono text-lg font-bold" style="color:#f87171" id="comp-1-m2">&mdash;</div>
+        <div class="text-xs mt-1" id="comp-1-m2s">&mdash;</div>
+      </div>
+
+    </div>
+  </div>
+<div class="card reveal" style="border-color: rgba(16,185,129,0.3);">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          经济增长核算计算器
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">分解经济增长的来源</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">GDP增长率 (%)</label>
+            <input type="number" id="comp-2-gy" value="6" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">资本增长率 (%)</label>
+            <input type="number" id="comp-2-gk" value="8" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">劳动增长率 (%)</label>
+            <input type="number" id="comp-2-gl" value="1" min="0" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+<div>
+            <label class="text-xs text-slate-400 block mb-1">资本份额 α</label>
+            <input type="number" id="comp-2-alpha" value="0.4" min="0.1" step="0.05" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 transition-colors">
+          </div>
+
+          <button id="comp-2-btn" class="btn-press w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">计算</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4">分析结果</h3>
+        <div class="flex items-center justify-center mb-6">
+          <svg id="comp-2-ring" viewBox="0 0 160 160" class="w-36 h-36">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle id="comp-2-ring-fill" cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.8s ease-out, stroke 0.5s;"/>
+            <text x="80" y="72" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace" id="comp-2-ring-pct">&mdash;</text>
+            <text x="80" y="90" text-anchor="middle" fill="#64748b" font-size="10">增长质量</text>
+          </svg>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">全要素生产率TFP</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out0">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">资本贡献</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out1">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">劳动贡献</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out2">&mdash;</div>
+          </div>
+<div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-slate-500 mb-1">TFP占比</div>
+            <div class="font-mono text-lg font-bold text-emerald-400" id="comp-2-out3">&mdash;</div>
+          </div>
+
+        </div>
+        <div class="mt-3 bg-slate-800/50 rounded-lg p-3 text-xs text-slate-400" id="comp-2-note" style="display:none">
+          <span id="comp-2-note-icon"></span>
+          <span id="comp-2-note-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-800/30 rounded-lg p-3 text-center text-xs text-slate-500">\[ g_Y = g_A + \alpha g_K + (1-\alpha) g_L \]</div>
+  </div>
+  </div>
+</section>
+
+<footer class="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-slate-800/50">
+  <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-600">
+    <div>认知重力场 &middot; 金融实验室 &mdash; 宏观经济学 Chapter 05</div>
+    <div class="mt-2 md:mt-0">下一章：汇率机制与国际收支平衡 &rarr;</div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+  if (typeof initFormulaTooltips === 'function') initFormulaTooltips();
+});
+
+
+function initFormulaTooltips() {
+  var tips = [
+    {match: '\\alpha', tip: 'alpha——超额收益，基金经理赚了多少超出市场的回报'},
+    {match: '\\beta', tip: '这只股票跟大盘有多同步？β=1.5说明大盘涨1%它大约涨1.5%'},
+    {match: 'Y = F(K, AL) = K^\\alpha (AL)^{1-\\alpha}', tip: '索洛生产函数——产出取决于资本、劳动和技术'},
+    {match: 'y = k^\\alpha', tip: '人均产出取决于人均资本'},
+    {match: '\\dot{k} = sf(k) - (n + g + \\delta)k', tip: '索洛模型核心——人均资本变化=投资-折旧'},
+    {match: 'sf(k^*) = (n + g + \\delta)k^*', tip: '稳态条件——投资刚好补偿折旧，人均资本不再变化'},
+    {match: 'k^* = \\left(\\frac{s}{n+g+\\delta}\\right)', tip: '稳态人均资本——储蓄率越高、折旧率越低则资本越多'},
+    {match: 'Y = K^\\alpha', tip: '柯布-道格拉斯生产函数——α是资本的产出弹性'},
+    {match: 'g_Y = \\alpha g_K + (1-\\alpha)g_L + g_A', tip: '增长核算——GDP增长=资本贡献+劳动贡献+技术进步'},
+    {match: 'g_A = g_Y - \\alpha g_K', tip: '索洛残差——GDP增长中资本和劳动解释不了的部分=技术进步'},
+    {match: "f'(k^{gold}) = n + g + \\delta", tip: '黄金律——消费最大化的储蓄率条件'},
+    {match: '\\lambda = (1-\\alpha)(n + g + \\delta)', tip: '收敛速度——穷国追赶富国有多快'}
+  ];
+  document.querySelectorAll('annotation[encoding="application/x-tex"]').forEach(function(ann) {
+    var tex = ann.textContent || '';
+    for (var i = 0; i < tips.length; i++) {
+      if (tex.indexOf(tips[i].match) >= 0) {
+        var katexEl = ann.closest('.katex');
+        if (!katexEl) break;
+        var container = katexEl.parentElement;
+        if (container && !container.classList.contains('ftip')) {
+          container.classList.add('ftip');
+          container.setAttribute('data-tip', tips[i].tip);
+        }
+        break;
+      }
+    }
+  });
+  document.addEventListener('click', function(e) {
+    var ftip = e.target.closest('.ftip');
+    document.querySelectorAll('.ftip.show').forEach(function(el) {
+      if (el !== ftip) el.classList.remove('show');
+    });
+    if (ftip) ftip.classList.toggle('show');
+  });
+  var first = document.querySelector('.ftip');
+  if (first) { setTimeout(function() { first.classList.add('ftip-hint'); }, 1200); }
+  var heroDiv = document.querySelector('header .reveal');
+  if (heroDiv) {
+    var hint = document.createElement('p');
+    hint.className = 'formula-hint';
+    hint.textContent = '\uD83D\uDCA1 \u60AC\u505C\u4EFB\u610F\u516C\u5F0F\u67E5\u770B\u5927\u767D\u8BDD\u89E3\u91CA  \u00B7  Hover formulas for plain explanations';
+    heroDiv.appendChild(hint);
+  }
+}
+
+(function(){
+  var n=4,pos=[75,225,375,525],active=-1,totalW=450;
+  function sel(idx){
+    if(active>=0){
+      document.getElementById('comp-0-box'+active).setAttribute('stroke-width','1.5');
+      document.getElementById('comp-0-box'+active).setAttribute('fill','rgba(15,23,42,0.8)');
+      document.getElementById('comp-0-det'+active).style.display='none';
+      document.getElementById('comp-0-pdot'+active).setAttribute('fill','#1e293b');
+    }
+    active=idx;
+    document.getElementById('comp-0-box'+idx).setAttribute('stroke-width','2.5');
+    document.getElementById('comp-0-box'+idx).setAttribute('fill','rgba(15,23,42,0.95)');
+    document.getElementById('comp-0-details').style.display='block';
+    document.getElementById('comp-0-det'+idx).style.display='block';
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[idx]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[idx]);
+    var pw=n>1?(idx/(n-1))*totalW:0;
+    document.getElementById('comp-0-prog').setAttribute('width',pw);
+    for(var j=0;j<n;j++){
+      document.getElementById('comp-0-pdot'+j).setAttribute('fill',j<=idx?'#10b981':'#1e293b');
+    }
+    document.getElementById('comp-0-hint').textContent='STEP '+(idx+1)+' / '+n;
+  }
+  for(var i=0;i<n;i++){(function(idx){
+    document.getElementById('comp-0-box'+idx).addEventListener('click',function(){sel(idx);});
+  })(i);}
+  var ai=0;setInterval(function(){
+    if(active>=0)return;
+    document.getElementById('comp-0-pt').setAttribute('cx',pos[ai]);
+    document.getElementById('comp-0-glow').setAttribute('cx',pos[ai]);
+    ai=(ai+1)%n;
+  },2000);
+})();
+(function(){
+  var mx=70,my=10,pw=500,ph=330;
+  var xMax=100,yMax=12;
+  function xc(v){return mx+(v/xMax)*pw;}
+  function yc(v){return my+ph-(v/yMax)*ph;}
+  function xFromSvg(sx){return((sx-mx)/pw)*xMax;}
+  var sliderVal=0;
+
+  function drawCurves(){
+    var c=sliderVal;
+    var y0=(function(x){return Math.pow(x,0.33);})(0);
+    var y1=(function(x){return Math.pow(x,0.33);})(xMax);
+    var cl=document.getElementById('comp-1-curve');
+    cl.setAttribute('x1',xc(0));cl.setAttribute('y1',yc(Math.min(Math.max(y0,0),yMax)));
+    cl.setAttribute('x2',xc(xMax));cl.setAttribute('y2',yc(Math.max(y1,0)));
+    
+    var ec0_y0=(function(x){var c=sliderVal;return 0.3*Math.pow(x,0.33);})(0);
+    var ec0_y1=(function(x){var c=sliderVal;return 0.3*Math.pow(x,0.33);})(xMax);
+    var ecl0=document.getElementById('comp-1-ec0');
+    ecl0.setAttribute('x1',xc(0));ecl0.setAttribute('y1',yc(Math.min(Math.max(ec0_y0,0),yMax)));
+    ecl0.setAttribute('x2',xc(xMax));ecl0.setAttribute('y2',yc(Math.max(ec0_y1,0)));
+    var ec1_y0=(function(x){var c=sliderVal;return 0.05*x;})(0);
+    var ec1_y1=(function(x){var c=sliderVal;return 0.05*x;})(xMax);
+    var ecl1=document.getElementById('comp-1-ec1');
+    ecl1.setAttribute('x1',xc(0));ecl1.setAttribute('y1',yc(Math.min(Math.max(ec1_y0,0),yMax)));
+    ecl1.setAttribute('x2',xc(xMax));ecl1.setAttribute('y2',yc(Math.max(ec1_y1,0)));
+    
+  }
+  drawCurves();
+  
+
+  document.getElementById('comp-1-svg').addEventListener('click',function(e){
+    var rect=this.getBoundingClientRect();
+    var scaleX=600/rect.width;
+    var svgX=(e.clientX-rect.left)*scaleX;
+    var x=xFromSvg(svgX);
+    x=Math.max(1,Math.min(xMax*0.97,x));
+    var c=sliderVal;
+    var y=(function(xx){return Math.pow(x,0.33);})(x);
+    if(y<=0||y>yMax)return;
+    var px=xc(x),py=yc(y);
+    var pt=document.getElementById('comp-1-pt');
+    pt.style.display='block';pt.setAttribute('cx',px);pt.setAttribute('cy',py);
+    var pl=document.getElementById('comp-1-plbl');
+    pl.style.display='block';pl.setAttribute('x',mx-8);pl.setAttribute('y',py+4);
+    pl.setAttribute('text-anchor','end');pl.textContent=y.toFixed(1);
+    var ql=document.getElementById('comp-1-qlbl');
+    ql.style.display='block';ql.setAttribute('x',px);ql.setAttribute('y',yc(0)+14);
+    ql.setAttribute('text-anchor','middle');ql.textContent=x.toFixed(1);
+    
+    document.getElementById('comp-1-readout').style.display='grid';
+    
+    document.getElementById('comp-1-m0').textContent=(y).toFixed(2);
+    document.getElementById('comp-1-m0s').textContent='α=0.33';
+    document.getElementById('comp-1-m1').textContent=(0.3*y).toFixed(2);
+    document.getElementById('comp-1-m1s').textContent='s=0.3';
+    document.getElementById('comp-1-m2').textContent=(0.05*x).toFixed(2);
+    document.getElementById('comp-1-m2s').textContent='δ=0.05';
+    var infoEl=document.getElementById('comp-1-info');
+    while(infoEl.firstChild)infoEl.removeChild(infoEl.firstChild);
+    var s1=document.createElement('span');s1.className='text-white font-mono';s1.textContent='k(人均资本)='+x.toFixed(1);
+    var s2=document.createElement('span');s2.className='text-slate-600 mx-1';s2.textContent='|';
+    var s3=document.createElement('span');s3.className='text-white font-mono';s3.textContent='y(人均产出)='+y.toFixed(1);
+    infoEl.appendChild(s1);infoEl.appendChild(s2);infoEl.appendChild(s3);
+  });
+})();
+(function(){
+  document.getElementById('comp-2-btn').addEventListener('click',function(){
+    var gy=parseFloat(document.getElementById('comp-2-gy').value);
+    var gk=parseFloat(document.getElementById('comp-2-gk').value);
+    var gl=parseFloat(document.getElementById('comp-2-gl').value);
+    var alpha=parseFloat(document.getElementById('comp-2-alpha').value);
+
+    var ga=gy-alpha*gk-(1-alpha)*gl;
+    document.getElementById('comp-2-out0').textContent=ga.toFixed(2)+'%';
+    document.getElementById('comp-2-out1').textContent=(alpha*gk).toFixed(2)+'%';
+    document.getElementById('comp-2-out2').textContent=((1-alpha)*gl).toFixed(2)+'%';
+    document.getElementById('comp-2-out3').textContent=(ga/gy*100).toFixed(0)+'%';
+    // Ring
+    var score=Math.max(0,Math.min(1,Math.max(0,ga/gy)));
+    var pct=Math.round(score*100);
+    var offset=376.99*(1-score);
+    var ring=document.getElementById('comp-2-ring-fill');
+    ring.setAttribute('stroke-dashoffset',offset);
+    ring.setAttribute('stroke',score>0.7?'#10b981':score>0.4?'#fbbf24':'#ef4444');
+    document.getElementById('comp-2-ring-pct').textContent=pct+'%';
+    
+  });
+})();
+
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+var navSections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+  navLinks.forEach(function(l) {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
